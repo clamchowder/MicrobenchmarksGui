@@ -154,7 +154,7 @@ float __stdcall MeasureBw(uint32_t sizeKb, uint32_t iterations, uint32_t threads
     else if (mode == Avx512Read) { bw_func = avx512_asm_read; }
     else if (mode == Avx512Write) { bw_func = avx512_asm_write; }
     else if (mode == Avx512Add) { bw_func = avx512_asm_add; }
-    else
+    else if (mode != Instr4 && mode != Instr8 && mode != K8Instr4 && mode != Branch16)
     {
         return 3;
     }

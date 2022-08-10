@@ -23,30 +23,33 @@ namespace MicrobenchmarkGui
         public BenchmarkFunctions.TestType testType;
 
         // last run results
-        public List<float> testResultsList;
-        public List<float> floatTestPoints;
+        public string[][] formattedResults;
+        public float[] testResults;
 
         private ListView resultListView;
         private Chart resultChart;
         private MicrobenchmarkForm.SafeSetResultListView setListViewDelegate;
         private MicrobenchmarkForm.SafeSetResultListViewColumns setListViewColumnsDelegate;
         private MicrobenchmarkForm.SafeSetResultsChart setChartDelegate;
-        private MicrobenchmarkForm form;
+        private MicrobenchmarkForm.SafeSetProgressLabel setProgressLabelDelegate;
+        private Label progressLabel;
         private string[] bwCols = { "Data Size", "Bandwidth" };
 
-        public BandwidthRunner(MicrobenchmarkForm.SafeSetResultListView setListViewDelegate, 
-            MicrobenchmarkForm.SafeSetResultListViewColumns setListViewColsDelegate, 
-            MicrobenchmarkForm.SafeSetResultsChart setChartDelegate, 
-            ListView resultListView, 
+        public BandwidthRunner(MicrobenchmarkForm.SafeSetResultListView setListViewDelegate,
+            MicrobenchmarkForm.SafeSetResultListViewColumns setListViewColsDelegate,
+            MicrobenchmarkForm.SafeSetResultsChart setChartDelegate,
+            MicrobenchmarkForm.SafeSetProgressLabel setLabelDelegate,
+            ListView resultListView,
             Chart resultChart,
-            MicrobenchmarkForm form)
+            Label progressLabel)
         {
             this.setListViewColumnsDelegate = setListViewColsDelegate;
             this.setListViewDelegate = setListViewDelegate;
             this.setChartDelegate = setChartDelegate;
+            this.setProgressLabelDelegate = setLabelDelegate;
             this.resultListView = resultListView;
             this.resultChart = resultChart;
-            this.form = form;
+            this.progressLabel = progressLabel;
         }
 
         private uint GetIterationCount(uint testSize, uint threads, uint dataGb)
@@ -66,11 +69,11 @@ namespace MicrobenchmarkGui
         public void StartFullTest(uint threads, bool shared, BenchmarkFunctions.TestType testType, CancellationToken runCancel)
         {
             running = true;
-            testResultsList = new List<float>();
-            floatTestPoints = new List<float>();
+            List<float> testResultsList = new List<float>();
+            List<float> floatTestPoints = new List<float>();
             resultListView.Invoke(setListViewColumnsDelegate, new object[] { bwCols });
             float[] testResults = new float[testSizes.Length];
-            string[][] formattedResults = new string[testSizes.Length][];
+            formattedResults = new string[testSizes.Length][];
 
             for (uint i = 0; i < testSizes.Length; i++)
             {
@@ -90,14 +93,22 @@ namespace MicrobenchmarkGui
                 }
 
                 uint testSize = testSizes[testIdx];
+                progressLabel.Invoke(setProgressLabelDelegate, new object[] { "Testing " + testSize + " KB" });
                 float result = BenchmarkFunctions.MeasureBw(testSize, GetIterationCount(testSize, threads, 512), threads, shared ? 1 : 0, testType);
                 testResults[testIdx] = result;
-                formattedResults[testIdx][1] = string.Format("{0:F2} GB/s", result);
+                if (result != 0) formattedResults[testIdx][1] = string.Format("{0:F2} GB/s", result);
+                else formattedResults[testIdx][1] = "N/A";
                 resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
-                floatTestPoints.Add(testSize);
-                testResultsList.Add(result);
-                resultChart.Invoke(setChartDelegate, new object[] { threads + "T " + testType.ToString(), floatTestPoints.ToArray(), testResults.ToArray() });
+
+                if (result != 0)
+                {
+                    floatTestPoints.Add(testSize);
+                    testResultsList.Add(result);
+                    resultChart.Invoke(setChartDelegate, new object[] { threads + "T " + testType.ToString(), floatTestPoints.ToArray(), testResultsList.ToArray() });
+                }
             }
+
+            progressLabel.Invoke(setProgressLabelDelegate, new object[] { "Run finished" });
 
             running = false;
         }
