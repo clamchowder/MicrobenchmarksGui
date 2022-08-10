@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32630.194
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicrobenchmarkGui", "MicrobenchmarkGui.csproj", "{EA6B854D-FAD1-4212-8953-4F32286E1B57}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BenchmarkDll", "BenchmarkDll.vcxproj", "{2FC1B46D-1C99-4F82-96F4-E99320552268}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EA6B854D-FAD1-4212-8953-4F32286E1B57}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EA6B854D-FAD1-4212-8953-4F32286E1B57}.Debug|x64.Build.0 = Debug|Any CPU
+		{EA6B854D-FAD1-4212-8953-4F32286E1B57}.Release|x64.ActiveCfg = Release|Any CPU
+		{EA6B854D-FAD1-4212-8953-4F32286E1B57}.Release|x64.Build.0 = Release|Any CPU
+		{2FC1B46D-1C99-4F82-96F4-E99320552268}.Debug|x64.ActiveCfg = Debug|x64
+		{2FC1B46D-1C99-4F82-96F4-E99320552268}.Debug|x64.Build.0 = Debug|x64
+		{2FC1B46D-1C99-4F82-96F4-E99320552268}.Release|x64.ActiveCfg = Release|x64
+		{2FC1B46D-1C99-4F82-96F4-E99320552268}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8171071B-2507-4C70-864A-5EBA5237C090}
+	EndGlobalSection
+EndGlobal
