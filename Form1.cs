@@ -287,5 +287,35 @@ namespace MicrobenchmarkGui
             int threadCount = ThreadCountTrackbar.Value;
             ThreadCountLabel.Text = "Threads: " + threadCount;
         }
+
+        private void ExportExcelButton_Click(object sender, EventArgs e)
+        {
+            bool jsFormat = JsFormatRadioButton.Checked;
+            string output = "No run yet";
+            if (bwRunner != null && bwRunner.testResultsList != null && bwRunner.floatTestPoints != null)
+            {
+                float[] testPoints = bwRunner.floatTestPoints.ToArray();
+                float[] testResults = bwRunner.testResultsList.ToArray();
+                if (!jsFormat)
+                {
+                    output = "Region (KB),Bandwidth (GB/s)";
+                }
+                else output = "";
+
+                for (int i = 0; i < testPoints.Length && i < testResults.Length; i++)
+                {
+                    if (!jsFormat)
+                    {
+                        output += "\r\n" + testPoints[i] + "," + testResults[i];
+                    }
+                    else
+                    {
+                        output += testPoints[i] + "," + testResults[i] + " ";
+                    } 
+                }
+            }
+
+            ExportTextBox.Text = output;
+        }
     }
 }

@@ -55,11 +55,17 @@ namespace MicrobenchmarkGui
             this.TestDurationLabel = new System.Windows.Forms.Label();
             this.dataToTransferTextBox = new System.Windows.Forms.TextBox();
             this.gbLabel = new System.Windows.Forms.Label();
+            this.ExportExcelButton = new System.Windows.Forms.Button();
+            this.ExportTextBox = new System.Windows.Forms.TextBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.CsvFormatRadioButton = new System.Windows.Forms.RadioButton();
+            this.JsFormatRadioButton = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.ResultChart)).BeginInit();
             this.ThreadingModeGroupBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.TestMethodGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ThreadCountTrackbar)).BeginInit();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // RunBandwidthTestButton
@@ -103,7 +109,7 @@ namespace MicrobenchmarkGui
             series2.Legend = "Legend1";
             series2.Name = "Series1";
             this.ResultChart.Series.Add(series2);
-            this.ResultChart.Size = new System.Drawing.Size(661, 479);
+            this.ResultChart.Size = new System.Drawing.Size(661, 365);
             this.ResultChart.TabIndex = 6;
             this.ResultChart.Text = "chart1";
             // 
@@ -314,11 +320,66 @@ namespace MicrobenchmarkGui
             this.gbLabel.TabIndex = 21;
             this.gbLabel.Text = "GB";
             // 
+            // ExportExcelButton
+            // 
+            this.ExportExcelButton.Location = new System.Drawing.Point(7, 67);
+            this.ExportExcelButton.Name = "ExportExcelButton";
+            this.ExportExcelButton.Size = new System.Drawing.Size(71, 23);
+            this.ExportExcelButton.TabIndex = 23;
+            this.ExportExcelButton.Text = "Export";
+            this.ExportExcelButton.UseVisualStyleBackColor = true;
+            this.ExportExcelButton.Click += new System.EventHandler(this.ExportExcelButton_Click);
+            // 
+            // ExportTextBox
+            // 
+            this.ExportTextBox.Location = new System.Drawing.Point(565, 404);
+            this.ExportTextBox.Multiline = true;
+            this.ExportTextBox.Name = "ExportTextBox";
+            this.ExportTextBox.Size = new System.Drawing.Size(544, 105);
+            this.ExportTextBox.TabIndex = 25;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.JsFormatRadioButton);
+            this.groupBox2.Controls.Add(this.CsvFormatRadioButton);
+            this.groupBox2.Controls.Add(this.ExportExcelButton);
+            this.groupBox2.Location = new System.Drawing.Point(449, 404);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(110, 105);
+            this.groupBox2.TabIndex = 26;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Export Last Run";
+            // 
+            // CsvFormatRadioButton
+            // 
+            this.CsvFormatRadioButton.AutoSize = true;
+            this.CsvFormatRadioButton.Checked = true;
+            this.CsvFormatRadioButton.Location = new System.Drawing.Point(7, 20);
+            this.CsvFormatRadioButton.Name = "CsvFormatRadioButton";
+            this.CsvFormatRadioButton.Size = new System.Drawing.Size(81, 17);
+            this.CsvFormatRadioButton.TabIndex = 24;
+            this.CsvFormatRadioButton.TabStop = true;
+            this.CsvFormatRadioButton.Text = "CSV Format";
+            this.CsvFormatRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // JsFormatRadioButton
+            // 
+            this.JsFormatRadioButton.AutoSize = true;
+            this.JsFormatRadioButton.Location = new System.Drawing.Point(7, 44);
+            this.JsFormatRadioButton.Name = "JsFormatRadioButton";
+            this.JsFormatRadioButton.Size = new System.Drawing.Size(95, 17);
+            this.JsFormatRadioButton.TabIndex = 25;
+            this.JsFormatRadioButton.TabStop = true;
+            this.JsFormatRadioButton.Text = "CnC JS Format";
+            this.JsFormatRadioButton.UseVisualStyleBackColor = true;
+            // 
             // MicrobenchmarkForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1121, 521);
+            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.ExportTextBox);
             this.Controls.Add(this.gbLabel);
             this.Controls.Add(this.dataToTransferTextBox);
             this.Controls.Add(this.TestDurationLabel);
@@ -344,6 +405,8 @@ namespace MicrobenchmarkGui
             this.TestMethodGroupBox.ResumeLayout(false);
             this.TestMethodGroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ThreadCountTrackbar)).EndInit();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -373,6 +436,11 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.Label TestDurationLabel;
         private System.Windows.Forms.TextBox dataToTransferTextBox;
         private System.Windows.Forms.Label gbLabel;
+        private System.Windows.Forms.Button ExportExcelButton;
+        private System.Windows.Forms.TextBox ExportTextBox;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.RadioButton JsFormatRadioButton;
+        private System.Windows.Forms.RadioButton CsvFormatRadioButton;
     }
 }
 

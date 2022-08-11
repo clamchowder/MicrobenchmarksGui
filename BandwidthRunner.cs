@@ -26,6 +26,16 @@ namespace MicrobenchmarkGui
         public string[][] formattedResults;
         public float[] testResults;
 
+        /// <summary>
+        /// List of test results from last run
+        /// </summary>
+        public List<float> testResultsList;
+
+        /// <summary>
+        /// List of tested points from last run
+        /// </summary>
+        public List<float> floatTestPoints;
+
         private ListView resultListView;
         private Chart resultChart;
         private MicrobenchmarkForm.SafeSetResultListView setListViewDelegate;
@@ -69,8 +79,8 @@ namespace MicrobenchmarkGui
         public void StartFullTest(uint threads, bool shared, BenchmarkFunctions.TestType testType, uint dataGb, CancellationToken runCancel)
         {
             running = true;
-            List<float> testResultsList = new List<float>();
-            List<float> floatTestPoints = new List<float>();
+            testResultsList = new List<float>();
+            floatTestPoints = new List<float>();
             resultListView.Invoke(setListViewColumnsDelegate, new object[] { bwCols });
             float[] testResults = new float[testSizes.Length];
             formattedResults = new string[testSizes.Length][];
