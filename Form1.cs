@@ -188,6 +188,7 @@ namespace MicrobenchmarkGui
                 plottedSeries.Add(seriesName, series);
                 ResultChart.ChartAreas[0].AxisX.IsLogarithmic = true;
                 ResultChart.ChartAreas[0].AxisX.LogarithmBase = 2;
+                ResultChart.ChartAreas[0].AxisX.LabelStyle.Format = "#";
                 ResultChart.Series.Add(series);
             }
             
