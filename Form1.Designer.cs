@@ -29,9 +29,9 @@ namespace MicrobenchmarkGui
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea7 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend7 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.RunBandwidthTestButton = new System.Windows.Forms.Button();
             this.resultListView = new System.Windows.Forms.ListView();
             this.ResultLabel = new System.Windows.Forms.Label();
@@ -52,6 +52,9 @@ namespace MicrobenchmarkGui
             this.SseRadioButton = new System.Windows.Forms.RadioButton();
             this.progressLabel = new System.Windows.Forms.Label();
             this.ThreadCountTrackbar = new System.Windows.Forms.TrackBar();
+            this.TestDurationLabel = new System.Windows.Forms.Label();
+            this.dataToTransferTextBox = new System.Windows.Forms.TextBox();
+            this.gbLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.ResultChart)).BeginInit();
             this.ThreadingModeGroupBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -61,7 +64,7 @@ namespace MicrobenchmarkGui
             // 
             // RunBandwidthTestButton
             // 
-            this.RunBandwidthTestButton.Location = new System.Drawing.Point(15, 415);
+            this.RunBandwidthTestButton.Location = new System.Drawing.Point(12, 486);
             this.RunBandwidthTestButton.Name = "RunBandwidthTestButton";
             this.RunBandwidthTestButton.Size = new System.Drawing.Size(75, 23);
             this.RunBandwidthTestButton.TabIndex = 3;
@@ -74,7 +77,7 @@ namespace MicrobenchmarkGui
             this.resultListView.HideSelection = false;
             this.resultListView.Location = new System.Drawing.Point(247, 30);
             this.resultListView.Name = "resultListView";
-            this.resultListView.Size = new System.Drawing.Size(195, 408);
+            this.resultListView.Size = new System.Drawing.Size(195, 479);
             this.resultListView.TabIndex = 4;
             this.resultListView.UseCompatibleStateImageBehavior = false;
             this.resultListView.View = System.Windows.Forms.View.Details;
@@ -90,17 +93,17 @@ namespace MicrobenchmarkGui
             // 
             // ResultChart
             // 
-            chartArea7.Name = "ChartArea1";
-            this.ResultChart.ChartAreas.Add(chartArea7);
-            legend7.Name = "Legend1";
-            this.ResultChart.Legends.Add(legend7);
+            chartArea2.Name = "ChartArea1";
+            this.ResultChart.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.ResultChart.Legends.Add(legend2);
             this.ResultChart.Location = new System.Drawing.Point(448, 30);
             this.ResultChart.Name = "ResultChart";
-            series7.ChartArea = "ChartArea1";
-            series7.Legend = "Legend1";
-            series7.Name = "Series1";
-            this.ResultChart.Series.Add(series7);
-            this.ResultChart.Size = new System.Drawing.Size(661, 408);
+            series2.ChartArea = "ChartArea1";
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            this.ResultChart.Series.Add(series2);
+            this.ResultChart.Size = new System.Drawing.Size(661, 479);
             this.ResultChart.TabIndex = 6;
             this.ResultChart.Text = "chart1";
             // 
@@ -146,11 +149,11 @@ namespace MicrobenchmarkGui
             this.PrivateRadioButton.Text = "Private array per thread";
             this.PrivateRadioButton.UseVisualStyleBackColor = true;
             // 
-            // CancelButton
+            // CancelRunButton
             // 
             this.CancelRunButton.Enabled = false;
-            this.CancelRunButton.Location = new System.Drawing.Point(96, 415);
-            this.CancelRunButton.Name = "CancelButton";
+            this.CancelRunButton.Location = new System.Drawing.Point(93, 486);
+            this.CancelRunButton.Name = "CancelRunButton";
             this.CancelRunButton.Size = new System.Drawing.Size(75, 23);
             this.CancelRunButton.TabIndex = 10;
             this.CancelRunButton.Text = "Cancel Run";
@@ -282,11 +285,43 @@ namespace MicrobenchmarkGui
             this.ThreadCountTrackbar.Value = 1;
             this.ThreadCountTrackbar.Scroll += new System.EventHandler(this.ThreadCountTrackbar_Scroll);
             // 
+            // TestDurationLabel
+            // 
+            this.TestDurationLabel.AutoSize = true;
+            this.TestDurationLabel.Location = new System.Drawing.Point(12, 404);
+            this.TestDurationLabel.Name = "TestDurationLabel";
+            this.TestDurationLabel.Size = new System.Drawing.Size(87, 13);
+            this.TestDurationLabel.TabIndex = 19;
+            this.TestDurationLabel.Text = "Data to Transfer:";
+            // 
+            // dataToTransferTextBox
+            // 
+            this.dataToTransferTextBox.Location = new System.Drawing.Point(105, 401);
+            this.dataToTransferTextBox.MaxLength = 7;
+            this.dataToTransferTextBox.Name = "dataToTransferTextBox";
+            this.dataToTransferTextBox.Size = new System.Drawing.Size(35, 20);
+            this.dataToTransferTextBox.TabIndex = 20;
+            this.dataToTransferTextBox.Text = "512";
+            this.dataToTransferTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // gbLabel
+            // 
+            this.gbLabel.AutoSize = true;
+            this.gbLabel.Location = new System.Drawing.Point(146, 404);
+            this.gbLabel.Name = "gbLabel";
+            this.gbLabel.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.gbLabel.Size = new System.Drawing.Size(22, 13);
+            this.gbLabel.TabIndex = 21;
+            this.gbLabel.Text = "GB";
+            // 
             // MicrobenchmarkForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1121, 450);
+            this.ClientSize = new System.Drawing.Size(1121, 521);
+            this.Controls.Add(this.gbLabel);
+            this.Controls.Add(this.dataToTransferTextBox);
+            this.Controls.Add(this.TestDurationLabel);
             this.Controls.Add(this.ThreadCountTrackbar);
             this.Controls.Add(this.progressLabel);
             this.Controls.Add(this.TestMethodGroupBox);
@@ -335,6 +370,9 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.RadioButton SseRadioButton;
         private System.Windows.Forms.Label progressLabel;
         private System.Windows.Forms.TrackBar ThreadCountTrackbar;
+        private System.Windows.Forms.Label TestDurationLabel;
+        private System.Windows.Forms.TextBox dataToTransferTextBox;
+        private System.Windows.Forms.Label gbLabel;
     }
 }
 

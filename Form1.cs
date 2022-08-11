@@ -160,6 +160,14 @@ namespace MicrobenchmarkGui
             uint threadCount = (uint)ThreadCountTrackbar.Value;
             bool sharedMode = SharedRadioButton.Checked;
 
+            string dataGbStr = dataToTransferTextBox.Text;
+            uint dataGb;
+            if (!uint.TryParse(dataGbStr, out dataGb))
+            {
+                SetProgressLabel("Data to transfer (" + dataGbStr + ") has to be a whole number");
+                return;
+            }
+
             BenchmarkFunctions.TestType testType = BenchmarkFunctions.TestType.AvxRead;
             if (DataReadRadioButton.Checked)
             {
@@ -195,7 +203,7 @@ namespace MicrobenchmarkGui
             }
 
             runCancel = new CancellationTokenSource();
-            bwTask = Task.Run(() => bwRunner.StartFullTest(threadCount, sharedMode, testType, runCancel.Token));
+            bwTask = Task.Run(() => bwRunner.StartFullTest(threadCount, sharedMode, testType, dataGb, runCancel.Token));
             CancelRunButton.Enabled = true;
             Task.Run(() => HandleBwThreadCompletion(bwTask, SetCancelButtonState));
         }

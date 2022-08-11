@@ -66,7 +66,7 @@ namespace MicrobenchmarkGui
         }
 
         // Run through test sizes, meant to be run in a background thread
-        public void StartFullTest(uint threads, bool shared, BenchmarkFunctions.TestType testType, CancellationToken runCancel)
+        public void StartFullTest(uint threads, bool shared, BenchmarkFunctions.TestType testType, uint dataGb, CancellationToken runCancel)
         {
             running = true;
             List<float> testResultsList = new List<float>();
@@ -94,7 +94,7 @@ namespace MicrobenchmarkGui
 
                 uint testSize = testSizes[testIdx];
                 progressLabel.Invoke(setProgressLabelDelegate, new object[] { "Testing " + testSize + " KB" });
-                float result = BenchmarkFunctions.MeasureBw(testSize, GetIterationCount(testSize, threads, 512), threads, shared ? 1 : 0, testType);
+                float result = BenchmarkFunctions.MeasureBw(testSize, GetIterationCount(testSize, threads, dataGb), threads, shared ? 1 : 0, testType);
                 testResults[testIdx] = result;
                 if (result != 0) formattedResults[testIdx][1] = string.Format("{0:F2} GB/s", result);
                 else formattedResults[testIdx][1] = "N/A";

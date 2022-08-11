@@ -15,6 +15,8 @@ extern float avx512_asm_write(void* arr, uint64_t arr_length, uint64_t iteration
 extern float avx512_asm_add(void* arr, uint64_t arr_length, uint64_t iterations);
 float (*bw_func)(void*, uint64_t, uint64_t) = sse_asm_read;
 
+float __fastcall instr_read(void* arr, uint64_t arr_length, uint64_t iterations);
+
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved
@@ -154,9 +156,13 @@ float __stdcall MeasureBw(uint32_t sizeKb, uint32_t iterations, uint32_t threads
     else if (mode == Avx512Read) { bw_func = avx512_asm_read; }
     else if (mode == Avx512Write) { bw_func = avx512_asm_write; }
     else if (mode == Avx512Add) { bw_func = avx512_asm_add; }
-    else if (mode != Instr4 && mode != Instr8 && mode != K8Instr4 && mode != Branch16)
+    else if (mode == Instr4 || mode == Instr8 || mode == K8Instr4 || mode == Branch16)
     {
-        return 3;
+        bw_func = instr_read;
+    }
+    else
+    {
+        return -3;
     }
 
     // make array and fill it with something
@@ -237,4 +243,13 @@ float __stdcall MeasureBw(uint32_t sizeKb, uint32_t iterations, uint32_t threads
 
     free(threadData);
     return bw;
+}
+
+float __fastcall instr_read(void* arr, uint64_t arr_length, uint64_t iterations)
+{
+    void (*nopfunc)(uint64_t);
+    nopfunc = (void(*)(uint64_t))arr;
+    int iterIdx;
+    for (iterIdx = 0; iterIdx < iterations; iterIdx++) nopfunc(iterations);
+    return iterIdx;
 }
