@@ -47,6 +47,7 @@ namespace MicrobenchmarkGui
             this.DataWriteRadioButton = new System.Windows.Forms.RadioButton();
             this.DataReadRadioButton = new System.Windows.Forms.RadioButton();
             this.TestMethodGroupBox = new System.Windows.Forms.GroupBox();
+            this.MmxRadioButton = new System.Windows.Forms.RadioButton();
             this.Avx512RadioButton = new System.Windows.Forms.RadioButton();
             this.AvxRadioButton = new System.Windows.Forms.RadioButton();
             this.SseRadioButton = new System.Windows.Forms.RadioButton();
@@ -60,13 +61,24 @@ namespace MicrobenchmarkGui
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.JsFormatRadioButton = new System.Windows.Forms.RadioButton();
             this.CsvFormatRadioButton = new System.Windows.Forms.RadioButton();
-            this.MmxRadioButton = new System.Windows.Forms.RadioButton();
+            this.ClearChartButton = new System.Windows.Forms.Button();
+            this.ChartControlsGroupBox = new System.Windows.Forms.GroupBox();
+            this.RandomizeNextColorRadioButton = new System.Windows.Forms.RadioButton();
+            this.SpecifyNextColorRadioButton = new System.Windows.Forms.RadioButton();
+            this.RLabel = new System.Windows.Forms.Label();
+            this.ColorRBox = new System.Windows.Forms.TextBox();
+            this.GLabel = new System.Windows.Forms.Label();
+            this.ColorGBox = new System.Windows.Forms.TextBox();
+            this.ColorBBox = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.DefaultNextColorRadioButton = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.ResultChart)).BeginInit();
             this.ThreadingModeGroupBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.TestMethodGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ThreadCountTrackbar)).BeginInit();
             this.groupBox2.SuspendLayout();
+            this.ChartControlsGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // RunBandwidthTestButton
@@ -81,6 +93,8 @@ namespace MicrobenchmarkGui
             // 
             // resultListView
             // 
+            this.resultListView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.resultListView.HideSelection = false;
             this.resultListView.Location = new System.Drawing.Point(247, 30);
             this.resultListView.Name = "resultListView";
@@ -100,17 +114,20 @@ namespace MicrobenchmarkGui
             // 
             // ResultChart
             // 
+            this.ResultChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             chartArea2.Name = "ChartArea1";
             this.ResultChart.ChartAreas.Add(chartArea2);
             legend2.Name = "Legend1";
             this.ResultChart.Legends.Add(legend2);
-            this.ResultChart.Location = new System.Drawing.Point(448, 30);
+            this.ResultChart.Location = new System.Drawing.Point(448, 141);
             this.ResultChart.Name = "ResultChart";
             series2.ChartArea = "ChartArea1";
             series2.Legend = "Legend1";
             series2.Name = "Series1";
             this.ResultChart.Series.Add(series2);
-            this.ResultChart.Size = new System.Drawing.Size(661, 365);
+            this.ResultChart.Size = new System.Drawing.Size(661, 368);
             this.ResultChart.TabIndex = 6;
             this.ResultChart.Text = "chart1";
             // 
@@ -240,6 +257,17 @@ namespace MicrobenchmarkGui
             this.TestMethodGroupBox.TabStop = false;
             this.TestMethodGroupBox.Text = "Test Method";
             // 
+            // MmxRadioButton
+            // 
+            this.MmxRadioButton.AutoSize = true;
+            this.MmxRadioButton.Location = new System.Drawing.Point(7, 93);
+            this.MmxRadioButton.Name = "MmxRadioButton";
+            this.MmxRadioButton.Size = new System.Drawing.Size(85, 17);
+            this.MmxRadioButton.TabIndex = 3;
+            this.MmxRadioButton.TabStop = true;
+            this.MmxRadioButton.Text = "MMX (64-bit)";
+            this.MmxRadioButton.UseVisualStyleBackColor = true;
+            // 
             // Avx512RadioButton
             // 
             this.Avx512RadioButton.AutoSize = true;
@@ -334,10 +362,12 @@ namespace MicrobenchmarkGui
             // 
             // ExportTextBox
             // 
-            this.ExportTextBox.Location = new System.Drawing.Point(565, 404);
+            this.ExportTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ExportTextBox.Location = new System.Drawing.Point(836, 12);
             this.ExportTextBox.Multiline = true;
             this.ExportTextBox.Name = "ExportTextBox";
-            this.ExportTextBox.Size = new System.Drawing.Size(544, 105);
+            this.ExportTextBox.Size = new System.Drawing.Size(273, 123);
             this.ExportTextBox.TabIndex = 25;
             // 
             // groupBox2
@@ -345,9 +375,9 @@ namespace MicrobenchmarkGui
             this.groupBox2.Controls.Add(this.JsFormatRadioButton);
             this.groupBox2.Controls.Add(this.CsvFormatRadioButton);
             this.groupBox2.Controls.Add(this.ExportExcelButton);
-            this.groupBox2.Location = new System.Drawing.Point(449, 404);
+            this.groupBox2.Location = new System.Drawing.Point(720, 12);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(110, 105);
+            this.groupBox2.Size = new System.Drawing.Size(110, 123);
             this.groupBox2.TabIndex = 26;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Export Last Run";
@@ -367,7 +397,7 @@ namespace MicrobenchmarkGui
             // 
             this.CsvFormatRadioButton.AutoSize = true;
             this.CsvFormatRadioButton.Checked = true;
-            this.CsvFormatRadioButton.Location = new System.Drawing.Point(7, 20);
+            this.CsvFormatRadioButton.Location = new System.Drawing.Point(7, 21);
             this.CsvFormatRadioButton.Name = "CsvFormatRadioButton";
             this.CsvFormatRadioButton.Size = new System.Drawing.Size(81, 17);
             this.CsvFormatRadioButton.TabIndex = 24;
@@ -375,23 +405,128 @@ namespace MicrobenchmarkGui
             this.CsvFormatRadioButton.Text = "CSV Format";
             this.CsvFormatRadioButton.UseVisualStyleBackColor = true;
             // 
-            // MmxRadioButton
+            // ClearChartButton
             // 
-            this.MmxRadioButton.AutoSize = true;
-            this.MmxRadioButton.Location = new System.Drawing.Point(7, 93);
-            this.MmxRadioButton.Name = "MmxRadioButton";
-            this.MmxRadioButton.Size = new System.Drawing.Size(85, 17);
-            this.MmxRadioButton.TabIndex = 3;
-            this.MmxRadioButton.TabStop = true;
-            this.MmxRadioButton.Text = "MMX (64-bit)";
-            this.MmxRadioButton.UseVisualStyleBackColor = true;
-            this.MmxRadioButton.CheckedChanged += new System.EventHandler(this.MmxRadioButton_CheckedChanged);
+            this.ClearChartButton.Location = new System.Drawing.Point(7, 94);
+            this.ClearChartButton.Name = "ClearChartButton";
+            this.ClearChartButton.Size = new System.Drawing.Size(75, 23);
+            this.ClearChartButton.TabIndex = 27;
+            this.ClearChartButton.Text = "Clear Chart";
+            this.ClearChartButton.UseVisualStyleBackColor = true;
+            this.ClearChartButton.Click += new System.EventHandler(this.ClearChartButton_Click);
+            // 
+            // ChartControlsGroupBox
+            // 
+            this.ChartControlsGroupBox.Controls.Add(this.DefaultNextColorRadioButton);
+            this.ChartControlsGroupBox.Controls.Add(this.label1);
+            this.ChartControlsGroupBox.Controls.Add(this.ColorBBox);
+            this.ChartControlsGroupBox.Controls.Add(this.ColorGBox);
+            this.ChartControlsGroupBox.Controls.Add(this.GLabel);
+            this.ChartControlsGroupBox.Controls.Add(this.ColorRBox);
+            this.ChartControlsGroupBox.Controls.Add(this.RLabel);
+            this.ChartControlsGroupBox.Controls.Add(this.SpecifyNextColorRadioButton);
+            this.ChartControlsGroupBox.Controls.Add(this.RandomizeNextColorRadioButton);
+            this.ChartControlsGroupBox.Controls.Add(this.ClearChartButton);
+            this.ChartControlsGroupBox.Location = new System.Drawing.Point(449, 12);
+            this.ChartControlsGroupBox.Name = "ChartControlsGroupBox";
+            this.ChartControlsGroupBox.Size = new System.Drawing.Size(265, 123);
+            this.ChartControlsGroupBox.TabIndex = 28;
+            this.ChartControlsGroupBox.TabStop = false;
+            this.ChartControlsGroupBox.Text = "Chart Controls";
+            // 
+            // RandomizeNextColorRadioButton
+            // 
+            this.RandomizeNextColorRadioButton.AutoSize = true;
+            this.RandomizeNextColorRadioButton.Location = new System.Drawing.Point(7, 20);
+            this.RandomizeNextColorRadioButton.Name = "RandomizeNextColorRadioButton";
+            this.RandomizeNextColorRadioButton.Size = new System.Drawing.Size(117, 17);
+            this.RandomizeNextColorRadioButton.TabIndex = 28;
+            this.RandomizeNextColorRadioButton.Text = "Random Next Color";
+            this.RandomizeNextColorRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // specifyNextColorRadioButton
+            // 
+            this.SpecifyNextColorRadioButton.AutoSize = true;
+            this.SpecifyNextColorRadioButton.Location = new System.Drawing.Point(7, 44);
+            this.SpecifyNextColorRadioButton.Name = "specifyNextColorRadioButton";
+            this.SpecifyNextColorRadioButton.Size = new System.Drawing.Size(112, 17);
+            this.SpecifyNextColorRadioButton.TabIndex = 29;
+            this.SpecifyNextColorRadioButton.Text = "Specify Next Color";
+            this.SpecifyNextColorRadioButton.UseVisualStyleBackColor = true;
+            this.SpecifyNextColorRadioButton.CheckedChanged += new System.EventHandler(this.specifyNextColorRadioButton_CheckedChanged);
+            // 
+            // RLabel
+            // 
+            this.RLabel.AutoSize = true;
+            this.RLabel.Location = new System.Drawing.Point(145, 16);
+            this.RLabel.Name = "RLabel";
+            this.RLabel.Size = new System.Drawing.Size(27, 13);
+            this.RLabel.TabIndex = 30;
+            this.RLabel.Text = "Red";
+            // 
+            // ColorRBox
+            // 
+            this.ColorRBox.Enabled = false;
+            this.ColorRBox.Location = new System.Drawing.Point(195, 13);
+            this.ColorRBox.Name = "ColorRBox";
+            this.ColorRBox.Size = new System.Drawing.Size(24, 20);
+            this.ColorRBox.TabIndex = 31;
+            this.ColorRBox.Text = "50";
+            // 
+            // GLabel
+            // 
+            this.GLabel.AutoSize = true;
+            this.GLabel.Location = new System.Drawing.Point(145, 42);
+            this.GLabel.Name = "GLabel";
+            this.GLabel.Size = new System.Drawing.Size(36, 13);
+            this.GLabel.TabIndex = 32;
+            this.GLabel.Text = "Green";
+            // 
+            // ColorGBox
+            // 
+            this.ColorGBox.Enabled = false;
+            this.ColorGBox.Location = new System.Drawing.Point(195, 39);
+            this.ColorGBox.Name = "ColorGBox";
+            this.ColorGBox.Size = new System.Drawing.Size(24, 20);
+            this.ColorGBox.TabIndex = 33;
+            this.ColorGBox.Text = "50";
+            // 
+            // ColorBBox
+            // 
+            this.ColorBBox.Enabled = false;
+            this.ColorBBox.Location = new System.Drawing.Point(195, 65);
+            this.ColorBBox.Name = "ColorBBox";
+            this.ColorBBox.Size = new System.Drawing.Size(24, 20);
+            this.ColorBBox.TabIndex = 34;
+            this.ColorBBox.Text = "50";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(145, 68);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(28, 13);
+            this.label1.TabIndex = 35;
+            this.label1.Text = "Blue";
+            // 
+            // DefaultNextColorRadioButton
+            // 
+            this.DefaultNextColorRadioButton.AutoSize = true;
+            this.DefaultNextColorRadioButton.Checked = true;
+            this.DefaultNextColorRadioButton.Location = new System.Drawing.Point(7, 68);
+            this.DefaultNextColorRadioButton.Name = "DefaultNextColorRadioButton";
+            this.DefaultNextColorRadioButton.Size = new System.Drawing.Size(111, 17);
+            this.DefaultNextColorRadioButton.TabIndex = 36;
+            this.DefaultNextColorRadioButton.TabStop = true;
+            this.DefaultNextColorRadioButton.Text = "Default Next Color";
+            this.DefaultNextColorRadioButton.UseVisualStyleBackColor = true;
             // 
             // MicrobenchmarkForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1121, 521);
+            this.Controls.Add(this.ChartControlsGroupBox);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.ExportTextBox);
             this.Controls.Add(this.gbLabel);
@@ -421,6 +556,8 @@ namespace MicrobenchmarkGui
             ((System.ComponentModel.ISupportInitialize)(this.ThreadCountTrackbar)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.ChartControlsGroupBox.ResumeLayout(false);
+            this.ChartControlsGroupBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -456,6 +593,17 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.RadioButton JsFormatRadioButton;
         private System.Windows.Forms.RadioButton CsvFormatRadioButton;
         private System.Windows.Forms.RadioButton MmxRadioButton;
+        private System.Windows.Forms.Button ClearChartButton;
+        private System.Windows.Forms.GroupBox ChartControlsGroupBox;
+        private System.Windows.Forms.TextBox ColorRBox;
+        private System.Windows.Forms.Label RLabel;
+        private System.Windows.Forms.RadioButton SpecifyNextColorRadioButton;
+        private System.Windows.Forms.RadioButton RandomizeNextColorRadioButton;
+        private System.Windows.Forms.RadioButton DefaultNextColorRadioButton;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox ColorBBox;
+        private System.Windows.Forms.TextBox ColorGBox;
+        private System.Windows.Forms.Label GLabel;
     }
 }
 

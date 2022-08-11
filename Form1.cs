@@ -17,6 +17,10 @@ namespace MicrobenchmarkGui
         private RadioButton EightByteNops;
         private RadioButton BranchPer16B;
         private RadioButton K8FourByteNops;
+        private Random randomThings;
+
+        private bool avxSupported;
+        private bool avx512Supported;
 
         public MicrobenchmarkForm()
         {
@@ -50,12 +54,46 @@ namespace MicrobenchmarkGui
 
             if (BenchmarkFunctions.CheckAvxSupport() != 1)
             {
-                AvxRadioButton.Enabled = false;
+                avxSupported = false;
+            }
+            else
+            {
+                avxSupported = true;
             }
 
             if (BenchmarkFunctions.CheckAvx512Support() != 1)
             {
-                Avx512RadioButton.Enabled = false;
+                avx512Supported = false;
+            }
+            else
+            {
+                avx512Supported = true;
+            }
+
+            randomThings = new Random();
+            SetDefaultMethodState();
+        }
+
+        public void SetDefaultMethodState()
+        {
+            SseRadioButton.Checked = false;
+            AvxRadioButton.Checked = false;
+            Avx512RadioButton.Checked = false;
+
+            if (!avx512Supported) Avx512RadioButton.Enabled = false;
+            if (!avxSupported) AvxRadioButton.Enabled = false;
+
+            if (avx512Supported)
+            {
+                Avx512RadioButton.Checked = true;
+            }
+            else if (avxSupported)
+            {
+                AvxRadioButton.Checked = true;
+            }
+            else
+            {
+                SseRadioButton.Checked = true;
             }
         }
 
@@ -110,6 +148,9 @@ namespace MicrobenchmarkGui
         // Make sure we don't reduce the max when a new test is run
         private double chartMax = 0;
 
+        // Somehow can't retrieve radio button value?
+        private bool specifyColor = false;
+
         public void SetResultChart(string seriesName, float[] testPoints, float[] testResults)
         {
             Series series;
@@ -117,6 +158,33 @@ namespace MicrobenchmarkGui
             {
                 series = new Series(seriesName);
                 series.ChartType = SeriesChartType.Line;
+                if (RandomizeNextColorRadioButton.Checked)
+                {
+                    byte[] randomBytes = new byte[3];
+                    randomThings.NextBytes(randomBytes);
+                    series.Color = Color.FromArgb(randomBytes[0], randomBytes[1], randomBytes[2]);
+                }
+                
+                if (specifyColor)
+                {
+                    int red, green, blue;
+                    bool parseSucceeded = true;
+                    parseSucceeded &= int.TryParse(ColorRBox.Text, out red);
+                    parseSucceeded &= int.TryParse(ColorGBox.Text, out green);
+                    parseSucceeded &= int.TryParse(ColorBBox.Text, out blue);
+                    parseSucceeded &= (red < 255 && red > 0);
+                    parseSucceeded &= (green < 255 && green > 0);
+                    parseSucceeded &= (blue < 255 && blue > 0);
+                    if (!parseSucceeded)
+                    {
+                        SetProgressLabel("Red/Green/Blue values must be numbers between 0-255");
+                    }
+                    else
+                    {
+                        series.Color = Color.FromArgb(red, green, blue);
+                    }
+                }
+
                 plottedSeries.Add(seriesName, series);
                 ResultChart.ChartAreas[0].AxisX.IsLogarithmic = true;
                 ResultChart.ChartAreas[0].AxisX.LogarithmBase = 2;
@@ -265,6 +333,7 @@ namespace MicrobenchmarkGui
                 this.TestMethodGroupBox.Controls.Remove(this.Avx512RadioButton);
                 this.TestMethodGroupBox.Controls.Remove(this.AvxRadioButton);
                 this.TestMethodGroupBox.Controls.Remove(this.SseRadioButton);
+                this.TestMethodGroupBox.Controls.Remove(this.MmxRadioButton);
                 this.TestMethodGroupBox.Controls.Add(this.FourByteNops);
                 this.TestMethodGroupBox.Controls.Add(this.EightByteNops);
                 this.TestMethodGroupBox.Controls.Add(this.K8FourByteNops);
@@ -287,10 +356,8 @@ namespace MicrobenchmarkGui
                 this.TestMethodGroupBox.Controls.Add(this.AvxRadioButton);
                 this.TestMethodGroupBox.Controls.Add(this.SseRadioButton);
                 this.TestMethodGroupBox.Controls.Add(this.MmxRadioButton);
+                SetDefaultMethodState();
                 this.TestMethodGroupBox.PerformLayout();
-                this.AvxRadioButton.Checked = true;
-                this.Avx512RadioButton.Checked = false;
-                this.SseRadioButton.Checked = false;
                 methodSetForInstr = false;
             }
         }
@@ -336,9 +403,30 @@ namespace MicrobenchmarkGui
             ExportTextBox.Text = output;
         }
 
-        private void MmxRadioButton_CheckedChanged(object sender, EventArgs e)
+        private void ClearChartButton_Click(object sender, EventArgs e)
         {
+            ResultChart.DataSource = null;
+            ResultChart.Series.Clear();
+            ResultChart.ChartAreas[0].AxisX.IsLogarithmic = false;
+            plottedSeries.Clear();
+        }
 
+        private void specifyNextColorRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            if (SpecifyNextColorRadioButton.Checked)
+            {
+                ColorRBox.Enabled = true;
+                ColorGBox.Enabled = true;
+                ColorBBox.Enabled = true;
+                specifyColor = true;
+            }
+            else
+            {
+                ColorRBox.Enabled = false;
+                ColorGBox.Enabled = false;
+                ColorBBox.Enabled = false;
+                specifyColor = false;
+            }
         }
     }
 }
