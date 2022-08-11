@@ -40,6 +40,24 @@ float __stdcall test(int size)
     return (float)size + 0.1f;
 }
 
+__declspec(dllexport) int __stdcall CheckAvxSupport();
+int __stdcall CheckAvxSupport()
+{
+    int cpuid_data[4];
+    __cpuidex(cpuid_data, 1, 0);
+    if (cpuid_data[2] & (1UL << 28)) return 1;
+    return 0;
+}
+
+__declspec(dllexport) int __stdcall CheckAvx512Support();
+int __stdcall CheckAvx512Support()
+{
+    int cpuid_data[4];
+    __cpuidex(cpuid_data, 7, 0);
+    if (cpuid_data[1] & (1UL << 16)) return 1;
+    return 0;
+}
+
 enum TestType { 
     None = 0,
     SseRead = 1,

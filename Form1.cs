@@ -47,6 +47,16 @@ namespace MicrobenchmarkGui
 
             ThreadCountTrackbar.Maximum = Environment.ProcessorCount;
             ResultChart.Titles.Add("Result Plot");
+
+            if (BenchmarkFunctions.CheckAvxSupport() != 1)
+            {
+                AvxRadioButton.Enabled = false;
+            }
+
+            if (BenchmarkFunctions.CheckAvx512Support() != 1)
+            {
+                Avx512RadioButton.Enabled = false;
+            }
         }
 
         public delegate void SafeSetResultListViewColumns(string[] cols);
