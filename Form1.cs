@@ -184,18 +184,25 @@ namespace MicrobenchmarkGui
                 if (SseRadioButton.Checked) testType = BenchmarkFunctions.TestType.SseRead;
                 else if (AvxRadioButton.Checked) testType = BenchmarkFunctions.TestType.AvxRead;
                 else if (Avx512RadioButton.Checked) testType = BenchmarkFunctions.TestType.Avx512Read;
+                else if (MmxRadioButton.Checked) testType = BenchmarkFunctions.TestType.MmxRead;
             }
             else if (DataWriteRadioButton.Checked)
             {
                 if (SseRadioButton.Checked) testType = BenchmarkFunctions.TestType.SseWrite;
                 else if (AvxRadioButton.Checked) testType = BenchmarkFunctions.TestType.AvxWrite;
                 else if (Avx512RadioButton.Checked) testType = BenchmarkFunctions.TestType.Avx512Write;
+                else if (MmxRadioButton.Checked) testType = BenchmarkFunctions.TestType.MmxWrite;
             }
             else if (DataAddRadioButton.Checked)
             {
                 if (SseRadioButton.Checked) testType = BenchmarkFunctions.TestType.SseAdd;
                 else if (AvxRadioButton.Checked) testType = BenchmarkFunctions.TestType.AvxAdd;
                 else if (Avx512RadioButton.Checked) testType = BenchmarkFunctions.TestType.Avx512Add;
+                else if (MmxRadioButton.Checked)
+                {
+                    SetProgressLabel("Sorry no FP support in MMX. And x87 is scary so nope.");
+                    return;
+                }
             }
 
             if (InstructionFetchRadioButton.Checked)
@@ -279,6 +286,7 @@ namespace MicrobenchmarkGui
                 this.TestMethodGroupBox.Controls.Add(this.Avx512RadioButton);
                 this.TestMethodGroupBox.Controls.Add(this.AvxRadioButton);
                 this.TestMethodGroupBox.Controls.Add(this.SseRadioButton);
+                this.TestMethodGroupBox.Controls.Add(this.MmxRadioButton);
                 this.TestMethodGroupBox.PerformLayout();
                 this.AvxRadioButton.Checked = true;
                 this.Avx512RadioButton.Checked = false;
@@ -326,6 +334,11 @@ namespace MicrobenchmarkGui
             }
 
             ExportTextBox.Text = output;
+        }
+
+        private void MmxRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

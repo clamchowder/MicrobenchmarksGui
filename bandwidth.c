@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "BenchmarkDllCommon.h"
 
+extern float mmx_asm_read(void* arr, uint64_t arr_length, uint64_t iterations);
+extern float mmx_asm_write(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float sse_asm_read(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float sse_asm_write(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float sse_asm_copy(void* arr, uint64_t arr_length, uint64_t iterations);
@@ -75,7 +77,9 @@ enum TestType {
     Instr4 = 13, 
     Instr8 = 14, 
     K8Instr4 = 15, 
-    Branch16 = 16 
+    Branch16 = 16,
+    MmxRead = 17,
+    MmxWrite = 18
 };
 
 typedef struct BandwidthTestThreadData {
@@ -174,6 +178,8 @@ float __stdcall MeasureBw(uint32_t sizeKb, uint32_t iterations, uint32_t threads
     else if (mode == Avx512Read) { bw_func = avx512_asm_read; }
     else if (mode == Avx512Write) { bw_func = avx512_asm_write; }
     else if (mode == Avx512Add) { bw_func = avx512_asm_add; }
+    else if (mode == MmxRead) { bw_func = mmx_asm_read; }
+    else if (mode == MmxWrite) { bw_func = mmx_asm_write; }
     else if (mode == Instr4 || mode == Instr8 || mode == K8Instr4 || mode == Branch16)
     {
         bw_func = instr_read;

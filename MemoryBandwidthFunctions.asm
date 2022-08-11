@@ -2,6 +2,8 @@ section .text
 
 bits 64
 
+global mmx_asm_read
+global mmx_asm_write
 global sse_asm_read
 global sse_asm_copy
 global sse_asm_write
@@ -788,6 +790,201 @@ sse_add_iteration_count:
   jnz sse_add_pass_loop ; skip iteration decrement if we're not back to start
   sub r8, 2
   jg sse_add_pass_loop
+  pop r14
+  pop r15
+  pop rbx
+  pop rdi
+  pop rsi
+  ret
+
+mmx_asm_read:
+  push rsi
+  push rdi
+  push rbx
+  push r15
+  push r14
+  mov r15, 256 ; load in blocks of 256 bytes
+  sub rdx, 128 ; last iteration: rsi == rdx. rsi > rdx = break
+  xor r9, r9
+  xor rsi, rsi
+  xor rbx, rbx
+  lea rdi, [rcx + rsi * 4]
+  mov r14, rdi
+mmx_read_pass_loop:
+  movq mm0, [rdi]
+  movq mm1, [rdi + 8]
+  movq mm2, [rdi + 16]
+  movq mm3, [rdi + 32]
+  movq mm5, [rdi + 40]
+  movq mm6, [rdi + 48]
+  movq mm7, [rdi + 56]
+  movq mm0, [rdi + 64]
+  movq mm1, [rdi + 72]
+  movq mm2, [rdi + 80]
+  movq mm3, [rdi + 88]
+  movq mm4, [rdi + 96]
+  movq mm5, [rdi + 104]
+  movq mm6, [rdi + 112]
+  movq mm7, [rdi + 120]
+  movq mm0, [rdi + 128]
+  movq mm1, [rdi + 136]
+  movq mm2, [rdi + 144]
+  movq mm3, [rdi + 152]
+  movq mm4, [rdi + 160]
+  movq mm5, [rdi + 168]
+  movq mm6, [rdi + 176]
+  movq mm7, [rdi + 184]
+  movq mm0, [rdi + 192]
+  movq mm1, [rdi + 200]
+  movq mm2, [rdi + 208]
+  movq mm3, [rdi + 216]
+  movq mm4, [rdi + 224]
+  movq mm5, [rdi + 232]
+  movq mm6, [rdi + 240]
+  movq mm7, [rdi + 248]
+
+  add rsi, 64
+  add rdi, r15
+  movq mm0, [rdi]
+  movq mm1, [rdi + 8]
+  movq mm2, [rdi + 16]
+  movq mm3, [rdi + 32]
+  movq mm5, [rdi + 40]
+  movq mm6, [rdi + 48]
+  movq mm7, [rdi + 56]
+  movq mm0, [rdi + 64]
+  movq mm1, [rdi + 72]
+  movq mm2, [rdi + 80]
+  movq mm3, [rdi + 88]
+  movq mm4, [rdi + 96]
+  movq mm5, [rdi + 104]
+  movq mm6, [rdi + 112]
+  movq mm7, [rdi + 120]
+  movq mm0, [rdi + 128]
+  movq mm1, [rdi + 136]
+  movq mm2, [rdi + 144]
+  movq mm3, [rdi + 152]
+  movq mm4, [rdi + 160]
+  movq mm5, [rdi + 168]
+  movq mm6, [rdi + 176]
+  movq mm7, [rdi + 184]
+  movq mm0, [rdi + 192]
+  movq mm1, [rdi + 200]
+  movq mm2, [rdi + 208]
+  movq mm3, [rdi + 216]
+  movq mm4, [rdi + 224]
+  movq mm5, [rdi + 232]
+  movq mm6, [rdi + 240]
+  movq mm7, [rdi + 248]
+  add rsi, 64
+  add rdi, r15
+  cmp rdx, rsi
+  jge mmx_test_iteration_count
+  mov rsi, rbx
+  lea rdi, [rcx + rsi * 4]  ; back to start
+mmx_test_iteration_count:
+  cmp r9, rsi
+  jnz mmx_read_pass_loop ; skip iteration decrement if we're not back to start
+  dec r8
+  jnz mmx_read_pass_loop
+  pop r14
+  pop r15
+  pop rbx
+  pop rdi
+  pop rsi
+  ret
+
+mmx_asm_write:
+  push rsi
+  push rdi
+  push rbx
+  push r15
+  push r14
+  mov r15, 256 ; load in blocks of 256 bytes
+  sub rdx, 128 ; last iteration: rsi == rdx. rsi > rdx = break
+  xor r9, r9
+  xor rsi, rsi
+  xor rbx, rbx
+  lea rdi, [rcx + rsi * 4]
+  mov r14, rdi
+  movq mm0, [rdi]
+mmx_write_pass_loop:
+  movq [rdi], mm0
+  movq [rdi + 8], mm0
+  movq [rdi + 16], mm0
+  movq [rdi + 32], mm0
+  movq [rdi + 40], mm0
+  movq [rdi + 48], mm0
+  movq [rdi + 56], mm0
+  movq [rdi + 64], mm0
+  movq [rdi + 72], mm0
+  movq [rdi + 80], mm0
+  movq [rdi + 88], mm0
+  movq [rdi + 96], mm0
+  movq [rdi + 104], mm0
+  movq [rdi + 112], mm0
+  movq [rdi + 120], mm0
+  movq [rdi + 128], mm0
+  movq [rdi + 136], mm0
+  movq [rdi + 144], mm0
+  movq [rdi + 152], mm0
+  movq [rdi + 160], mm0
+  movq [rdi + 168], mm0
+  movq [rdi + 176], mm0
+  movq [rdi + 184], mm0
+  movq [rdi + 192], mm0
+  movq [rdi + 200], mm0
+  movq [rdi + 208], mm0
+  movq [rdi + 216], mm0
+  movq [rdi + 224], mm0
+  movq [rdi + 232], mm0
+  movq [rdi + 240], mm0
+  movq [rdi + 248], mm0
+
+  add rsi, 64
+  add rdi, r15
+  movq [rdi], mm0
+  movq [rdi + 8], mm0
+  movq [rdi + 16], mm0
+  movq [rdi + 32], mm0
+  movq [rdi + 40], mm0
+  movq [rdi + 48], mm0
+  movq [rdi + 56], mm0
+  movq [rdi + 64], mm0
+  movq [rdi + 72], mm0
+  movq [rdi + 80], mm0
+  movq [rdi + 88], mm0
+  movq [rdi + 96], mm0
+  movq [rdi + 104], mm0
+  movq [rdi + 112], mm0
+  movq [rdi + 120], mm0
+  movq [rdi + 128], mm0
+  movq [rdi + 136], mm0
+  movq [rdi + 144], mm0
+  movq [rdi + 152], mm0
+  movq [rdi + 160], mm0
+  movq [rdi + 168], mm0
+  movq [rdi + 176], mm0
+  movq [rdi + 184], mm0
+  movq [rdi + 192], mm0
+  movq [rdi + 200], mm0
+  movq [rdi + 208], mm0
+  movq [rdi + 216], mm0
+  movq [rdi + 224], mm0
+  movq [rdi + 232], mm0
+  movq [rdi + 240], mm0
+  movq [rdi + 248], mm0
+  add rsi, 64
+  add rdi, r15
+  cmp rdx, rsi
+  jge mmx_write_iteration_count
+  mov rsi, rbx
+  lea rdi, [rcx + rsi * 4]  ; back to start
+mmx_write_iteration_count:
+  cmp r9, rsi
+  jnz mmx_write_pass_loop ; skip iteration decrement if we're not back to start
+  dec r8
+  jnz mmx_write_pass_loop
   pop r14
   pop r15
   pop rbx

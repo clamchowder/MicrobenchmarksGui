@@ -58,8 +58,9 @@ namespace MicrobenchmarkGui
             this.ExportExcelButton = new System.Windows.Forms.Button();
             this.ExportTextBox = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.CsvFormatRadioButton = new System.Windows.Forms.RadioButton();
             this.JsFormatRadioButton = new System.Windows.Forms.RadioButton();
+            this.CsvFormatRadioButton = new System.Windows.Forms.RadioButton();
+            this.MmxRadioButton = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.ResultChart)).BeginInit();
             this.ThreadingModeGroupBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -228,6 +229,7 @@ namespace MicrobenchmarkGui
             // 
             // TestMethodGroupBox
             // 
+            this.TestMethodGroupBox.Controls.Add(this.MmxRadioButton);
             this.TestMethodGroupBox.Controls.Add(this.Avx512RadioButton);
             this.TestMethodGroupBox.Controls.Add(this.AvxRadioButton);
             this.TestMethodGroupBox.Controls.Add(this.SseRadioButton);
@@ -294,7 +296,7 @@ namespace MicrobenchmarkGui
             // TestDurationLabel
             // 
             this.TestDurationLabel.AutoSize = true;
-            this.TestDurationLabel.Location = new System.Drawing.Point(12, 404);
+            this.TestDurationLabel.Location = new System.Drawing.Point(12, 461);
             this.TestDurationLabel.Name = "TestDurationLabel";
             this.TestDurationLabel.Size = new System.Drawing.Size(87, 13);
             this.TestDurationLabel.TabIndex = 19;
@@ -302,10 +304,10 @@ namespace MicrobenchmarkGui
             // 
             // dataToTransferTextBox
             // 
-            this.dataToTransferTextBox.Location = new System.Drawing.Point(105, 401);
+            this.dataToTransferTextBox.Location = new System.Drawing.Point(105, 458);
             this.dataToTransferTextBox.MaxLength = 7;
             this.dataToTransferTextBox.Name = "dataToTransferTextBox";
-            this.dataToTransferTextBox.Size = new System.Drawing.Size(35, 20);
+            this.dataToTransferTextBox.Size = new System.Drawing.Size(34, 20);
             this.dataToTransferTextBox.TabIndex = 20;
             this.dataToTransferTextBox.Text = "512";
             this.dataToTransferTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -313,7 +315,7 @@ namespace MicrobenchmarkGui
             // gbLabel
             // 
             this.gbLabel.AutoSize = true;
-            this.gbLabel.Location = new System.Drawing.Point(146, 404);
+            this.gbLabel.Location = new System.Drawing.Point(146, 461);
             this.gbLabel.Name = "gbLabel";
             this.gbLabel.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.gbLabel.Size = new System.Drawing.Size(22, 13);
@@ -350,6 +352,17 @@ namespace MicrobenchmarkGui
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Export Last Run";
             // 
+            // JsFormatRadioButton
+            // 
+            this.JsFormatRadioButton.AutoSize = true;
+            this.JsFormatRadioButton.Location = new System.Drawing.Point(7, 44);
+            this.JsFormatRadioButton.Name = "JsFormatRadioButton";
+            this.JsFormatRadioButton.Size = new System.Drawing.Size(95, 17);
+            this.JsFormatRadioButton.TabIndex = 25;
+            this.JsFormatRadioButton.TabStop = true;
+            this.JsFormatRadioButton.Text = "CnC JS Format";
+            this.JsFormatRadioButton.UseVisualStyleBackColor = true;
+            // 
             // CsvFormatRadioButton
             // 
             this.CsvFormatRadioButton.AutoSize = true;
@@ -362,16 +375,17 @@ namespace MicrobenchmarkGui
             this.CsvFormatRadioButton.Text = "CSV Format";
             this.CsvFormatRadioButton.UseVisualStyleBackColor = true;
             // 
-            // JsFormatRadioButton
+            // MmxRadioButton
             // 
-            this.JsFormatRadioButton.AutoSize = true;
-            this.JsFormatRadioButton.Location = new System.Drawing.Point(7, 44);
-            this.JsFormatRadioButton.Name = "JsFormatRadioButton";
-            this.JsFormatRadioButton.Size = new System.Drawing.Size(95, 17);
-            this.JsFormatRadioButton.TabIndex = 25;
-            this.JsFormatRadioButton.TabStop = true;
-            this.JsFormatRadioButton.Text = "CnC JS Format";
-            this.JsFormatRadioButton.UseVisualStyleBackColor = true;
+            this.MmxRadioButton.AutoSize = true;
+            this.MmxRadioButton.Location = new System.Drawing.Point(7, 93);
+            this.MmxRadioButton.Name = "MmxRadioButton";
+            this.MmxRadioButton.Size = new System.Drawing.Size(85, 17);
+            this.MmxRadioButton.TabIndex = 3;
+            this.MmxRadioButton.TabStop = true;
+            this.MmxRadioButton.Text = "MMX (64-bit)";
+            this.MmxRadioButton.UseVisualStyleBackColor = true;
+            this.MmxRadioButton.CheckedChanged += new System.EventHandler(this.MmxRadioButton_CheckedChanged);
             // 
             // MicrobenchmarkForm
             // 
@@ -441,6 +455,7 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.RadioButton JsFormatRadioButton;
         private System.Windows.Forms.RadioButton CsvFormatRadioButton;
+        private System.Windows.Forms.RadioButton MmxRadioButton;
     }
 }
 

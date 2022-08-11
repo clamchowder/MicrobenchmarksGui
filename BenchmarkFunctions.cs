@@ -26,7 +26,9 @@ namespace MicrobenchmarkGui
             Instr4 = 13,
             Instr8 = 14,
             K8Instr4 = 15,
-            Branch16 = 16
+            Branch16 = 16,
+            MmxRead = 17,
+            MmxWrite = 18
         };
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
