@@ -3,17 +3,21 @@
 
 extern float mmx_asm_read(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float mmx_asm_write(void* arr, uint64_t arr_length, uint64_t iterations);
+extern float mmx_asm_ntwrite(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float sse_asm_read(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float sse_asm_write(void* arr, uint64_t arr_length, uint64_t iterations);
+extern float sse_asm_ntwrite(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float sse_asm_copy(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float sse_asm_add(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float avx_asm_read(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float avx_asm_write(void* arr, uint64_t arr_length, uint64_t iterations);
+extern float avx_asm_ntwrite(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float avx_asm_copy(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float avx_asm_cflip(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float avx_asm_add(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float avx512_asm_read(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float avx512_asm_write(void* arr, uint64_t arr_length, uint64_t iterations);
+extern float avx512_asm_ntwrite(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float avx512_asm_add(void* arr, uint64_t arr_length, uint64_t iterations);
 float (*bw_func)(void*, uint64_t, uint64_t) = sse_asm_read;
 
@@ -79,7 +83,11 @@ enum TestType {
     K8Instr4 = 15, 
     Branch16 = 16,
     MmxRead = 17,
-    MmxWrite = 18
+    MmxWrite = 18,
+    MmxNtWrite = 19,
+    SseNtWrite = 20,
+    AvxNtWrite = 21,
+    Avx512NtWrite = 22
 };
 
 typedef struct BandwidthTestThreadData {
@@ -180,6 +188,10 @@ float __stdcall MeasureBw(uint32_t sizeKb, uint32_t iterations, uint32_t threads
     else if (mode == Avx512Add) { bw_func = avx512_asm_add; }
     else if (mode == MmxRead) { bw_func = mmx_asm_read; }
     else if (mode == MmxWrite) { bw_func = mmx_asm_write; }
+    else if (mode == MmxNtWrite) { bw_func = mmx_asm_ntwrite; }
+    else if (mode == SseNtWrite) { bw_func = sse_asm_ntwrite; }
+    else if (mode == AvxNtWrite) { bw_func = avx_asm_ntwrite; }
+    else if (mode == Avx512NtWrite) { bw_func = avx512_asm_ntwrite; }
     else if (mode == Instr4 || mode == Instr8 || mode == K8Instr4 || mode == Branch16)
     {
         bw_func = instr_read;

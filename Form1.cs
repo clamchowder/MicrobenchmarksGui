@@ -189,6 +189,7 @@ namespace MicrobenchmarkGui
                 ResultChart.ChartAreas[0].AxisX.IsLogarithmic = true;
                 ResultChart.ChartAreas[0].AxisX.LogarithmBase = 2;
                 ResultChart.ChartAreas[0].AxisX.LabelStyle.Format = "#";
+                ResultChart.ChartAreas[0].AxisX.Title = "Data (KB)";
                 ResultChart.Series.Add(series);
             }
             
@@ -261,6 +262,13 @@ namespace MicrobenchmarkGui
                 else if (AvxRadioButton.Checked) testType = BenchmarkFunctions.TestType.AvxWrite;
                 else if (Avx512RadioButton.Checked) testType = BenchmarkFunctions.TestType.Avx512Write;
                 else if (MmxRadioButton.Checked) testType = BenchmarkFunctions.TestType.MmxWrite;
+            }
+            else if (DataNtWriteRadioButton.Checked)
+            {
+                if (SseRadioButton.Checked) testType = BenchmarkFunctions.TestType.SseNtWrite;
+                else if (AvxRadioButton.Checked) testType = BenchmarkFunctions.TestType.AvxNtWrite;
+                else if (Avx512RadioButton.Checked) testType = BenchmarkFunctions.TestType.Avx512NtWrite;
+                else if (MmxRadioButton.Checked) testType = BenchmarkFunctions.TestType.MmxNtWrite;
             }
             else if (DataAddRadioButton.Checked)
             {
