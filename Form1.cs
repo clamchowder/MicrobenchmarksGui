@@ -320,7 +320,7 @@ namespace MicrobenchmarkGui
 
         private void CheckWriteModeChange(object sender, EventArgs e)
         {
-            if (DataWriteRadioButton.Checked || DataAddRadioButton.Checked)
+            if (DataWriteRadioButton.Checked || DataAddRadioButton.Checked || DataNtWriteRadioButton.Checked)
             {
                 PrivateRadioButton.Checked = true;
                 SharedRadioButton.Checked = false;
