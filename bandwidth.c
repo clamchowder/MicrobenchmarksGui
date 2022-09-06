@@ -7,6 +7,7 @@ extern float mmx_asm_ntwrite(void* arr, uint64_t arr_length, uint64_t iterations
 extern float sse_asm_read(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float sse_asm_write(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float sse_asm_ntwrite(void* arr, uint64_t arr_length, uint64_t iterations);
+extern float sse_asm_ntread(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float sse_asm_copy(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float sse_asm_add(void* arr, uint64_t arr_length, uint64_t iterations);
 extern float avx_asm_read(void* arr, uint64_t arr_length, uint64_t iterations);
@@ -87,7 +88,8 @@ enum TestType {
     MmxNtWrite = 19,
     SseNtWrite = 20,
     AvxNtWrite = 21,
-    Avx512NtWrite = 22
+    Avx512NtWrite = 22,
+    SseNtRead = 23
 };
 
 typedef struct BandwidthTestThreadData {
@@ -192,6 +194,7 @@ float __stdcall MeasureBw(uint32_t sizeKb, uint32_t iterations, uint32_t threads
     else if (mode == SseNtWrite) { bw_func = sse_asm_ntwrite; }
     else if (mode == AvxNtWrite) { bw_func = avx_asm_ntwrite; }
     else if (mode == Avx512NtWrite) { bw_func = avx512_asm_ntwrite; }
+    else if (mode == SseNtRead) { bw_func = sse_asm_ntread; }
     else if (mode == Instr4 || mode == Instr8 || mode == K8Instr4 || mode == Branch16)
     {
         bw_func = instr_read;

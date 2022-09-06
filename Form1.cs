@@ -270,6 +270,10 @@ namespace MicrobenchmarkGui
                 else if (Avx512RadioButton.Checked) testType = BenchmarkFunctions.TestType.Avx512NtWrite;
                 else if (MmxRadioButton.Checked) testType = BenchmarkFunctions.TestType.MmxNtWrite;
             }
+            else if (DataNtReadRadioButton.Checked)
+            {
+                testType = BenchmarkFunctions.TestType.SseNtRead;
+            }
             else if (DataAddRadioButton.Checked)
             {
                 if (SseRadioButton.Checked) testType = BenchmarkFunctions.TestType.SseAdd;

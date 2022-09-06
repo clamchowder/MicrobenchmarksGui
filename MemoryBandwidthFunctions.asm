@@ -9,6 +9,7 @@ global sse_asm_read
 global sse_asm_copy
 global sse_asm_write
 global sse_asm_ntwrite
+global sse_asm_ntread
 global sse_asm_add
 global avx_asm_read
 global avx_asm_write
@@ -613,6 +614,73 @@ sse_test_iteration_count:
   jnz sse_read_pass_loop ; skip iteration decrement if we're not back to start
   dec r8
   jnz sse_read_pass_loop
+  pop r14
+  pop r15
+  pop rbx
+  pop rdi
+  pop rsi
+  ret
+
+sse_asm_ntread:
+  push rsi
+  push rdi
+  push rbx
+  push r15
+  push r14
+  mov r15, 256 ; load in blocks of 256 bytes
+  sub rdx, 128 ; last iteration: rsi == rdx. rsi > rdx = break
+  xor r9, r9
+  xor rsi, rsi
+  xor rbx, rbx
+  lea rdi, [rcx + rsi * 4]
+  mov r14, rdi
+sse_ntread_pass_loop:
+  ; xmm0 to 5 are considered volatile
+  movntdqa xmm0, [rdi]
+  movntdqa xmm1, [rdi + 16]
+  movntdqa xmm2, [rdi + 32]
+  movntdqa xmm3, [rdi + 48]
+  movntdqa xmm0, [rdi + 64]
+  movntdqa xmm1, [rdi + 80]
+  movntdqa xmm2, [rdi + 96]
+  movntdqa xmm3, [rdi + 112]
+  movntdqa xmm0, [rdi + 128]
+  movntdqa xmm1, [rdi + 144]
+  movntdqa xmm2, [rdi + 160]
+  movntdqa xmm3, [rdi + 176]
+  movntdqa xmm0, [rdi + 192]
+  movntdqa xmm2, [rdi + 208]
+  movntdqa xmm2, [rdi + 224]
+  movntdqa xmm2, [rdi + 240]
+  add rsi, 64
+  add rdi, r15
+  movntdqa xmm0, [rdi]
+  movntdqa xmm1, [rdi + 16]
+  movntdqa xmm2, [rdi + 32]
+  movntdqa xmm3, [rdi + 48]
+  movntdqa xmm0, [rdi + 64]
+  movntdqa xmm1, [rdi + 80]
+  movntdqa xmm2, [rdi + 96]
+  movntdqa xmm3, [rdi + 112]
+  movntdqa xmm0, [rdi + 128]
+  movntdqa xmm1, [rdi + 144]
+  movntdqa xmm2, [rdi + 160]
+  movntdqa xmm3, [rdi + 176]
+  movntdqa xmm0, [rdi + 192]
+  movntdqa xmm2, [rdi + 208]
+  movntdqa xmm2, [rdi + 224]
+  movntdqa xmm2, [rdi + 240]
+  add rsi, 64
+  add rdi, r15
+  cmp rdx, rsi
+  jge sse_ntread_iteration_count
+  mov rsi, rbx
+  lea rdi, [rcx + rsi * 4]  ; back to start
+sse_ntread_iteration_count:
+  cmp r9, rsi
+  jnz sse_ntread_pass_loop ; skip iteration decrement if we're not back to start
+  dec r8
+  jnz sse_ntread_pass_loop
   pop r14
   pop r15
   pop rbx

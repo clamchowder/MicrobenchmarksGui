@@ -42,6 +42,7 @@ namespace MicrobenchmarkGui
             this.PrivateRadioButton = new System.Windows.Forms.RadioButton();
             this.CancelRunButton = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.DataNtWriteRadioButton = new System.Windows.Forms.RadioButton();
             this.InstructionFetchRadioButton = new System.Windows.Forms.RadioButton();
             this.DataAddRadioButton = new System.Windows.Forms.RadioButton();
             this.DataWriteRadioButton = new System.Windows.Forms.RadioButton();
@@ -72,7 +73,7 @@ namespace MicrobenchmarkGui
             this.RLabel = new System.Windows.Forms.Label();
             this.SpecifyNextColorRadioButton = new System.Windows.Forms.RadioButton();
             this.RandomizeNextColorRadioButton = new System.Windows.Forms.RadioButton();
-            this.DataNtWriteRadioButton = new System.Windows.Forms.RadioButton();
+            this.DataNtReadRadioButton = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.ResultChart)).BeginInit();
             this.ThreadingModeGroupBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -187,6 +188,7 @@ namespace MicrobenchmarkGui
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.DataNtReadRadioButton);
             this.groupBox1.Controls.Add(this.DataNtWriteRadioButton);
             this.groupBox1.Controls.Add(this.InstructionFetchRadioButton);
             this.groupBox1.Controls.Add(this.DataAddRadioButton);
@@ -194,19 +196,29 @@ namespace MicrobenchmarkGui
             this.groupBox1.Controls.Add(this.DataReadRadioButton);
             this.groupBox1.Location = new System.Drawing.Point(12, 157);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(229, 141);
+            this.groupBox1.Size = new System.Drawing.Size(229, 173);
             this.groupBox1.TabIndex = 14;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Access Mode";
             // 
+            // DataNtWriteRadioButton
+            // 
+            this.DataNtWriteRadioButton.AutoSize = true;
+            this.DataNtWriteRadioButton.Location = new System.Drawing.Point(7, 88);
+            this.DataNtWriteRadioButton.Name = "DataNtWriteRadioButton";
+            this.DataNtWriteRadioButton.Size = new System.Drawing.Size(146, 17);
+            this.DataNtWriteRadioButton.TabIndex = 4;
+            this.DataNtWriteRadioButton.Text = "Data Non-Temporal Write";
+            this.DataNtWriteRadioButton.UseVisualStyleBackColor = true;
+            this.DataNtWriteRadioButton.CheckedChanged += new System.EventHandler(this.CheckWriteModeChange);
+            // 
             // InstructionFetchRadioButton
             // 
             this.InstructionFetchRadioButton.AutoSize = true;
-            this.InstructionFetchRadioButton.Location = new System.Drawing.Point(7, 111);
+            this.InstructionFetchRadioButton.Location = new System.Drawing.Point(7, 134);
             this.InstructionFetchRadioButton.Name = "InstructionFetchRadioButton";
             this.InstructionFetchRadioButton.Size = new System.Drawing.Size(104, 17);
             this.InstructionFetchRadioButton.TabIndex = 3;
-            this.InstructionFetchRadioButton.TabStop = true;
             this.InstructionFetchRadioButton.Text = "Instruction Fetch";
             this.InstructionFetchRadioButton.UseVisualStyleBackColor = true;
             this.InstructionFetchRadioButton.CheckedChanged += new System.EventHandler(this.InstructionFetchRadioButton_CheckedChanged);
@@ -214,11 +226,10 @@ namespace MicrobenchmarkGui
             // DataAddRadioButton
             // 
             this.DataAddRadioButton.AutoSize = true;
-            this.DataAddRadioButton.Location = new System.Drawing.Point(7, 88);
+            this.DataAddRadioButton.Location = new System.Drawing.Point(7, 111);
             this.DataAddRadioButton.Name = "DataAddRadioButton";
             this.DataAddRadioButton.Size = new System.Drawing.Size(167, 17);
             this.DataAddRadioButton.TabIndex = 2;
-            this.DataAddRadioButton.TabStop = true;
             this.DataAddRadioButton.Text = "Data Read-Modify-Write (Add)";
             this.DataAddRadioButton.UseVisualStyleBackColor = true;
             this.DataAddRadioButton.CheckedChanged += new System.EventHandler(this.CheckWriteModeChange);
@@ -226,7 +237,7 @@ namespace MicrobenchmarkGui
             // DataWriteRadioButton
             // 
             this.DataWriteRadioButton.AutoSize = true;
-            this.DataWriteRadioButton.Location = new System.Drawing.Point(7, 43);
+            this.DataWriteRadioButton.Location = new System.Drawing.Point(7, 66);
             this.DataWriteRadioButton.Name = "DataWriteRadioButton";
             this.DataWriteRadioButton.Size = new System.Drawing.Size(76, 17);
             this.DataWriteRadioButton.TabIndex = 1;
@@ -242,7 +253,6 @@ namespace MicrobenchmarkGui
             this.DataReadRadioButton.Name = "DataReadRadioButton";
             this.DataReadRadioButton.Size = new System.Drawing.Size(77, 17);
             this.DataReadRadioButton.TabIndex = 0;
-            this.DataReadRadioButton.TabStop = true;
             this.DataReadRadioButton.Text = "Data Read";
             this.DataReadRadioButton.UseVisualStyleBackColor = true;
             // 
@@ -252,7 +262,7 @@ namespace MicrobenchmarkGui
             this.TestMethodGroupBox.Controls.Add(this.Avx512RadioButton);
             this.TestMethodGroupBox.Controls.Add(this.AvxRadioButton);
             this.TestMethodGroupBox.Controls.Add(this.SseRadioButton);
-            this.TestMethodGroupBox.Location = new System.Drawing.Point(12, 315);
+            this.TestMethodGroupBox.Location = new System.Drawing.Point(12, 336);
             this.TestMethodGroupBox.Name = "TestMethodGroupBox";
             this.TestMethodGroupBox.Size = new System.Drawing.Size(229, 116);
             this.TestMethodGroupBox.TabIndex = 15;
@@ -523,15 +533,16 @@ namespace MicrobenchmarkGui
             this.RandomizeNextColorRadioButton.Text = "Random Next Color";
             this.RandomizeNextColorRadioButton.UseVisualStyleBackColor = true;
             // 
-            // DataNtWriteRadioButton
+            // DataNtReadRadioButton
             // 
-            this.DataNtWriteRadioButton.AutoSize = true;
-            this.DataNtWriteRadioButton.Location = new System.Drawing.Point(7, 65);
-            this.DataNtWriteRadioButton.Name = "DataNtWriteRadioButton";
-            this.DataNtWriteRadioButton.Size = new System.Drawing.Size(146, 17);
-            this.DataNtWriteRadioButton.TabIndex = 4;
-            this.DataNtWriteRadioButton.Text = "Data Non-Temporal Write";
-            this.DataNtWriteRadioButton.UseVisualStyleBackColor = true;
+            this.DataNtReadRadioButton.AutoSize = true;
+            this.DataNtReadRadioButton.Location = new System.Drawing.Point(7, 42);
+            this.DataNtReadRadioButton.Name = "DataNtReadRadioButton";
+            this.DataNtReadRadioButton.Size = new System.Drawing.Size(147, 17);
+            this.DataNtReadRadioButton.TabIndex = 5;
+            this.DataNtReadRadioButton.Text = "Data Non-Temporal Read";
+            this.DataNtReadRadioButton.UseVisualStyleBackColor = true;
+            this.DataNtReadRadioButton.CheckedChanged += new System.EventHandler(this.CheckWriteModeChange);
             // 
             // MicrobenchmarkForm
             // 
@@ -617,6 +628,7 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.TextBox ColorGBox;
         private System.Windows.Forms.Label GLabel;
         private System.Windows.Forms.RadioButton DataNtWriteRadioButton;
+        private System.Windows.Forms.RadioButton DataNtReadRadioButton;
     }
 }
 
