@@ -5,10 +5,10 @@ Started as a GUI project for https://github.com/clamchowder/Microbenchmarks, end
 
 Unlike another well known cache and memory benchmark that's spelled AIDA, this aims to be a free and more advanced tool. It runs through a lot of tests sizes designed to cover most cache capacities. Then, you can look through the results to determine bandwidth and latency for each level in the memory hierarchy.
 
-It also provides more control over what's being tested. You can select whether SSE, AVX, AVX-512, or even MMX is used. You can test instruction fetch bandwidth, like in the screenshot above. And you can control how many threads are used.
+This program also provides more control over what's being tested. You can select SSE, AVX, AVX-512, or even MMX. You can test instruction fetch bandwidth, like in the screenshot above. And you can control how many threads are used.
 
 Non-goals:
-- Make results comparable to AIDA's. I don't know what they're doing anyway.
+- Make results comparable to AIDA's. I don't know exactly what they're doing anyway. Don't try to directly compare results from this program to AIDA's.
 - Automatically determine bandwidth and latency at different cache levels. I think this is a shortcoming with AIDA since it seems prone to generating erroneous results with new CPU releases. Zen 3 with 96 MB of vertically stacked L3 is a good example.
 - Provide any kind of support. Not enough hours in a day, not enough free time :(
 
@@ -44,7 +44,7 @@ You can use 2 MB pages to minimize address translation penalties, letting you se
 
 <img src="img/lockpages.png" alt="Go to local security policy, local polices, user rights assignment, lock pages in memory and add yourself" />
 
-If you've logged in with a non-local account, you can also give "Everyone" the privilege.
+If you've logged in with a non-local account, you can also give "Everyone" the privilege. You need to reboot for the change to take effect.
 
 Then if you select Large Pages under Paging Mode, the test will allocate 1 GB (the largest test size for mem latency) upfront and run all test sizes within that. That means you need to have 1 GB of contiguous memory free. If you have a system without much memory that has been running for a while, you might have to reboot before allocation will succeed.
 
