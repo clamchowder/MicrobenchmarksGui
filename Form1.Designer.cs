@@ -608,7 +608,7 @@ namespace MicrobenchmarkGui
             this.Controls.Add(this.resultListView);
             this.Controls.Add(this.RunBandwidthTestButton);
             this.Name = "MicrobenchmarkForm";
-            this.Text = "Memory Bandwidth Test";
+            this.Text = "Clam Cache and Mem Benchmark";
             this.Load += new System.EventHandler(this.MicrobenchmarkForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.ResultChart)).EndInit();
             this.ThreadingModeGroupBox.ResumeLayout(false);

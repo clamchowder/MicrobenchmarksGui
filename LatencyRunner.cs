@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -83,7 +80,7 @@ namespace MicrobenchmarkGui
             else
             {
                 uint maxTestSize = testSizes[testSizes.Length - 1];
-                int rc = BenchmarkFunctions.SetLargePages(maxTestSize);
+                int rc = BenchmarkFunctions.SetLargePages(maxTestSize * 1024);
                 if (rc == -1)
                 {
                     progressLabel.Invoke(setProgressLabelDelegate, 

@@ -395,6 +395,16 @@ namespace MicrobenchmarkGui
             {
                 SharedRadioButton.Enabled = true;
             }
+
+            if (DataNtReadRadioButton.Checked)
+            {
+                MmxRadioButton.Enabled = false;
+                SseRadioButton.Checked = true;
+            }
+            else
+            {
+                MmxRadioButton.Enabled = true;
+            }
         }
 
         private void InstructionFetchRadioButton_CheckedChanged(object sender, EventArgs e)
@@ -499,7 +509,8 @@ namespace MicrobenchmarkGui
                 float[] testResults = bwRunner.testResultsList.ToArray();
                 if (!jsFormat)
                 {
-                    output = "Region (KB),Bandwidth (GB/s)";
+                    if (MemoryLatencyRadioButton.Checked) output = "Test Size (KB), Latency (ns)";
+                    else output = "Region (KB),Bandwidth (GB/s)";
                 }
                 else output = "";
 
