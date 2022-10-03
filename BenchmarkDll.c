@@ -160,12 +160,7 @@ float __stdcall MeasureBw(uint32_t sizeKb, uint32_t iterations, uint32_t threads
     uint32_t elements = sizeKb * 1024 / sizeof(float);
     uint32_t private_elements = (uint32_t)ceil((double)sizeKb / (double)threads) * 256;
     DWORD protection_flags = PAGE_EXECUTE_READWRITE;
-
-    //if (instr != None) protection_flags = PAGE_EXECUTE_READWRITE;
     if (!shared) elements = private_elements;
-
-    //fprintf(stderr, "%llu elements per thread\n", elements);
-
     if (!shared && sizeKb < threads) {
         //fprintf(stderr, "Too many threads for this size, continuing\n");
         return 0;
@@ -284,6 +279,15 @@ float __stdcall MeasureBw(uint32_t sizeKb, uint32_t iterations, uint32_t threads
     return bw;
 }
 
+/// <summary>
+/// Bandwidth measuring function for instruction-side BW. Simply jumps into the 
+/// array its given. So that array better be filled with valid instructions, with a
+/// return at the end.
+/// </summary>
+/// <param name="arr">Array containing instructions, terminated with a return</param>
+/// <param name="arr_length">Length of arr in bytes, not used as arr better be ret-terminated</param>
+/// <param name="iterations">How many times to run the nop function (arr)</param>
+/// <returns>Nothing useful lol</returns>
 float __fastcall instr_read(void* arr, uint64_t arr_length, uint64_t iterations)
 {
     void (*nopfunc)(uint64_t);

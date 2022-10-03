@@ -29,12 +29,18 @@
     <ClCompile Include="pch.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bandwidth.c">
+    <ClCompile Include="BenchmarkDll.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryLatency.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="MemoryBandwidthFunctions.asm">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MemoryLatencyFunctions.asm">
       <Filter>Source Files</Filter>
     </CustomBuild>
   </ItemGroup>

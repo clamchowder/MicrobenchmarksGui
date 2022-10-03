@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LatencyRunner.cs" />
     <Compile Include="BandwidthRunner.cs" />
     <Compile Include="BenchmarkFunctions.cs" />
     <Compile Include="Form1.cs">

@@ -17,6 +17,10 @@ namespace MicrobenchmarkGui
         private RadioButton EightByteNops;
         private RadioButton BranchPer16B;
         private RadioButton K8FourByteNops;
+        private RadioButton AsmRadioButton;
+        private RadioButton CRadioButton;
+        private RadioButton DefaultPagesRadioButton;
+        private RadioButton LargePagesRadioButton;
         private Random randomThings;
 
         private bool avxSupported;
@@ -48,6 +52,28 @@ namespace MicrobenchmarkGui
             K8FourByteNops.Text = "4B NOPs (66 66 66 90)";
             K8FourByteNops.Location = new Point(7, 92);
             K8FourByteNops.Size = groupBoxRadioButtonSize;
+
+            AsmRadioButton = new RadioButton();
+            AsmRadioButton.Text = "Simple Addressing (ASM)";
+            AsmRadioButton.Location = new Point(7, 20);
+            AsmRadioButton.Size = groupBoxRadioButtonSize;
+            AsmRadioButton.Checked = true;
+
+            CRadioButton = new RadioButton();
+            CRadioButton.Text = "Indexed Addressing (C)";
+            CRadioButton.Location = new Point(7, 44);
+            CRadioButton.Size = groupBoxRadioButtonSize;
+
+            DefaultPagesRadioButton = new RadioButton();
+            DefaultPagesRadioButton.Text = "Default (4 KB Pages)";
+            DefaultPagesRadioButton.Location = new Point(7, 20);
+            DefaultPagesRadioButton.Size = groupBoxRadioButtonSize;
+            DefaultPagesRadioButton.Checked = true;
+
+            LargePagesRadioButton = new RadioButton();
+            LargePagesRadioButton.Text = "Large Pages (2 MB Pages)";
+            LargePagesRadioButton.Location = new Point(7, 44);
+            LargePagesRadioButton.Size = groupBoxRadioButtonSize;
 
             ThreadCountTrackbar.Maximum = Environment.ProcessorCount;
             ResultChart.Titles.Add("Result Plot");
@@ -103,7 +129,7 @@ namespace MicrobenchmarkGui
         public delegate void SafeSetCancelButtonState(bool enabled);
         public delegate void SafeSetProgressLabel(string message);
 
-        public void SetProgressLabel(string message) { progressLabel.Text = message;  }
+        public void SetProgressLabel(string message) { progressLabel.Text = message; }
 
         public void SetCancelButtonState(bool enabled) { CancelRunButton.Enabled = enabled; }
 
@@ -121,7 +147,7 @@ namespace MicrobenchmarkGui
             }
 
             int i = 0;
-            foreach(ColumnHeader column in resultListView.Columns)
+            foreach (ColumnHeader column in resultListView.Columns)
             {
                 if (i == 0) column.Width = 70;
                 if (i == 1) column.Width = 100;
@@ -164,7 +190,7 @@ namespace MicrobenchmarkGui
                     randomThings.NextBytes(randomBytes);
                     series.Color = Color.FromArgb(randomBytes[0], randomBytes[1], randomBytes[2]);
                 }
-                
+
                 if (specifyColor)
                 {
                     int red, green, blue;
@@ -192,7 +218,7 @@ namespace MicrobenchmarkGui
                 ResultChart.ChartAreas[0].AxisX.Title = "Data (KB)";
                 ResultChart.Series.Add(series);
             }
-            
+
             series.Points.Clear();
             double min = testPoints[0], max = testPoints[0];
             // we expect this to be sorted but just in case
@@ -223,8 +249,9 @@ namespace MicrobenchmarkGui
         }
 
         private BandwidthRunner bwRunner;
+        private LatencyRunner latencyRunner;
         private CancellationTokenSource runCancel;
-        private Task bwTask;
+        private Task testTask;
 
         /// <summary>
         /// Kicks off bandwidth test, automated run through all sizes
@@ -233,7 +260,41 @@ namespace MicrobenchmarkGui
         /// <param name="e"></param>
         private void RunBandwidthTestButton_Click(object sender, EventArgs e)
         {
-            if (bwRunner == null) bwRunner = new BandwidthRunner(SetResultListView, 
+            if (this.MemoryBandwidthRadioButton.Checked)
+            {
+                RunBandwidthTest();
+            }
+            else if (this.MemoryLatencyRadioButton.Checked)
+            {
+                RunLatencyTest();
+            }
+        }
+
+        private void RunLatencyTest()
+        {
+            if (latencyRunner == null) latencyRunner = new LatencyRunner(SetResultListView,
+                SetResultListViewColumns, SetResultChart, SetProgressLabel, resultListView, ResultChart, progressLabel);
+
+            bool largePages = LargePagesRadioButton.Checked;
+            bool asm = AsmRadioButton.Checked;
+            uint iterations;
+            string iterationsStr = dataToTransferTextBox.Text;
+            if (!uint.TryParse(iterationsStr, out iterations))
+            {
+                SetProgressLabel("Iteration count " + iterationsStr + " must be a whole number");
+                return;
+            }
+
+            CancelRunningTest(true);
+            runCancel = new CancellationTokenSource();
+            testTask = Task.Run(() => latencyRunner.StartFullTest(asm, largePages, iterations, runCancel.Token));
+            CancelRunButton.Enabled = true;
+            Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState));
+        }
+
+        private void RunBandwidthTest()
+        {
+            if (bwRunner == null) bwRunner = new BandwidthRunner(SetResultListView,
                 SetResultListViewColumns, SetResultChart, SetProgressLabel, resultListView, ResultChart, progressLabel);
 
             // Read test parameters from interface
@@ -244,7 +305,7 @@ namespace MicrobenchmarkGui
             uint dataGb;
             if (!uint.TryParse(dataGbStr, out dataGb))
             {
-                SetProgressLabel("Data to transfer (" + dataGbStr + ") has to be a whole number");
+                SetProgressLabel("Data to transfer or iter count (" + dataGbStr + ") has to be a whole number");
                 return;
             }
 
@@ -294,19 +355,24 @@ namespace MicrobenchmarkGui
                 else if (BranchPer16B.Checked) testType = BenchmarkFunctions.TestType.Branch16;
             }
 
-            if (runCancel != null && bwTask != null)
-            {
-                runCancel.Cancel();
-                bwTask.Wait();
-            }
-
+            CancelRunningTest(true);
             runCancel = new CancellationTokenSource();
-            bwTask = Task.Run(() => bwRunner.StartFullTest(threadCount, sharedMode, testType, dataGb, runCancel.Token));
+            testTask = Task.Run(() => bwRunner.StartFullTest(threadCount, sharedMode, testType, dataGb, runCancel.Token));
             CancelRunButton.Enabled = true;
-            Task.Run(() => HandleBwThreadCompletion(bwTask, SetCancelButtonState));
+            Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState));
         }
 
-        private async Task HandleBwThreadCompletion(Task task, SafeSetCancelButtonState setCancelButtonDelegate)
+        private void CancelRunningTest(bool wait)
+        {
+            if (runCancel != null && testTask != null)
+            {
+                runCancel.Cancel();
+                SetProgressLabel("Cancel requested, waiting for current test to finish");
+                if (wait) testTask.Wait();
+            }
+        }
+
+        private async Task HandleTestRunCompletion(Task task, SafeSetCancelButtonState setCancelButtonDelegate)
         {
             await task;
             CancelRunButton.Invoke(setCancelButtonDelegate, new object[] { false });
@@ -314,12 +380,7 @@ namespace MicrobenchmarkGui
 
         private void CancelButton_Click(object sender, EventArgs e)
         {
-            if (runCancel != null && bwTask != null)
-            {
-                runCancel.Cancel();
-            }
-
-            SetProgressLabel("Cancel requested, waiting for current test to finish");
+            CancelRunningTest(false);
         }
 
         private void CheckWriteModeChange(object sender, EventArgs e)
@@ -336,17 +397,12 @@ namespace MicrobenchmarkGui
             }
         }
 
-        bool methodSetForInstr = false;
-
         private void InstructionFetchRadioButton_CheckedChanged(object sender, EventArgs e)
         {
-            if (InstructionFetchRadioButton.Checked && !methodSetForInstr)
+            if (InstructionFetchRadioButton.Checked)
             {
                 this.TestMethodGroupBox.SuspendLayout();
-                this.TestMethodGroupBox.Controls.Remove(this.Avx512RadioButton);
-                this.TestMethodGroupBox.Controls.Remove(this.AvxRadioButton);
-                this.TestMethodGroupBox.Controls.Remove(this.SseRadioButton);
-                this.TestMethodGroupBox.Controls.Remove(this.MmxRadioButton);
+                this.TestMethodGroupBox.Controls.Clear();
                 this.TestMethodGroupBox.Controls.Add(this.FourByteNops);
                 this.TestMethodGroupBox.Controls.Add(this.EightByteNops);
                 this.TestMethodGroupBox.Controls.Add(this.K8FourByteNops);
@@ -356,22 +412,69 @@ namespace MicrobenchmarkGui
                 this.FourByteNops.Checked = false;
                 this.K8FourByteNops.Checked = false;
                 this.BranchPer16B.Checked = false;
-                methodSetForInstr = true;
             }
-            else if (!InstructionFetchRadioButton.Checked && methodSetForInstr)
+            else if (!InstructionFetchRadioButton.Checked)
             {
                 this.TestMethodGroupBox.SuspendLayout();
-                this.TestMethodGroupBox.Controls.Remove(this.FourByteNops);
-                this.TestMethodGroupBox.Controls.Remove(this.EightByteNops);
-                this.TestMethodGroupBox.Controls.Remove(this.K8FourByteNops);
-                this.TestMethodGroupBox.Controls.Remove(this.BranchPer16B);
+                this.TestMethodGroupBox.Controls.Clear();
                 this.TestMethodGroupBox.Controls.Add(this.Avx512RadioButton);
                 this.TestMethodGroupBox.Controls.Add(this.AvxRadioButton);
                 this.TestMethodGroupBox.Controls.Add(this.SseRadioButton);
                 this.TestMethodGroupBox.Controls.Add(this.MmxRadioButton);
                 SetDefaultMethodState();
                 this.TestMethodGroupBox.PerformLayout();
-                methodSetForInstr = false;
+            }
+        }
+
+        bool latencyTestSet = false;
+        private void LatencyTestRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            if (MemoryLatencyRadioButton.Checked && latencyTestSet == false)
+            {
+                // mem latency test is always ST, no exceptions
+                ThreadingModeGroupBox.Enabled = false;
+                ThreadCountTrackbar.Enabled = false;
+                ThreadCountTrackbar.Value = 1;
+
+                // switch other controls over
+                TestMethodGroupBox.Text = "Paging Mode";
+                TestMethodGroupBox.SuspendLayout();
+                TestMethodGroupBox.Controls.Clear();
+                TestMethodGroupBox.Controls.Add(DefaultPagesRadioButton);
+                TestMethodGroupBox.Controls.Add(LargePagesRadioButton);
+                TestMethodGroupBox.PerformLayout();
+
+                AccessModeGroupBox.Controls.Clear();
+                AccessModeGroupBox.Controls.Add(CRadioButton);
+                AccessModeGroupBox.Controls.Add(AsmRadioButton);
+                AccessModeGroupBox.PerformLayout();
+                TestDurationLabel.Text = "Base Iterations:";
+                dataToTransferTextBox.Text = "400000000";
+                gbLabel.Text = "times";
+                latencyTestSet = true;
+            }
+            else if (MemoryBandwidthRadioButton.Checked && latencyTestSet == true)
+            {
+                ThreadingModeGroupBox.Enabled = true;
+                ThreadCountTrackbar.Enabled = true;
+                TestMethodGroupBox.Text = "Test Method";
+                TestMethodGroupBox.Controls.Clear();
+                InstructionFetchRadioButton_CheckedChanged(sender, e);
+
+                AccessModeGroupBox.Text = "Access Mode";
+                AccessModeGroupBox.Controls.Clear();
+                AccessModeGroupBox.Controls.Add(DataReadRadioButton);
+                AccessModeGroupBox.Controls.Add(DataNtReadRadioButton);
+                AccessModeGroupBox.Controls.Add(DataWriteRadioButton);
+                AccessModeGroupBox.Controls.Add(DataNtWriteRadioButton);
+                AccessModeGroupBox.Controls.Add(DataAddRadioButton);
+                AccessModeGroupBox.Controls.Add(InstructionFetchRadioButton);
+                AccessModeGroupBox.PerformLayout();
+
+                TestDurationLabel.Text = "Base Data to Transfer:";
+                dataToTransferTextBox.Text = "512";
+                gbLabel.Text = "GB";
+                latencyTestSet = false;
             }
         }
 

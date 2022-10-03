@@ -41,7 +41,8 @@ namespace MicrobenchmarkGui
             this.SharedRadioButton = new System.Windows.Forms.RadioButton();
             this.PrivateRadioButton = new System.Windows.Forms.RadioButton();
             this.CancelRunButton = new System.Windows.Forms.Button();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.AccessModeGroupBox = new System.Windows.Forms.GroupBox();
+            this.DataNtReadRadioButton = new System.Windows.Forms.RadioButton();
             this.DataNtWriteRadioButton = new System.Windows.Forms.RadioButton();
             this.InstructionFetchRadioButton = new System.Windows.Forms.RadioButton();
             this.DataAddRadioButton = new System.Windows.Forms.RadioButton();
@@ -73,19 +74,22 @@ namespace MicrobenchmarkGui
             this.RLabel = new System.Windows.Forms.Label();
             this.SpecifyNextColorRadioButton = new System.Windows.Forms.RadioButton();
             this.RandomizeNextColorRadioButton = new System.Windows.Forms.RadioButton();
-            this.DataNtReadRadioButton = new System.Windows.Forms.RadioButton();
+            this.TestTypeGroupBox = new System.Windows.Forms.GroupBox();
+            this.MemoryLatencyRadioButton = new System.Windows.Forms.RadioButton();
+            this.MemoryBandwidthRadioButton = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.ResultChart)).BeginInit();
             this.ThreadingModeGroupBox.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.AccessModeGroupBox.SuspendLayout();
             this.TestMethodGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ThreadCountTrackbar)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.ChartControlsGroupBox.SuspendLayout();
+            this.TestTypeGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // RunBandwidthTestButton
             // 
-            this.RunBandwidthTestButton.Location = new System.Drawing.Point(12, 486);
+            this.RunBandwidthTestButton.Location = new System.Drawing.Point(10, 545);
             this.RunBandwidthTestButton.Name = "RunBandwidthTestButton";
             this.RunBandwidthTestButton.Size = new System.Drawing.Size(75, 23);
             this.RunBandwidthTestButton.TabIndex = 3;
@@ -100,7 +104,7 @@ namespace MicrobenchmarkGui
             this.resultListView.HideSelection = false;
             this.resultListView.Location = new System.Drawing.Point(247, 30);
             this.resultListView.Name = "resultListView";
-            this.resultListView.Size = new System.Drawing.Size(195, 479);
+            this.resultListView.Size = new System.Drawing.Size(195, 540);
             this.resultListView.TabIndex = 4;
             this.resultListView.UseCompatibleStateImageBehavior = false;
             this.resultListView.View = System.Windows.Forms.View.Details;
@@ -123,13 +127,13 @@ namespace MicrobenchmarkGui
             this.ResultChart.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
             this.ResultChart.Legends.Add(legend1);
-            this.ResultChart.Location = new System.Drawing.Point(448, 141);
+            this.ResultChart.Location = new System.Drawing.Point(448, 159);
             this.ResultChart.Name = "ResultChart";
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             this.ResultChart.Series.Add(series1);
-            this.ResultChart.Size = new System.Drawing.Size(661, 368);
+            this.ResultChart.Size = new System.Drawing.Size(661, 411);
             this.ResultChart.TabIndex = 6;
             this.ResultChart.Text = "chart1";
             // 
@@ -146,7 +150,7 @@ namespace MicrobenchmarkGui
             // 
             this.ThreadingModeGroupBox.Controls.Add(this.SharedRadioButton);
             this.ThreadingModeGroupBox.Controls.Add(this.PrivateRadioButton);
-            this.ThreadingModeGroupBox.Location = new System.Drawing.Point(12, 81);
+            this.ThreadingModeGroupBox.Location = new System.Drawing.Point(10, 141);
             this.ThreadingModeGroupBox.Name = "ThreadingModeGroupBox";
             this.ThreadingModeGroupBox.Size = new System.Drawing.Size(229, 69);
             this.ThreadingModeGroupBox.TabIndex = 9;
@@ -178,7 +182,7 @@ namespace MicrobenchmarkGui
             // CancelRunButton
             // 
             this.CancelRunButton.Enabled = false;
-            this.CancelRunButton.Location = new System.Drawing.Point(93, 486);
+            this.CancelRunButton.Location = new System.Drawing.Point(91, 545);
             this.CancelRunButton.Name = "CancelRunButton";
             this.CancelRunButton.Size = new System.Drawing.Size(75, 23);
             this.CancelRunButton.TabIndex = 10;
@@ -186,20 +190,31 @@ namespace MicrobenchmarkGui
             this.CancelRunButton.UseVisualStyleBackColor = true;
             this.CancelRunButton.Click += new System.EventHandler(this.CancelButton_Click);
             // 
-            // groupBox1
+            // AccessModeGroupBox
             // 
-            this.groupBox1.Controls.Add(this.DataNtReadRadioButton);
-            this.groupBox1.Controls.Add(this.DataNtWriteRadioButton);
-            this.groupBox1.Controls.Add(this.InstructionFetchRadioButton);
-            this.groupBox1.Controls.Add(this.DataAddRadioButton);
-            this.groupBox1.Controls.Add(this.DataWriteRadioButton);
-            this.groupBox1.Controls.Add(this.DataReadRadioButton);
-            this.groupBox1.Location = new System.Drawing.Point(12, 157);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(229, 173);
-            this.groupBox1.TabIndex = 14;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Access Mode";
+            this.AccessModeGroupBox.Controls.Add(this.DataNtReadRadioButton);
+            this.AccessModeGroupBox.Controls.Add(this.DataNtWriteRadioButton);
+            this.AccessModeGroupBox.Controls.Add(this.InstructionFetchRadioButton);
+            this.AccessModeGroupBox.Controls.Add(this.DataAddRadioButton);
+            this.AccessModeGroupBox.Controls.Add(this.DataWriteRadioButton);
+            this.AccessModeGroupBox.Controls.Add(this.DataReadRadioButton);
+            this.AccessModeGroupBox.Location = new System.Drawing.Point(10, 216);
+            this.AccessModeGroupBox.Name = "AccessModeGroupBox";
+            this.AccessModeGroupBox.Size = new System.Drawing.Size(229, 173);
+            this.AccessModeGroupBox.TabIndex = 14;
+            this.AccessModeGroupBox.TabStop = false;
+            this.AccessModeGroupBox.Text = "Access Mode";
+            // 
+            // DataNtReadRadioButton
+            // 
+            this.DataNtReadRadioButton.AutoSize = true;
+            this.DataNtReadRadioButton.Location = new System.Drawing.Point(7, 42);
+            this.DataNtReadRadioButton.Name = "DataNtReadRadioButton";
+            this.DataNtReadRadioButton.Size = new System.Drawing.Size(147, 17);
+            this.DataNtReadRadioButton.TabIndex = 5;
+            this.DataNtReadRadioButton.Text = "Data Non-Temporal Read";
+            this.DataNtReadRadioButton.UseVisualStyleBackColor = true;
+            this.DataNtReadRadioButton.CheckedChanged += new System.EventHandler(this.CheckWriteModeChange);
             // 
             // DataNtWriteRadioButton
             // 
@@ -253,6 +268,7 @@ namespace MicrobenchmarkGui
             this.DataReadRadioButton.Name = "DataReadRadioButton";
             this.DataReadRadioButton.Size = new System.Drawing.Size(77, 17);
             this.DataReadRadioButton.TabIndex = 0;
+            this.DataReadRadioButton.TabStop = true;
             this.DataReadRadioButton.Text = "Data Read";
             this.DataReadRadioButton.UseVisualStyleBackColor = true;
             // 
@@ -262,7 +278,7 @@ namespace MicrobenchmarkGui
             this.TestMethodGroupBox.Controls.Add(this.Avx512RadioButton);
             this.TestMethodGroupBox.Controls.Add(this.AvxRadioButton);
             this.TestMethodGroupBox.Controls.Add(this.SseRadioButton);
-            this.TestMethodGroupBox.Location = new System.Drawing.Point(12, 336);
+            this.TestMethodGroupBox.Location = new System.Drawing.Point(12, 395);
             this.TestMethodGroupBox.Name = "TestMethodGroupBox";
             this.TestMethodGroupBox.Size = new System.Drawing.Size(229, 116);
             this.TestMethodGroupBox.TabIndex = 15;
@@ -336,18 +352,18 @@ namespace MicrobenchmarkGui
             // TestDurationLabel
             // 
             this.TestDurationLabel.AutoSize = true;
-            this.TestDurationLabel.Location = new System.Drawing.Point(12, 461);
+            this.TestDurationLabel.Location = new System.Drawing.Point(10, 520);
             this.TestDurationLabel.Name = "TestDurationLabel";
-            this.TestDurationLabel.Size = new System.Drawing.Size(87, 13);
+            this.TestDurationLabel.Size = new System.Drawing.Size(114, 13);
             this.TestDurationLabel.TabIndex = 19;
-            this.TestDurationLabel.Text = "Data to Transfer:";
+            this.TestDurationLabel.Text = "Base Data to Transfer:";
             // 
             // dataToTransferTextBox
             // 
-            this.dataToTransferTextBox.Location = new System.Drawing.Point(105, 458);
+            this.dataToTransferTextBox.Location = new System.Drawing.Point(126, 517);
             this.dataToTransferTextBox.MaxLength = 7;
             this.dataToTransferTextBox.Name = "dataToTransferTextBox";
-            this.dataToTransferTextBox.Size = new System.Drawing.Size(34, 20);
+            this.dataToTransferTextBox.Size = new System.Drawing.Size(62, 20);
             this.dataToTransferTextBox.TabIndex = 20;
             this.dataToTransferTextBox.Text = "512";
             this.dataToTransferTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -355,7 +371,7 @@ namespace MicrobenchmarkGui
             // gbLabel
             // 
             this.gbLabel.AutoSize = true;
-            this.gbLabel.Location = new System.Drawing.Point(146, 461);
+            this.gbLabel.Location = new System.Drawing.Point(189, 520);
             this.gbLabel.Name = "gbLabel";
             this.gbLabel.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.gbLabel.Size = new System.Drawing.Size(22, 13);
@@ -376,7 +392,7 @@ namespace MicrobenchmarkGui
             // 
             this.ExportTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.ExportTextBox.Location = new System.Drawing.Point(836, 12);
+            this.ExportTextBox.Location = new System.Drawing.Point(836, 30);
             this.ExportTextBox.Multiline = true;
             this.ExportTextBox.Name = "ExportTextBox";
             this.ExportTextBox.Size = new System.Drawing.Size(273, 123);
@@ -387,7 +403,7 @@ namespace MicrobenchmarkGui
             this.groupBox2.Controls.Add(this.JsFormatRadioButton);
             this.groupBox2.Controls.Add(this.CsvFormatRadioButton);
             this.groupBox2.Controls.Add(this.ExportExcelButton);
-            this.groupBox2.Location = new System.Drawing.Point(720, 12);
+            this.groupBox2.Location = new System.Drawing.Point(720, 30);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(110, 123);
             this.groupBox2.TabIndex = 26;
@@ -439,7 +455,7 @@ namespace MicrobenchmarkGui
             this.ChartControlsGroupBox.Controls.Add(this.SpecifyNextColorRadioButton);
             this.ChartControlsGroupBox.Controls.Add(this.RandomizeNextColorRadioButton);
             this.ChartControlsGroupBox.Controls.Add(this.ClearChartButton);
-            this.ChartControlsGroupBox.Location = new System.Drawing.Point(449, 12);
+            this.ChartControlsGroupBox.Location = new System.Drawing.Point(449, 30);
             this.ChartControlsGroupBox.Name = "ChartControlsGroupBox";
             this.ChartControlsGroupBox.Size = new System.Drawing.Size(265, 123);
             this.ChartControlsGroupBox.TabIndex = 28;
@@ -533,22 +549,47 @@ namespace MicrobenchmarkGui
             this.RandomizeNextColorRadioButton.Text = "Random Next Color";
             this.RandomizeNextColorRadioButton.UseVisualStyleBackColor = true;
             // 
-            // DataNtReadRadioButton
+            // TestTypeGroupBox
             // 
-            this.DataNtReadRadioButton.AutoSize = true;
-            this.DataNtReadRadioButton.Location = new System.Drawing.Point(7, 42);
-            this.DataNtReadRadioButton.Name = "DataNtReadRadioButton";
-            this.DataNtReadRadioButton.Size = new System.Drawing.Size(147, 17);
-            this.DataNtReadRadioButton.TabIndex = 5;
-            this.DataNtReadRadioButton.Text = "Data Non-Temporal Read";
-            this.DataNtReadRadioButton.UseVisualStyleBackColor = true;
-            this.DataNtReadRadioButton.CheckedChanged += new System.EventHandler(this.CheckWriteModeChange);
+            this.TestTypeGroupBox.Controls.Add(this.MemoryLatencyRadioButton);
+            this.TestTypeGroupBox.Controls.Add(this.MemoryBandwidthRadioButton);
+            this.TestTypeGroupBox.Location = new System.Drawing.Point(10, 67);
+            this.TestTypeGroupBox.Name = "TestTypeGroupBox";
+            this.TestTypeGroupBox.Size = new System.Drawing.Size(229, 68);
+            this.TestTypeGroupBox.TabIndex = 29;
+            this.TestTypeGroupBox.TabStop = false;
+            this.TestTypeGroupBox.Text = "Test Type";
+            // 
+            // MemoryLatencyRadioButton
+            // 
+            this.MemoryLatencyRadioButton.AutoSize = true;
+            this.MemoryLatencyRadioButton.Location = new System.Drawing.Point(7, 42);
+            this.MemoryLatencyRadioButton.Name = "MemoryLatencyRadioButton";
+            this.MemoryLatencyRadioButton.Size = new System.Drawing.Size(103, 17);
+            this.MemoryLatencyRadioButton.TabIndex = 1;
+            this.MemoryLatencyRadioButton.Text = "Memory Latency";
+            this.MemoryLatencyRadioButton.UseVisualStyleBackColor = true;
+            this.MemoryLatencyRadioButton.CheckedChanged += new System.EventHandler(this.LatencyTestRadioButton_CheckedChanged);
+            // 
+            // MemoryBandwidthRadioButton
+            // 
+            this.MemoryBandwidthRadioButton.AutoSize = true;
+            this.MemoryBandwidthRadioButton.Checked = true;
+            this.MemoryBandwidthRadioButton.Location = new System.Drawing.Point(7, 19);
+            this.MemoryBandwidthRadioButton.Name = "MemoryBandwidthRadioButton";
+            this.MemoryBandwidthRadioButton.Size = new System.Drawing.Size(115, 17);
+            this.MemoryBandwidthRadioButton.TabIndex = 0;
+            this.MemoryBandwidthRadioButton.TabStop = true;
+            this.MemoryBandwidthRadioButton.Text = "Memory Bandwidth";
+            this.MemoryBandwidthRadioButton.UseVisualStyleBackColor = true;
+            this.MemoryBandwidthRadioButton.CheckedChanged += new System.EventHandler(this.LatencyTestRadioButton_CheckedChanged);
             // 
             // MicrobenchmarkForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1121, 521);
+            this.ClientSize = new System.Drawing.Size(1121, 582);
+            this.Controls.Add(this.TestTypeGroupBox);
             this.Controls.Add(this.ChartControlsGroupBox);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.ExportTextBox);
@@ -558,7 +599,7 @@ namespace MicrobenchmarkGui
             this.Controls.Add(this.ThreadCountTrackbar);
             this.Controls.Add(this.progressLabel);
             this.Controls.Add(this.TestMethodGroupBox);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.AccessModeGroupBox);
             this.Controls.Add(this.CancelRunButton);
             this.Controls.Add(this.ThreadingModeGroupBox);
             this.Controls.Add(this.ThreadCountLabel);
@@ -572,8 +613,8 @@ namespace MicrobenchmarkGui
             ((System.ComponentModel.ISupportInitialize)(this.ResultChart)).EndInit();
             this.ThreadingModeGroupBox.ResumeLayout(false);
             this.ThreadingModeGroupBox.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.AccessModeGroupBox.ResumeLayout(false);
+            this.AccessModeGroupBox.PerformLayout();
             this.TestMethodGroupBox.ResumeLayout(false);
             this.TestMethodGroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ThreadCountTrackbar)).EndInit();
@@ -581,6 +622,8 @@ namespace MicrobenchmarkGui
             this.groupBox2.PerformLayout();
             this.ChartControlsGroupBox.ResumeLayout(false);
             this.ChartControlsGroupBox.PerformLayout();
+            this.TestTypeGroupBox.ResumeLayout(false);
+            this.TestTypeGroupBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -596,7 +639,7 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.RadioButton SharedRadioButton;
         private System.Windows.Forms.RadioButton PrivateRadioButton;
         private System.Windows.Forms.Button CancelRunButton;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox AccessModeGroupBox;
         private System.Windows.Forms.RadioButton InstructionFetchRadioButton;
         private System.Windows.Forms.RadioButton DataAddRadioButton;
         private System.Windows.Forms.RadioButton DataWriteRadioButton;
@@ -629,6 +672,9 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.Label GLabel;
         private System.Windows.Forms.RadioButton DataNtWriteRadioButton;
         private System.Windows.Forms.RadioButton DataNtReadRadioButton;
+        private System.Windows.Forms.GroupBox TestTypeGroupBox;
+        private System.Windows.Forms.RadioButton MemoryLatencyRadioButton;
+        private System.Windows.Forms.RadioButton MemoryBandwidthRadioButton;
     }
 }
 
