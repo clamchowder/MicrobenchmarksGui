@@ -289,6 +289,12 @@ namespace MicrobenchmarkGui
                 return;
             }
 
+            if (iterations < 1000)
+            {
+                SetProgressLabel("Iteration count is unreasonably low. Try a value over 1000");
+                return;
+            }
+
             CancelRunningTest(true);
             runCancel = new CancellationTokenSource();
             testTask = Task.Run(() => latencyRunner.StartFullTest(asm, largePages, iterations, runCancel.Token));

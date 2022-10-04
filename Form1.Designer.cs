@@ -362,7 +362,7 @@ namespace MicrobenchmarkGui
             // dataToTransferTextBox
             // 
             this.dataToTransferTextBox.Location = new System.Drawing.Point(126, 517);
-            this.dataToTransferTextBox.MaxLength = 7;
+            this.dataToTransferTextBox.MaxLength = 10;
             this.dataToTransferTextBox.Name = "dataToTransferTextBox";
             this.dataToTransferTextBox.Size = new System.Drawing.Size(62, 20);
             this.dataToTransferTextBox.TabIndex = 20;
