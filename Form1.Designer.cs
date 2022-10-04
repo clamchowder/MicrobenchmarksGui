@@ -29,9 +29,9 @@ namespace MicrobenchmarkGui
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.RunBandwidthTestButton = new System.Windows.Forms.Button();
             this.resultListView = new System.Windows.Forms.ListView();
             this.ResultLabel = new System.Windows.Forms.Label();
@@ -124,16 +124,16 @@ namespace MicrobenchmarkGui
             this.ResultChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea4.Name = "ChartArea1";
-            this.ResultChart.ChartAreas.Add(chartArea4);
-            legend4.Name = "Legend1";
-            this.ResultChart.Legends.Add(legend4);
+            chartArea1.Name = "ChartArea1";
+            this.ResultChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.ResultChart.Legends.Add(legend1);
             this.ResultChart.Location = new System.Drawing.Point(448, 159);
             this.ResultChart.Name = "ResultChart";
-            series4.ChartArea = "ChartArea1";
-            series4.Legend = "Legend1";
-            series4.Name = "Series1";
-            this.ResultChart.Series.Add(series4);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.ResultChart.Series.Add(series1);
             this.ResultChart.Size = new System.Drawing.Size(661, 411);
             this.ResultChart.TabIndex = 6;
             this.ResultChart.Text = "chart1";
@@ -620,6 +620,7 @@ namespace MicrobenchmarkGui
             this.Controls.Add(this.RunBandwidthTestButton);
             this.Name = "MicrobenchmarkForm";
             this.Text = "Clam Cache and Mem Benchmark";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MicrobenchmarkForm_FormClosed);
             this.Load += new System.EventHandler(this.MicrobenchmarkForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.ResultChart)).EndInit();
             this.ThreadingModeGroupBox.ResumeLayout(false);

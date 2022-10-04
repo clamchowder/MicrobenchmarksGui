@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -98,6 +99,9 @@ namespace MicrobenchmarkGui
 
             randomThings = new Random();
             SetDefaultMethodState();
+
+            OpCode.Open();
+            this.Text = "Clam Cache/Mem Benchmark: " + OpCode.GetProcessorName();
         }
 
         public void SetDefaultMethodState()
@@ -589,6 +593,11 @@ namespace MicrobenchmarkGui
                 ColorBBox.Enabled = false;
                 specifyColor = false;
             }
+        }
+
+        private void MicrobenchmarkForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            OpCode.Close();
         }
     }
 }
