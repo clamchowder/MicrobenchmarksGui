@@ -29,9 +29,9 @@ namespace MicrobenchmarkGui
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.RunBandwidthTestButton = new System.Windows.Forms.Button();
             this.resultListView = new System.Windows.Forms.ListView();
             this.ResultLabel = new System.Windows.Forms.Label();
@@ -61,6 +61,7 @@ namespace MicrobenchmarkGui
             this.ExportExcelButton = new System.Windows.Forms.Button();
             this.ExportTextBox = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.ExportListBox = new System.Windows.Forms.ListBox();
             this.JsFormatRadioButton = new System.Windows.Forms.RadioButton();
             this.CsvFormatRadioButton = new System.Windows.Forms.RadioButton();
             this.ClearChartButton = new System.Windows.Forms.Button();
@@ -123,16 +124,16 @@ namespace MicrobenchmarkGui
             this.ResultChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea1.Name = "ChartArea1";
-            this.ResultChart.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.ResultChart.Legends.Add(legend1);
+            chartArea4.Name = "ChartArea1";
+            this.ResultChart.ChartAreas.Add(chartArea4);
+            legend4.Name = "Legend1";
+            this.ResultChart.Legends.Add(legend4);
             this.ResultChart.Location = new System.Drawing.Point(448, 159);
             this.ResultChart.Name = "ResultChart";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.ResultChart.Series.Add(series1);
+            series4.ChartArea = "ChartArea1";
+            series4.Legend = "Legend1";
+            series4.Name = "Series1";
+            this.ResultChart.Series.Add(series4);
             this.ResultChart.Size = new System.Drawing.Size(661, 411);
             this.ResultChart.TabIndex = 6;
             this.ResultChart.Text = "chart1";
@@ -392,23 +393,33 @@ namespace MicrobenchmarkGui
             // 
             this.ExportTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.ExportTextBox.Location = new System.Drawing.Point(836, 30);
+            this.ExportTextBox.Location = new System.Drawing.Point(927, 30);
             this.ExportTextBox.Multiline = true;
             this.ExportTextBox.Name = "ExportTextBox";
-            this.ExportTextBox.Size = new System.Drawing.Size(273, 123);
+            this.ExportTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.ExportTextBox.Size = new System.Drawing.Size(182, 123);
             this.ExportTextBox.TabIndex = 25;
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.ExportListBox);
             this.groupBox2.Controls.Add(this.JsFormatRadioButton);
             this.groupBox2.Controls.Add(this.CsvFormatRadioButton);
             this.groupBox2.Controls.Add(this.ExportExcelButton);
-            this.groupBox2.Location = new System.Drawing.Point(720, 30);
+            this.groupBox2.Location = new System.Drawing.Point(685, 30);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(110, 123);
+            this.groupBox2.Size = new System.Drawing.Size(236, 123);
             this.groupBox2.TabIndex = 26;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Export Last Run";
+            this.groupBox2.Text = "Export";
+            // 
+            // ExportListBox
+            // 
+            this.ExportListBox.FormattingEnabled = true;
+            this.ExportListBox.Location = new System.Drawing.Point(108, 10);
+            this.ExportListBox.Name = "ExportListBox";
+            this.ExportListBox.Size = new System.Drawing.Size(120, 108);
+            this.ExportListBox.TabIndex = 26;
             // 
             // JsFormatRadioButton
             // 
@@ -437,9 +448,9 @@ namespace MicrobenchmarkGui
             // 
             this.ClearChartButton.Location = new System.Drawing.Point(7, 94);
             this.ClearChartButton.Name = "ClearChartButton";
-            this.ClearChartButton.Size = new System.Drawing.Size(75, 23);
+            this.ClearChartButton.Size = new System.Drawing.Size(86, 23);
             this.ClearChartButton.TabIndex = 27;
-            this.ClearChartButton.Text = "Clear Chart";
+            this.ClearChartButton.Text = "Clear Results";
             this.ClearChartButton.UseVisualStyleBackColor = true;
             this.ClearChartButton.Click += new System.EventHandler(this.ClearChartButton_Click);
             // 
@@ -457,7 +468,7 @@ namespace MicrobenchmarkGui
             this.ChartControlsGroupBox.Controls.Add(this.ClearChartButton);
             this.ChartControlsGroupBox.Location = new System.Drawing.Point(449, 30);
             this.ChartControlsGroupBox.Name = "ChartControlsGroupBox";
-            this.ChartControlsGroupBox.Size = new System.Drawing.Size(265, 123);
+            this.ChartControlsGroupBox.Size = new System.Drawing.Size(230, 123);
             this.ChartControlsGroupBox.TabIndex = 28;
             this.ChartControlsGroupBox.TabStop = false;
             this.ChartControlsGroupBox.Text = "Chart Controls";
@@ -675,6 +686,7 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.GroupBox TestTypeGroupBox;
         private System.Windows.Forms.RadioButton MemoryLatencyRadioButton;
         private System.Windows.Forms.RadioButton MemoryBandwidthRadioButton;
+        private System.Windows.Forms.ListBox ExportListBox;
     }
 }
 

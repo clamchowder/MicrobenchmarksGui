@@ -22,9 +22,11 @@ namespace MicrobenchmarkGui
         /// </summary>
         public BenchmarkFunctions.TestType testType;
 
+        // run results
+        public Dictionary<string, List<Tuple<float, float>>> RunResults;
+
         // last run results
         public string[][] formattedResults;
-        public float[] testResults;
 
         /// <summary>
         /// List of test results from last run
@@ -60,6 +62,8 @@ namespace MicrobenchmarkGui
             this.resultListView = resultListView;
             this.resultChart = resultChart;
             this.progressLabel = progressLabel;
+
+            this.RunResults = new Dictionary<string, List<Tuple<float, float>>>();
         }
 
         private uint GetIterationCount(uint testSize, uint threads, uint dataGb)
@@ -79,6 +83,8 @@ namespace MicrobenchmarkGui
         public void StartFullTest(uint threads, bool shared, BenchmarkFunctions.TestType testType, uint dataGb, CancellationToken runCancel)
         {
             running = true;
+            string testLabel = threads + "T " + testType.ToString();
+            List<Tuple<float, float>> currentRunResults = new List<Tuple<float, float>>();
             testResultsList = new List<float>();
             floatTestPoints = new List<float>();
             resultListView.Invoke(setListViewColumnsDelegate, new object[] { bwCols });
@@ -114,13 +120,14 @@ namespace MicrobenchmarkGui
                 {
                     floatTestPoints.Add(testSize);
                     testResultsList.Add(result);
-                    resultChart.Invoke(setChartDelegate, new object[] { threads + "T " + testType.ToString(), floatTestPoints.ToArray(), testResultsList.ToArray() });
+                    currentRunResults.Add(new Tuple<float, float>(testSize, result));
+                    resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray() });
                 }
             }
 
             progressLabel.Invoke(setProgressLabelDelegate, new object[] { "Run finished" });
-
             running = false;
+            RunResults.Add(testLabel, currentRunResults);
         }
 
         // Run a single test size, meant to be run in a background thread

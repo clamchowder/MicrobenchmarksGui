@@ -372,10 +372,36 @@ namespace MicrobenchmarkGui
             }
         }
 
+        public delegate void SafeSetExportListBox();
+        public void SetExportListBox() 
+        {
+            // Update ExportListBox
+            ExportListBox.Items.Clear();
+
+            // Add latency test results
+            if (bwRunner != null)
+            {
+                foreach (KeyValuePair<string, List<Tuple<float, float>>> kvp in bwRunner.RunResults)
+                {
+                    ExportListBox.Items.Add(kvp.Key);
+                }
+            }
+
+            if (latencyRunner != null)
+            {
+                foreach (KeyValuePair<string, List<Tuple<float, float>>> kvp in latencyRunner.RunResults)
+                {
+                    ExportListBox.Items.Add(kvp.Key);
+                }
+            }
+        }
+
         private async Task HandleTestRunCompletion(Task task, SafeSetCancelButtonState setCancelButtonDelegate)
         {
             await task;
             CancelRunButton.Invoke(setCancelButtonDelegate, new object[] { false });
+            SafeSetExportListBox safeSetExportListBox = SetExportListBox;
+            ExportListBox.Invoke(safeSetExportListBox, new object[] { });
         }
 
         private void CancelButton_Click(object sender, EventArgs e)
@@ -501,29 +527,35 @@ namespace MicrobenchmarkGui
 
         private void ExportExcelButton_Click(object sender, EventArgs e)
         {
+            string output = "";
             bool jsFormat = JsFormatRadioButton.Checked;
-            string output = "No run yet";
-            if (bwRunner != null && bwRunner.testResultsList != null && bwRunner.floatTestPoints != null)
+            string selectedRun = ExportListBox.SelectedItem.ToString();
+            List<Tuple<float, float>> runResults;
+            if (bwRunner != null && bwRunner.RunResults.ContainsKey(selectedRun))
             {
-                float[] testPoints = bwRunner.floatTestPoints.ToArray();
-                float[] testResults = bwRunner.testResultsList.ToArray();
+                runResults = bwRunner.RunResults[selectedRun];
+                if (!jsFormat) output = "Region (KB),Bandwidth (GB/s)";
+            }
+            else if (latencyRunner != null && latencyRunner.RunResults.ContainsKey(selectedRun))
+            {
+                runResults = latencyRunner.RunResults[selectedRun];
+                if (!jsFormat) output = "Test Size (KB), Latency (ns)";
+            }
+            else
+            {
+                // should not happen
+                return;
+            }
+
+            foreach (Tuple<float, float> pt in runResults)
+            {
                 if (!jsFormat)
                 {
-                    if (MemoryLatencyRadioButton.Checked) output = "Test Size (KB), Latency (ns)";
-                    else output = "Region (KB),Bandwidth (GB/s)";
+                    output += "\r\n" + pt.Item1 + "," + pt.Item2;
                 }
-                else output = "";
-
-                for (int i = 0; i < testPoints.Length && i < testResults.Length; i++)
+                else
                 {
-                    if (!jsFormat)
-                    {
-                        output += "\r\n" + testPoints[i] + "," + testResults[i];
-                    }
-                    else
-                    {
-                        output += testPoints[i] + "," + testResults[i] + " ";
-                    } 
+                    output += pt.Item1 + "," + pt.Item2 + " ";
                 }
             }
 
@@ -536,6 +568,9 @@ namespace MicrobenchmarkGui
             ResultChart.Series.Clear();
             ResultChart.ChartAreas[0].AxisX.IsLogarithmic = false;
             plottedSeries.Clear();
+            ExportListBox.Items.Clear();
+            if (bwRunner != null) bwRunner.RunResults.Clear();
+            if (latencyRunner != null) latencyRunner.RunResults.Clear();
         }
 
         private void specifyNextColorRadioButton_CheckedChanged(object sender, EventArgs e)

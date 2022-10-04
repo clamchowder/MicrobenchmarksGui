@@ -24,6 +24,7 @@ int SetLargePages(uint32_t enable)
         if (mem != NULL)
         {
             VirtualFree(mem, 0, MEM_RELEASE);
+            mem = NULL;
         }
 
         return 0;
@@ -33,6 +34,7 @@ int SetLargePages(uint32_t enable)
         if (mem != NULL)
         {
             VirtualFree(mem, 0, MEM_RELEASE);
+            mem = NULL;
         }
 
         if (GetPrivilege() != 0)

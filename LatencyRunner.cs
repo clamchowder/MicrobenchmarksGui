@@ -14,9 +14,11 @@ namespace MicrobenchmarkGui
 
         public bool running = false;
 
+        // run results
+        public Dictionary<string, List<Tuple<float, float>>> RunResults;
+
         // last run results
         public string[][] formattedResults;
-        public float[] testResults;
 
         /// <summary>
         /// List of test results from last run
@@ -52,11 +54,15 @@ namespace MicrobenchmarkGui
             this.resultListView = resultListView;
             this.resultChart = resultChart;
             this.progressLabel = progressLabel;
+
+            this.RunResults = new Dictionary<string, List<Tuple<float, float>>>();
         }
 
         // Run through test sizes, meant to be run in a background thread
         public void StartFullTest(bool asm, bool largePages, uint iterations, CancellationToken runCancel)
         {
+            string testLabel = (asm ? "ASM" : "C") + ", " + (largePages ? "Large Pages" : "Default Pages");
+            List<Tuple<float, float>> currentRunResults = new List<Tuple<float, float>>();
             testResultsList = new List<float>();
             floatTestPoints = new List<float>();
             resultListView.Invoke(setListViewColumnsDelegate, new object[] { bwCols });
@@ -114,16 +120,17 @@ namespace MicrobenchmarkGui
                 else formattedResults[testIdx][1] = "N/A";
                 resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
 
-                string testLabel = (asm ? "ASM" : "C") + ", " + (largePages ? "Large Pages" : "Default Pages");
                 if (result != 0)
                 {
                     floatTestPoints.Add(testSize);
                     testResultsList.Add(result);
+                    currentRunResults.Add(new Tuple<float, float>(testSize, result));
                     resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray() });
                 }
             }
 
             progressLabel.Invoke(setProgressLabelDelegate, new object[] { "Run finished" });
+            RunResults.Add(testLabel, currentRunResults);
         }
 
         public string GetTestSizesAsString()
