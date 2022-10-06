@@ -497,6 +497,9 @@ namespace MicrobenchmarkGui
                 TestDurationLabel.Text = "Base Iterations:";
                 dataToTransferTextBox.Text = "400000000";
                 gbLabel.Text = "times";
+
+                ResultChart.ChartAreas[0].AxisY.IsLogarithmic = true;
+                ResultChart.ChartAreas[0].AxisY.LogarithmBase = 2;
                 latencyTestSet = true;
             }
             else if (MemoryBandwidthRadioButton.Checked && latencyTestSet == true)
@@ -520,6 +523,8 @@ namespace MicrobenchmarkGui
                 TestDurationLabel.Text = "Base Data to Transfer:";
                 dataToTransferTextBox.Text = "512";
                 gbLabel.Text = "GB";
+
+                ResultChart.ChartAreas[0].AxisY.IsLogarithmic = false;
                 latencyTestSet = false;
             }
         }
