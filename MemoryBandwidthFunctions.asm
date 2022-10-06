@@ -545,7 +545,7 @@ avx512_asm_add_pass_loop:
 asm_avx512_add_iteration_count:
   cmp r9, rsi
   jnz avx512_asm_add_pass_loop ; skip iteration decrement if we're not back to start
-  dec r8
+  sub r8, 2                    ; count read + writeback as two accesses
   jnz avx512_asm_add_pass_loop
   pop r14
   pop r15
