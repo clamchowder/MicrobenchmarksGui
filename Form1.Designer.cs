@@ -393,11 +393,11 @@ namespace MicrobenchmarkGui
             // 
             this.ExportTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.ExportTextBox.Location = new System.Drawing.Point(927, 30);
+            this.ExportTextBox.Location = new System.Drawing.Point(234, 10);
             this.ExportTextBox.Multiline = true;
             this.ExportTextBox.Name = "ExportTextBox";
             this.ExportTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.ExportTextBox.Size = new System.Drawing.Size(182, 123);
+            this.ExportTextBox.Size = new System.Drawing.Size(184, 107);
             this.ExportTextBox.TabIndex = 25;
             // 
             // groupBox2
@@ -405,10 +405,11 @@ namespace MicrobenchmarkGui
             this.groupBox2.Controls.Add(this.ExportListBox);
             this.groupBox2.Controls.Add(this.JsFormatRadioButton);
             this.groupBox2.Controls.Add(this.CsvFormatRadioButton);
+            this.groupBox2.Controls.Add(this.ExportTextBox);
             this.groupBox2.Controls.Add(this.ExportExcelButton);
             this.groupBox2.Location = new System.Drawing.Point(685, 30);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(236, 123);
+            this.groupBox2.Size = new System.Drawing.Size(424, 123);
             this.groupBox2.TabIndex = 26;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Export";
@@ -603,7 +604,6 @@ namespace MicrobenchmarkGui
             this.Controls.Add(this.TestTypeGroupBox);
             this.Controls.Add(this.ChartControlsGroupBox);
             this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.ExportTextBox);
             this.Controls.Add(this.gbLabel);
             this.Controls.Add(this.dataToTransferTextBox);
             this.Controls.Add(this.TestDurationLabel);

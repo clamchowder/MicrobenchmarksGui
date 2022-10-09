@@ -31,16 +31,25 @@ Most of these should be self explanatory. Anything that might require more expla
     - Taken Branch per 16B: Each 16B block has an unconditional jump that jumps to the next 16B block. Good for testing BTB capacity.
     - 4B NOPs (66 66 66 90): 4 byte NOP recommended by an old AMD Athlon optimization guide. Strangely, Athlons seem to do fine with the 0F 1F 40 00 NOPs, but some sorta old Intel CPUs benefit from this.
 
+### Test Method
+Specifies what instruction set extension to use. Memory accesses are aligned.
+- SSE: 128-bit accesses, using `movaps`
+- AVX: 256-bit accesses, using `vmovaps` with 256-bit YMM registers. May not be available on your CPU. Using AVX might not be beneficial even if your CPU supports it. For example, 256-bit AVX stores are microcoded on Piledriver and suffer from extremely slow throughput, so you should test with SSE in that case.
+- AVX-512: 512-bit accesses, using `vmovaps` with 512-bit ZMM registers. May not be avaialble on your CPU.
+- MMX: 64-bit accesses, using `movq`. MMX is a rather old instruction set extension introduced in later versions of the original Pentium. It still works on modern CPUs, even if it doesn't see a ton of use.
+
 # Memory Latency Options
+
+Memory latency has fewer test options, because it visits 64B cachelines in random order within a specified test sizes. But there are still a few controls:
 
 ## Access Mode
 - Simple addressing: instruction uses a register's value as a pointer to read from memory
 - Indexed addressing (C): C compilers like to compile `current = arr[current]` into an instruction that uses indexed addressing. In other words, the instruction specifies a base register and an index register. The CPU must add them together to get the final address used to access memory. On some CPUs, this indexed addressing mode creates an extra cycle of latency.
 
 ## Paging Mode
-Most applications have memory mapped for them in 4 KB pages, which reduces wasted memory and fragmentation. Memory can also be mapped in 2 MB pages. Windows calls this "Large Pages", while Linux calls it "Huge Pages". 2 MB pages let TLB size go further, since each cached virtual to physical address translation works with a 2 MB aligned block of memory, rather than a 4 KB one.
+Most applications have memory mapped for them in 4 KB pages, which reduces wasted memory and fragmentation. Memory can also be mapped in 2 MB pages. Windows calls this "Large Pages", while Linux calls it "Huge Pages". CPUs cache virtual to physical address translations in structures called TLBs, or translation lookaside buffers. 2 MB pages let TLB size go further, since each cached translation works with a 2 MB aligned block of memory instead of a 4 KB one. 
 
-You can use 2 MB pages to minimize address translation penalties, letting you see L2 and L3 cache latency more clearly. However, this is a bit trick to do on Windows. You need to give your account the "Lock pages in memory" privilege:
+You can use 2 MB pages to minimize address translation penalties, letting you see L2 and L3 cache latency more clearly. However, this is a bit tricky to do on Windows. You need to give your account the "Lock pages in memory" privilege:
 
 <img src="img/lockpages.png" alt="Go to local security policy, local polices, user rights assignment, lock pages in memory and add yourself" />
 
