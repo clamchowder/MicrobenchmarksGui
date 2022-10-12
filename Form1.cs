@@ -544,6 +544,12 @@ namespace MicrobenchmarkGui
         {
             string output = "";
             bool jsFormat = JsFormatRadioButton.Checked;
+            if (ExportListBox.SelectedItem == null)
+            {
+                ExportTextBox.Text = "No run selected";
+                return;
+            }
+
             string selectedRun = ExportListBox.SelectedItem.ToString();
             List<Tuple<float, float>> runResults;
             if (bwRunner != null && bwRunner.RunResults.ContainsKey(selectedRun))
