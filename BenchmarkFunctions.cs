@@ -34,7 +34,11 @@ namespace MicrobenchmarkGui
             SseNtWrite = 20,
             AvxNtWrite = 21,
             Avx512NtWrite = 22,
-            SseNtRead = 23
+            SseNtRead = 23,
+            RepMovsb = 24,
+            RepStosb = 25,
+            RepMovsd = 26,
+            RepStosd = 27
         };
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
