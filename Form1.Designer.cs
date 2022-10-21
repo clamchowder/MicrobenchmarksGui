@@ -29,9 +29,9 @@ namespace MicrobenchmarkGui
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.RunBandwidthTestButton = new System.Windows.Forms.Button();
             this.resultListView = new System.Windows.Forms.ListView();
             this.ResultLabel = new System.Windows.Forms.Label();
@@ -42,7 +42,7 @@ namespace MicrobenchmarkGui
             this.PrivateRadioButton = new System.Windows.Forms.RadioButton();
             this.CancelRunButton = new System.Windows.Forms.Button();
             this.AccessModeGroupBox = new System.Windows.Forms.GroupBox();
-            this.DataNtReadRadioButton = new System.Windows.Forms.RadioButton();
+            this.DataMicrocodedRadioButton = new System.Windows.Forms.RadioButton();
             this.DataNtWriteRadioButton = new System.Windows.Forms.RadioButton();
             this.InstructionFetchRadioButton = new System.Windows.Forms.RadioButton();
             this.DataAddRadioButton = new System.Windows.Forms.RadioButton();
@@ -124,16 +124,16 @@ namespace MicrobenchmarkGui
             this.ResultChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea1.Name = "ChartArea1";
-            this.ResultChart.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.ResultChart.Legends.Add(legend1);
+            chartArea2.Name = "ChartArea1";
+            this.ResultChart.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.ResultChart.Legends.Add(legend2);
             this.ResultChart.Location = new System.Drawing.Point(448, 159);
             this.ResultChart.Name = "ResultChart";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.ResultChart.Series.Add(series1);
+            series2.ChartArea = "ChartArea1";
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            this.ResultChart.Series.Add(series2);
             this.ResultChart.Size = new System.Drawing.Size(661, 411);
             this.ResultChart.TabIndex = 6;
             this.ResultChart.Text = "chart1";
@@ -193,7 +193,7 @@ namespace MicrobenchmarkGui
             // 
             // AccessModeGroupBox
             // 
-            this.AccessModeGroupBox.Controls.Add(this.DataNtReadRadioButton);
+            this.AccessModeGroupBox.Controls.Add(this.DataMicrocodedRadioButton);
             this.AccessModeGroupBox.Controls.Add(this.DataNtWriteRadioButton);
             this.AccessModeGroupBox.Controls.Add(this.InstructionFetchRadioButton);
             this.AccessModeGroupBox.Controls.Add(this.DataAddRadioButton);
@@ -206,16 +206,16 @@ namespace MicrobenchmarkGui
             this.AccessModeGroupBox.TabStop = false;
             this.AccessModeGroupBox.Text = "Access Mode";
             // 
-            // DataNtReadRadioButton
+            // DataMicrocodedRadioButton
             // 
-            this.DataNtReadRadioButton.AutoSize = true;
-            this.DataNtReadRadioButton.Location = new System.Drawing.Point(7, 42);
-            this.DataNtReadRadioButton.Name = "DataNtReadRadioButton";
-            this.DataNtReadRadioButton.Size = new System.Drawing.Size(147, 17);
-            this.DataNtReadRadioButton.TabIndex = 5;
-            this.DataNtReadRadioButton.Text = "Data Non-Temporal Read";
-            this.DataNtReadRadioButton.UseVisualStyleBackColor = true;
-            this.DataNtReadRadioButton.CheckedChanged += new System.EventHandler(this.CheckWriteModeChange);
+            this.DataMicrocodedRadioButton.AutoSize = true;
+            this.DataMicrocodedRadioButton.Location = new System.Drawing.Point(7, 42);
+            this.DataMicrocodedRadioButton.Name = "DataMicrocodedRadioButton";
+            this.DataMicrocodedRadioButton.Size = new System.Drawing.Size(162, 17);
+            this.DataMicrocodedRadioButton.TabIndex = 5;
+            this.DataMicrocodedRadioButton.Text = "Data, Microcoded String Ops";
+            this.DataMicrocodedRadioButton.UseVisualStyleBackColor = true;
+            this.DataMicrocodedRadioButton.CheckedChanged += new System.EventHandler(this.InstructionFetchRadioButton_CheckedChanged);
             // 
             // DataNtWriteRadioButton
             // 
@@ -683,7 +683,7 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.TextBox ColorGBox;
         private System.Windows.Forms.Label GLabel;
         private System.Windows.Forms.RadioButton DataNtWriteRadioButton;
-        private System.Windows.Forms.RadioButton DataNtReadRadioButton;
+        private System.Windows.Forms.RadioButton DataMicrocodedRadioButton;
         private System.Windows.Forms.GroupBox TestTypeGroupBox;
         private System.Windows.Forms.RadioButton MemoryLatencyRadioButton;
         private System.Windows.Forms.RadioButton MemoryBandwidthRadioButton;

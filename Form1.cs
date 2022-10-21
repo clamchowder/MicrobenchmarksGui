@@ -22,6 +22,10 @@ namespace MicrobenchmarkGui
         private RadioButton CRadioButton;
         private RadioButton DefaultPagesRadioButton;
         private RadioButton LargePagesRadioButton;
+        private RadioButton RepMovsbRadioButton;
+        private RadioButton RepStosbRadioButton;
+        private RadioButton RepMovsdRadioButton;
+        private RadioButton RepStosdRadioButton;
         private Random randomThings;
 
         private bool avxSupported;
@@ -53,6 +57,26 @@ namespace MicrobenchmarkGui
             K8FourByteNops.Text = "4B NOPs (66 66 66 90)";
             K8FourByteNops.Location = new Point(7, 92);
             K8FourByteNops.Size = groupBoxRadioButtonSize;
+
+            RepMovsbRadioButton = new RadioButton();
+            RepMovsbRadioButton.Text = "REP MOVSB (Copy)";
+            RepMovsbRadioButton.Location = new Point(7, 20);
+            RepMovsbRadioButton.Size = groupBoxRadioButtonSize;
+
+            RepStosbRadioButton = new RadioButton();
+            RepStosbRadioButton.Text = "REP STOSB (Write)";
+            RepStosbRadioButton.Location = new Point(7, 44);
+            RepStosbRadioButton.Size = groupBoxRadioButtonSize;
+
+            RepMovsdRadioButton = new RadioButton();
+            RepMovsdRadioButton.Text = "REP MOVSD (Copy)";
+            RepMovsdRadioButton.Location = new Point(7, 68);
+            RepMovsdRadioButton.Size = groupBoxRadioButtonSize;
+
+            RepStosdRadioButton = new RadioButton();
+            RepStosdRadioButton.Text = "REP STOSD (Write)";
+            RepStosdRadioButton.Location = new Point(7, 92);
+            RepStosdRadioButton.Size = groupBoxRadioButtonSize;
 
             AsmRadioButton = new RadioButton();
             AsmRadioButton.Text = "Simple Addressing (ASM)";
@@ -341,7 +365,7 @@ namespace MicrobenchmarkGui
                 else if (Avx512RadioButton.Checked) testType = BenchmarkFunctions.TestType.Avx512NtWrite;
                 else if (MmxRadioButton.Checked) testType = BenchmarkFunctions.TestType.MmxNtWrite;
             }
-            else if (DataNtReadRadioButton.Checked)
+            else if (DataMicrocodedRadioButton.Checked)
             {
                 testType = BenchmarkFunctions.TestType.SseNtRead;
             }
@@ -363,6 +387,14 @@ namespace MicrobenchmarkGui
                 else if (EightByteNops.Checked) testType = BenchmarkFunctions.TestType.Instr8;
                 else if (K8FourByteNops.Checked) testType = BenchmarkFunctions.TestType.K8Instr4;
                 else if (BranchPer16B.Checked) testType = BenchmarkFunctions.TestType.Branch16;
+            }
+
+            if (DataMicrocodedRadioButton.Checked)
+            {
+                if (RepMovsbRadioButton.Checked) testType = BenchmarkFunctions.TestType.RepMovsb;
+                else if (RepStosbRadioButton.Checked) testType = BenchmarkFunctions.TestType.RepStosb;
+                else if (RepMovsdRadioButton.Checked) testType = BenchmarkFunctions.TestType.RepMovsd;
+                else if (RepStosdRadioButton.Checked) testType = BenchmarkFunctions.TestType.RepStosd;
             }
 
             CancelRunningTest(true);
@@ -421,7 +453,7 @@ namespace MicrobenchmarkGui
 
         private void CheckWriteModeChange(object sender, EventArgs e)
         {
-            if (DataWriteRadioButton.Checked || DataAddRadioButton.Checked || DataNtWriteRadioButton.Checked)
+            if (DataWriteRadioButton.Checked || DataAddRadioButton.Checked || DataNtWriteRadioButton.Checked || DataMicrocodedRadioButton.Checked)
             {
                 PrivateRadioButton.Checked = true;
                 SharedRadioButton.Checked = false;
@@ -431,45 +463,69 @@ namespace MicrobenchmarkGui
             {
                 SharedRadioButton.Enabled = true;
             }
+        }
 
-            if (DataNtReadRadioButton.Checked)
+        private void SetInstructionFetchTestMethods()
+        {
+            this.TestMethodGroupBox.SuspendLayout();
+            this.TestMethodGroupBox.Controls.Clear();
+            this.TestMethodGroupBox.Controls.Add(this.FourByteNops);
+            this.TestMethodGroupBox.Controls.Add(this.EightByteNops);
+            this.TestMethodGroupBox.Controls.Add(this.K8FourByteNops);
+            this.TestMethodGroupBox.Controls.Add(this.BranchPer16B);
+            this.TestMethodGroupBox.PerformLayout();
+            this.EightByteNops.Checked = true;
+            this.FourByteNops.Checked = false;
+            this.K8FourByteNops.Checked = false;
+            this.BranchPer16B.Checked = false;
+        }
+
+        private void SetDataTestMethods()
+        {
+            this.TestMethodGroupBox.SuspendLayout();
+            this.TestMethodGroupBox.Controls.Clear();
+            this.TestMethodGroupBox.Controls.Add(this.Avx512RadioButton);
+            this.TestMethodGroupBox.Controls.Add(this.AvxRadioButton);
+            this.TestMethodGroupBox.Controls.Add(this.SseRadioButton);
+            this.TestMethodGroupBox.Controls.Add(this.MmxRadioButton);
+            SetDefaultMethodState();
+            this.TestMethodGroupBox.PerformLayout();
+        }
+
+        private void SetMicrocodedTestMethods()
+        {
+            this.TestMethodGroupBox.SuspendLayout();
+            this.TestMethodGroupBox.Controls.Clear();
+            this.TestMethodGroupBox.Controls.Add(this.RepMovsbRadioButton);
+            this.TestMethodGroupBox.Controls.Add(this.RepStosbRadioButton);
+            this.TestMethodGroupBox.Controls.Add(this.RepMovsdRadioButton);
+            this.TestMethodGroupBox.Controls.Add(this.RepStosdRadioButton);
+            this.RepMovsbRadioButton.Checked = true;
+            this.RepStosbRadioButton.Checked = false;
+            this.RepMovsdRadioButton.Checked = false;
+            this.RepStosdRadioButton.Checked = false;
+        }
+
+        private void SetTestMethodState()
+        {
+            if (InstructionFetchRadioButton.Checked)
             {
-                MmxRadioButton.Enabled = false;
-                SseRadioButton.Checked = true;
+                SetInstructionFetchTestMethods();
+            }
+            else if (DataMicrocodedRadioButton.Checked)
+            {
+                SetMicrocodedTestMethods();
             }
             else
             {
-                MmxRadioButton.Enabled = true;
+                SetDataTestMethods();
             }
         }
 
         private void InstructionFetchRadioButton_CheckedChanged(object sender, EventArgs e)
         {
-            if (InstructionFetchRadioButton.Checked)
-            {
-                this.TestMethodGroupBox.SuspendLayout();
-                this.TestMethodGroupBox.Controls.Clear();
-                this.TestMethodGroupBox.Controls.Add(this.FourByteNops);
-                this.TestMethodGroupBox.Controls.Add(this.EightByteNops);
-                this.TestMethodGroupBox.Controls.Add(this.K8FourByteNops);
-                this.TestMethodGroupBox.Controls.Add(this.BranchPer16B);
-                this.TestMethodGroupBox.PerformLayout();
-                this.EightByteNops.Checked = true;
-                this.FourByteNops.Checked = false;
-                this.K8FourByteNops.Checked = false;
-                this.BranchPer16B.Checked = false;
-            }
-            else if (!InstructionFetchRadioButton.Checked)
-            {
-                this.TestMethodGroupBox.SuspendLayout();
-                this.TestMethodGroupBox.Controls.Clear();
-                this.TestMethodGroupBox.Controls.Add(this.Avx512RadioButton);
-                this.TestMethodGroupBox.Controls.Add(this.AvxRadioButton);
-                this.TestMethodGroupBox.Controls.Add(this.SseRadioButton);
-                this.TestMethodGroupBox.Controls.Add(this.MmxRadioButton);
-                SetDefaultMethodState();
-                this.TestMethodGroupBox.PerformLayout();
-            }
+            SetTestMethodState();
+            CheckWriteModeChange(sender, e);
         }
 
         bool latencyTestSet = false;
@@ -513,7 +569,7 @@ namespace MicrobenchmarkGui
                 AccessModeGroupBox.Text = "Access Mode";
                 AccessModeGroupBox.Controls.Clear();
                 AccessModeGroupBox.Controls.Add(DataReadRadioButton);
-                AccessModeGroupBox.Controls.Add(DataNtReadRadioButton);
+                AccessModeGroupBox.Controls.Add(DataMicrocodedRadioButton);
                 AccessModeGroupBox.Controls.Add(DataWriteRadioButton);
                 AccessModeGroupBox.Controls.Add(DataNtWriteRadioButton);
                 AccessModeGroupBox.Controls.Add(DataAddRadioButton);
