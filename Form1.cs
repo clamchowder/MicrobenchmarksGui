@@ -26,6 +26,11 @@ namespace MicrobenchmarkGui
         private RadioButton RepStosbRadioButton;
         private RadioButton RepMovsdRadioButton;
         private RadioButton RepStosdRadioButton;
+
+        private RadioButton GlobalScalarRadioButton;
+        private RadioButton GlobalVectorRadioButton;
+        private RadioButton ConstantScalarRadioButton;
+
         private Random randomThings;
 
         private bool avxSupported;
@@ -99,6 +104,21 @@ namespace MicrobenchmarkGui
             LargePagesRadioButton.Text = "Large Pages (2 MB Pages)";
             LargePagesRadioButton.Location = new Point(7, 44);
             LargePagesRadioButton.Size = groupBoxRadioButtonSize;
+
+            GlobalScalarRadioButton = new RadioButton();
+            GlobalScalarRadioButton.Text = "Global Memory, Scalar";
+            GlobalScalarRadioButton.Location = new Point(7, 20);
+            GlobalScalarRadioButton.Size = groupBoxRadioButtonSize;
+
+            GlobalVectorRadioButton = new RadioButton();
+            GlobalVectorRadioButton.Text = "Global Memory, Vector";
+            GlobalVectorRadioButton.Location = new Point(7, 44);
+            GlobalVectorRadioButton.Size = groupBoxRadioButtonSize;
+
+            ConstantScalarRadioButton = new RadioButton();
+            ConstantScalarRadioButton.Text = "Constant Memory, Scalar";
+            ConstantScalarRadioButton.Location = new Point(7, 68);
+            ConstantScalarRadioButton.Size = groupBoxRadioButtonSize;
 
             ThreadCountTrackbar.Maximum = Environment.ProcessorCount;
             ResultChart.Titles.Add("Result Plot");
@@ -296,6 +316,30 @@ namespace MicrobenchmarkGui
             {
                 RunLatencyTest();
             }
+            else if (this.OpenCLLatencyRadioButton.Checked)
+            {
+                RunClLatencyTest();
+            }
+        }
+
+        private void RunClLatencyTest()
+        {
+            CancelRunningTest(true);
+            runCancel = new CancellationTokenSource();
+            BenchmarkFunctions.CLTestType clLatencyTestMode = BenchmarkFunctions.CLTestType.GlobalScalar;
+            if (GlobalScalarRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.GlobalScalar;
+            else if (GlobalVectorRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.GlobalVector;
+            else if (ConstantScalarRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.ConstantScalar;
+            testTask = Task.Run(() => OpenCLTest.RunLatencyTest(SetResultListView,
+                SetResultListViewColumns,
+                SetResultChart,
+                SetProgressLabel,
+                resultListView,
+                ResultChart,
+                progressLabel,
+                clLatencyTestMode));
+            CancelRunButton.Enabled = true;
+            Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState));
         }
 
         private void RunLatencyTest()
@@ -528,10 +572,9 @@ namespace MicrobenchmarkGui
             CheckWriteModeChange(sender, e);
         }
 
-        bool latencyTestSet = false;
         private void LatencyTestRadioButton_CheckedChanged(object sender, EventArgs e)
         {
-            if (MemoryLatencyRadioButton.Checked && latencyTestSet == false)
+            if (MemoryLatencyRadioButton.Checked)
             {
                 // mem latency test is always ST, no exceptions
                 ThreadingModeGroupBox.Enabled = false;
@@ -546,19 +589,22 @@ namespace MicrobenchmarkGui
                 TestMethodGroupBox.Controls.Add(LargePagesRadioButton);
                 TestMethodGroupBox.PerformLayout();
 
+                AccessModeGroupBox.Text = "Access Mode";
                 AccessModeGroupBox.Controls.Clear();
                 AccessModeGroupBox.Controls.Add(CRadioButton);
                 AccessModeGroupBox.Controls.Add(AsmRadioButton);
                 AccessModeGroupBox.PerformLayout();
+
+                TestDurationLabel.Enabled = true;
+                dataToTransferTextBox.Enabled = true;
                 TestDurationLabel.Text = "Base Iterations:";
                 dataToTransferTextBox.Text = "400000000";
                 gbLabel.Text = "times";
 
                 ResultChart.ChartAreas[0].AxisY.IsLogarithmic = true;
                 ResultChart.ChartAreas[0].AxisY.LogarithmBase = 2;
-                latencyTestSet = true;
             }
-            else if (MemoryBandwidthRadioButton.Checked && latencyTestSet == true)
+            else if (MemoryBandwidthRadioButton.Checked)
             {
                 ThreadingModeGroupBox.Enabled = true;
                 ThreadCountTrackbar.Enabled = true;
@@ -576,12 +622,35 @@ namespace MicrobenchmarkGui
                 AccessModeGroupBox.Controls.Add(InstructionFetchRadioButton);
                 AccessModeGroupBox.PerformLayout();
 
+                TestDurationLabel.Enabled = true;
+                dataToTransferTextBox.Enabled = true;
                 TestDurationLabel.Text = "Base Data to Transfer:";
                 dataToTransferTextBox.Text = "512";
                 gbLabel.Text = "GB";
 
                 ResultChart.ChartAreas[0].AxisY.IsLogarithmic = false;
-                latencyTestSet = false;
+            }
+            else if (OpenCLLatencyRadioButton.Checked)
+            {
+                ThreadingModeGroupBox.Enabled = false;
+
+                TestMethodGroupBox.Text = "Access Mode";
+                TestMethodGroupBox.SuspendLayout();
+                TestMethodGroupBox.Controls.Clear();
+                TestMethodGroupBox.Controls.Add(GlobalScalarRadioButton);
+                TestMethodGroupBox.Controls.Add(GlobalVectorRadioButton);
+                TestMethodGroupBox.Controls.Add(ConstantScalarRadioButton);
+                GlobalScalarRadioButton.Checked = true;
+                GlobalVectorRadioButton.Checked = false;
+                ConstantScalarRadioButton.Checked = false;
+                TestMethodGroupBox.PerformLayout();
+
+                // have to auto set duration to avoid TDR
+                TestDurationLabel.Enabled = false;
+                dataToTransferTextBox.Enabled = false;
+
+                // Add OpenCL devices via pinvoke call
+                progressLabel.Text = OpenCLTest.InitializeDeviceControls(AccessModeGroupBox);
             }
         }
 

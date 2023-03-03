@@ -59,7 +59,7 @@ int SetLargePages(uint32_t enable)
 /// <param name="iterations">base iterations</param>
 /// <returns>scaled iterations</returns>
 uint64_t scale_iterations(uint32_t size_kb, uint64_t iterations) {
-    return 10 * iterations / pow(size_kb, 1.0 / 4.0);
+    return (uint64_t)(10 * iterations / pow(size_kb, 1.0 / 4.0));
 }
 
 /// <summary>
