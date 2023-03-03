@@ -90,7 +90,8 @@ namespace MicrobenchmarkGui
             None = 0,
             GlobalScalar = 1,
             GlobalVector = 2,
-            ConstantScalar = 3
+            ConstantScalar = 3,
+            Texture
         };
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
@@ -107,5 +108,8 @@ namespace MicrobenchmarkGui
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern ulong GetDeviceMaxBufferSize();
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern ulong GetDeviceMaxTextureSize();
     }
 }

@@ -54,6 +54,7 @@ namespace MicrobenchmarkGui
                     device.DeviceIndex = deviceIdx;
                     BenchmarkFunctions.GetDeviceName(platformIdx, deviceIdx, nameBuffer, maxNameLength);
                     device.DeviceName = Marshal.PtrToStringAnsi(nameBuffer);
+                    device.DeviceName = device.DeviceName.Trim();
                     openCLDevices.Add(device);
                 }
             }
@@ -141,22 +142,6 @@ namespace MicrobenchmarkGui
                 return;
             }
 
-            // Set GUI stuff
-            List<Tuple<float, float>> currentRunResults = new List<Tuple<float, float>>();
-            testResultsList = new List<float>();
-            floatTestPoints = new List<float>();
-            resultListView.Invoke(setListViewColsDelegate, new object[] { cols });
-            float[] testResults = new float[testSizes.Length];
-            formattedResults = new string[testSizes.Length][];
-            for (uint i = 0; i < testSizes.Length; i++)
-            {
-                testResults[i] = 0;
-                formattedResults[i] = new string[2];
-                formattedResults[i][0] = string.Format("{0} KB", testSizes[i]);
-                formattedResults[i][1] = "Not Run";
-            }
-            resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
-
             // Determine limits
             ulong maxTestSizeKb = 0;
             if (testMode == BenchmarkFunctions.CLTestType.GlobalScalar || testMode == BenchmarkFunctions.CLTestType.GlobalVector)
@@ -167,11 +152,38 @@ namespace MicrobenchmarkGui
             {
                 maxTestSizeKb = BenchmarkFunctions.GetDeviceMaxConstantBufferSize() / 1024;
             }
+            else if (testMode == BenchmarkFunctions.CLTestType.Texture)
+            {
+                maxTestSizeKb = BenchmarkFunctions.GetDeviceMaxTextureSize() / 1024;
+            }
+
+            // Set GUI stuff
+            List<Tuple<float, float>> currentRunResults = new List<Tuple<float, float>>();
+            testResultsList = new List<float>();
+            floatTestPoints = new List<float>();
+            resultListView.Invoke(setListViewColsDelegate, new object[] { cols });
+
+            uint validTestSizeCount;
+            for (validTestSizeCount = 0; validTestSizeCount < testSizes.Length; validTestSizeCount++)
+            {
+                if (testSizes[validTestSizeCount] > maxTestSizeKb) break;
+            }
+
+            float[] testResults = new float[validTestSizeCount];
+            formattedResults = new string[validTestSizeCount][];
+            for (uint i = 0; i < validTestSizeCount; i++)
+            {
+                testResults[i] = 0;
+                formattedResults[i] = new string[2];
+                formattedResults[i][0] = string.Format("{0} KB", testSizes[i]);
+                formattedResults[i][1] = "Not Run";
+            }
+            resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
 
             // Run test
             bool failed = false;
             uint baseIterations = 50000;
-            for (uint testIdx = 0; testIdx < testSizes.Length; testIdx++)
+            for (uint testIdx = 0; testIdx < validTestSizeCount; testIdx++)
             {
                 if (runCancel.IsCancellationRequested)
                 {
@@ -179,13 +191,6 @@ namespace MicrobenchmarkGui
                 }
 
                 uint testSize = testSizes[testIdx];
-
-                if (testSize > maxTestSizeKb)
-                {
-                    progressLabel.Invoke(setLabelDelegate, new object[] { $"{testSize} KB would exceed device max of {maxTestSizeKb}" });
-                    break;
-                }
-
                 uint currentIterations = baseIterations;
                 double targetTimeMs = 2000, minTimeMs = 1000, lastTimeMs = 1;
                 float result;

@@ -16,6 +16,7 @@ __declspec(dllexport) int __stdcall InitializeLatencyTest(enum CLTestType testTy
 __declspec(dllexport) int __stdcall DeinitializeLatencyTest();
 __declspec(dllexport) uint64_t __stdcall GetDeviceMaxConstantBufferSize();
 __declspec(dllexport) uint64_t __stdcall GetDeviceMaxBufferSize();
+__declspec(dllexport) uint64_t __stdcall GetDeviceMaxTextureSize();
 
 cl_device_id GetDeviceIdFromIndex(int platformIndex, int deviceIndex);
 cl_platform_id GetPlatformIdFromIndex(int platformIndex);
@@ -125,12 +126,24 @@ uint64_t GetDeviceMaxBufferSize() {
 	return bufferSize;
 }
 
+/// <summary>
+/// Get max 1D texture buffer size. Device must be selected first.
+/// </summary>
+/// <returns>Max buffer size in bytes</returns>
+uint64_t GetDeviceMaxTextureSize() {
+	uint64_t bufferSize = 0;
+	cl_int ret = clGetDeviceInfo(selected_device_id, CL_DEVICE_IMAGE_MAX_BUFFER_SIZE, sizeof(cl_ulong), &bufferSize, NULL);
+	if (ret != CL_SUCCESS) return 0;
+	return bufferSize;
+}
+
 enum CLTestType
 {
 	None = 0,
 	GlobalScalar = 1,
 	GlobalVector = 2,
-	ConstantScalar = 3
+	ConstantScalar = 3,
+	Texture
 };
 
 #define MAX_SOURCE_SIZE (0x100000)
@@ -167,6 +180,7 @@ int InitializeLatencyTest(enum CLTestType testType)
 	if (testType == GlobalScalar) latencyTestKernel = clCreateKernel(program, "unrolled_latency_test", &ret);
 	else if (testType == GlobalVector) latencyTestKernel = clCreateKernel(program, "unrolled_latency_test_amdvectorworkaround", &ret);
 	else if (testType == ConstantScalar) latencyTestKernel = clCreateKernel(program, "constant_unrolled_latency_test", &ret);
+	else if (testType == Texture) latencyTestKernel = clCreateKernel(program, "tex_latency_test", &ret);
 
 InitializeLatencyTestEnd:
 	free(sourceBuffer); // we don't have to hang onto it right?
@@ -189,6 +203,7 @@ int DeinitializeLatencyTest()
 /// <returns>latency in ns, negative value on error</returns>
 float RunCLLatencyTest(uint32_t size_kb, uint32_t iterations, enum CLTestType testType)
 {
+	cl_mem a_mem_obj = NULL, result_obj = NULL, tex_obj = NULL;
 	struct timeb start, end;
 	float latency = -1;
 	uint32_t list_size = size_kb * 1024 / 4;
@@ -206,13 +221,28 @@ float RunCLLatencyTest(uint32_t size_kb, uint32_t iterations, enum CLTestType te
 
 	// copy to device, please work lol
 	cl_int ret;
-	cl_mem a_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY, list_size * sizeof(uint32_t), NULL, &ret);
+	a_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY, list_size * sizeof(uint32_t), NULL, &ret);
 	clEnqueueWriteBuffer(command_queue, a_mem_obj, CL_TRUE, 0, list_size * sizeof(uint32_t), A, 0, NULL, NULL);
-	cl_mem result_obj = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(uint32_t), NULL, &ret);
+	result_obj = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(uint32_t), NULL, &ret);
 	clEnqueueWriteBuffer(command_queue, result_obj, CL_TRUE, 0, sizeof(uint32_t), &result, 0, NULL, NULL);
 	clFinish(command_queue);
 
-	ret = clSetKernelArg(latencyTestKernel, 0, sizeof(cl_mem), (void*)&a_mem_obj);
+	if (testType == Texture)
+	{
+		cl_image_format imageFormat;
+		imageFormat.image_channel_data_type = CL_UNSIGNED_INT32;
+		imageFormat.image_channel_order = CL_R;
+
+		cl_image_desc imageDesc;
+		memset(&imageDesc, 0, sizeof(cl_image_desc));
+		imageDesc.buffer = a_mem_obj;
+		imageDesc.image_type = CL_MEM_OBJECT_IMAGE1D_BUFFER;
+		imageDesc.image_width = list_size; // width in pixels
+		tex_obj = clCreateImage(context, CL_MEM_READ_ONLY, &imageFormat, &imageDesc, NULL, &ret);
+	}
+
+	if (testType == Texture) ret = clSetKernelArg(latencyTestKernel, 0, sizeof(cl_mem), (void*)&tex_obj);
+	else ret = clSetKernelArg(latencyTestKernel, 0, sizeof(cl_mem), (void*)&a_mem_obj);
 	ret = clSetKernelArg(latencyTestKernel, 1, sizeof(cl_int), (void*)&iterations);
 	ret = clSetKernelArg(latencyTestKernel, 2, sizeof(cl_mem), (void*)&result_obj);
 
@@ -227,6 +257,9 @@ float RunCLLatencyTest(uint32_t size_kb, uint32_t iterations, enum CLTestType te
 
 RunCLLatencyTestEnd:
 	free(A);
+	clReleaseMemObject(a_mem_obj);
+	clReleaseMemObject(result_obj);
+	if (testType == Texture) clReleaseMemObject(tex_obj);
 	return latency;
 }
 
