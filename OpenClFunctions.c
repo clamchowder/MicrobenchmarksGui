@@ -165,7 +165,8 @@ int DeinitializeLatencyTest()
 /// <returns>latency in ns</returns>
 float RunCLLatencyTest(uint32_t size_kb, uint64_t iterations, enum CLTestType testType)
 {
-
+	struct timeb start, end;
+	
 }
 
 /// <summary>
