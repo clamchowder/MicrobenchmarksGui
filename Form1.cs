@@ -337,7 +337,8 @@ namespace MicrobenchmarkGui
                 resultListView,
                 ResultChart,
                 progressLabel,
-                clLatencyTestMode));
+                clLatencyTestMode,
+                runCancel.Token));
             CancelRunButton.Enabled = true;
             Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState));
         }
@@ -464,7 +465,7 @@ namespace MicrobenchmarkGui
             // Update ExportListBox
             ExportListBox.Items.Clear();
 
-            // Add latency test results
+            // Add test results
             if (bwRunner != null)
             {
                 foreach (KeyValuePair<string, List<Tuple<float, float>>> kvp in bwRunner.RunResults)
@@ -476,6 +477,14 @@ namespace MicrobenchmarkGui
             if (latencyRunner != null)
             {
                 foreach (KeyValuePair<string, List<Tuple<float, float>>> kvp in latencyRunner.RunResults)
+                {
+                    ExportListBox.Items.Add(kvp.Key);
+                }
+            }
+
+            if (OpenCLTest.RunResults != null)
+            {
+                foreach (KeyValuePair<string, List<Tuple<float, float>>> kvp in OpenCLTest.RunResults)
                 {
                     ExportListBox.Items.Add(kvp.Key);
                 }
@@ -600,6 +609,7 @@ namespace MicrobenchmarkGui
                 TestDurationLabel.Text = "Base Iterations:";
                 dataToTransferTextBox.Text = "400000000";
                 gbLabel.Text = "times";
+                gbLabel.Enabled = true;
 
                 ResultChart.ChartAreas[0].AxisY.IsLogarithmic = true;
                 ResultChart.ChartAreas[0].AxisY.LogarithmBase = 2;
@@ -627,11 +637,15 @@ namespace MicrobenchmarkGui
                 TestDurationLabel.Text = "Base Data to Transfer:";
                 dataToTransferTextBox.Text = "512";
                 gbLabel.Text = "GB";
+                gbLabel.Enabled = true;
 
                 ResultChart.ChartAreas[0].AxisY.IsLogarithmic = false;
             }
             else if (OpenCLLatencyRadioButton.Checked)
             {
+                ThreadingModeGroupBox.Enabled = false;
+                ThreadCountTrackbar.Enabled = false;
+                ThreadCountTrackbar.Value = 1;
                 ThreadingModeGroupBox.Enabled = false;
 
                 TestMethodGroupBox.Text = "Access Mode";
@@ -648,6 +662,7 @@ namespace MicrobenchmarkGui
                 // have to auto set duration to avoid TDR
                 TestDurationLabel.Enabled = false;
                 dataToTransferTextBox.Enabled = false;
+                gbLabel.Enabled = false;
 
                 // Add OpenCL devices via pinvoke call
                 progressLabel.Text = OpenCLTest.InitializeDeviceControls(AccessModeGroupBox);
@@ -669,6 +684,8 @@ namespace MicrobenchmarkGui
         {
             string output = "";
             bool jsFormat = JsFormatRadioButton.Checked;
+
+            if (ExportListBox.SelectedItem == null) return;
             string selectedRun = ExportListBox.SelectedItem.ToString();
             List<Tuple<float, float>> runResults;
             if (bwRunner != null && bwRunner.RunResults.ContainsKey(selectedRun))
@@ -679,6 +696,11 @@ namespace MicrobenchmarkGui
             else if (latencyRunner != null && latencyRunner.RunResults.ContainsKey(selectedRun))
             {
                 runResults = latencyRunner.RunResults[selectedRun];
+                if (!jsFormat) output = "Test Size (KB), Latency (ns)";
+            }
+            else if (OpenCLTest.RunResults != null && OpenCLTest.RunResults.ContainsKey(selectedRun))
+            {
+                runResults = OpenCLTest.RunResults[selectedRun];
                 if (!jsFormat) output = "Test Size (KB), Latency (ns)";
             }
             else

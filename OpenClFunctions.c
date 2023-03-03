@@ -7,13 +7,15 @@
 // These functions will generally not handle out of range indices. Calling C# code
 // is responsible for making sure platform/device indices do not go out of bounds.
 __declspec(dllexport) int __stdcall SetOpenCLContext(int platformIndex, int deviceIndex);
-__declspec(dllexport) int GetPlatformCount();
-__declspec(dllexport) int GetDeviceCount(int platformIndex);
-__declspec(dllexport) int GetDeviceName(int platformIndex, int deviceIndex, char* deviceNamePtr, int maxDeviceNameLen);
-__declspec(dllexport) int GetPlatformName(int platformIndex, char* platformNamePtr, int maxPlatformNameLen);
-__declspec(dllexport) float __stdcall RunCLLatencyTest(uint32_t size_kb, uint64_t iterations);
-__declspec(dllexport) int InitializeLatencyTest(enum CLTestType testType);
-__declspec(dllexport) int DeinitializeLatencyTest();
+__declspec(dllexport) int __stdcall GetPlatformCount();
+__declspec(dllexport) int __stdcall GetDeviceCount(int platformIndex);
+__declspec(dllexport) int __stdcall GetDeviceName(int platformIndex, int deviceIndex, char* deviceNamePtr, int maxDeviceNameLen);
+__declspec(dllexport) int __stdcall GetPlatformName(int platformIndex, char* platformNamePtr, int maxPlatformNameLen);
+__declspec(dllexport) float __stdcall RunCLLatencyTest(uint32_t size_kb, uint32_t iterations, enum CLTestType testType);
+__declspec(dllexport) int __stdcall InitializeLatencyTest(enum CLTestType testType);
+__declspec(dllexport) int __stdcall DeinitializeLatencyTest();
+__declspec(dllexport) uint64_t __stdcall GetDeviceMaxConstantBufferSize();
+__declspec(dllexport) uint64_t __stdcall GetDeviceMaxBufferSize();
 
 cl_device_id GetDeviceIdFromIndex(int platformIndex, int deviceIndex);
 cl_platform_id GetPlatformIdFromIndex(int platformIndex);
@@ -101,6 +103,28 @@ int GetDeviceName(int platformIndex, int deviceIndex, char *deviceNamePtr, int m
 	return 0;
 }
 
+/// <summary>
+/// Get max constant buffer size. Device must be selected before calling this function
+/// </summary>
+/// <returns>Max constant buffer size in bytes</returns>
+uint64_t GetDeviceMaxConstantBufferSize() {
+	uint64_t constantBufferSize = 0;
+	cl_int ret = clGetDeviceInfo(selected_device_id, CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE, sizeof(cl_ulong), &constantBufferSize, NULL);
+	if (ret != CL_SUCCESS) return 0;
+	return constantBufferSize;
+}
+
+/// <summary>
+/// Get max global memory allocation. Device must be selected before calling this function
+/// </summary>
+/// <returns>Max buffer size in bytes</returns>
+uint64_t GetDeviceMaxBufferSize() {
+	uint64_t bufferSize = 0;
+	cl_int ret = clGetDeviceInfo(selected_device_id, CL_DEVICE_MAX_MEM_ALLOC_SIZE, sizeof(cl_ulong), &bufferSize, NULL);
+	if (ret != CL_SUCCESS) return 0;
+	return bufferSize;
+}
+
 enum CLTestType
 {
 	None = 0,
@@ -162,11 +186,48 @@ int DeinitializeLatencyTest()
 /// </summary>
 /// <param name="size_kb">test size, kb</param>
 /// <param name="iterations">iteration count</param>
-/// <returns>latency in ns</returns>
-float RunCLLatencyTest(uint32_t size_kb, uint64_t iterations, enum CLTestType testType)
+/// <returns>latency in ns, negative value on error</returns>
+float RunCLLatencyTest(uint32_t size_kb, uint32_t iterations, enum CLTestType testType)
 {
 	struct timeb start, end;
-	
+	float latency = -1;
+	uint32_t list_size = size_kb * 1024 / 4;
+	uint32_t result;
+	uint32_t* A = (uint32_t*)malloc(sizeof(uint32_t) * list_size);
+	memset(A, 0, sizeof(uint32_t) * list_size);
+	FillPatternArr(A, list_size, 64);
+
+	size_t global_item_size = 1, local_item_size = 1;
+	if (testType == GlobalVector)
+	{
+		global_item_size = 2;
+		local_item_size = 2;
+	}
+
+	// copy to device, please work lol
+	cl_int ret;
+	cl_mem a_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY, list_size * sizeof(uint32_t), NULL, &ret);
+	clEnqueueWriteBuffer(command_queue, a_mem_obj, CL_TRUE, 0, list_size * sizeof(uint32_t), A, 0, NULL, NULL);
+	cl_mem result_obj = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(uint32_t), NULL, &ret);
+	clEnqueueWriteBuffer(command_queue, result_obj, CL_TRUE, 0, sizeof(uint32_t), &result, 0, NULL, NULL);
+	clFinish(command_queue);
+
+	ret = clSetKernelArg(latencyTestKernel, 0, sizeof(cl_mem), (void*)&a_mem_obj);
+	ret = clSetKernelArg(latencyTestKernel, 1, sizeof(cl_int), (void*)&iterations);
+	ret = clSetKernelArg(latencyTestKernel, 2, sizeof(cl_mem), (void*)&result_obj);
+
+	ftime(&start);
+	ret = clEnqueueNDRangeKernel(command_queue, latencyTestKernel, 1, NULL, &global_item_size, &local_item_size, 0, NULL, NULL);
+	if (ret != CL_SUCCESS) goto RunCLLatencyTestEnd;
+	ret = clFinish(command_queue);
+	if (ret != CL_SUCCESS) goto RunCLLatencyTestEnd;
+	ftime(&end);
+	int64_t time_diff_ms = 1000 * (end.time - start.time) + (end.millitm - start.millitm);
+	latency = 1e6 * (float)time_diff_ms / (float)iterations;
+
+RunCLLatencyTestEnd:
+	free(A);
+	return latency;
 }
 
 /// <summary>

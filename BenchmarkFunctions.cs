@@ -101,5 +101,11 @@ namespace MicrobenchmarkGui
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern int DeinitializeLatencyTest();
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern ulong GetDeviceMaxConstantBufferSize();
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern ulong GetDeviceMaxBufferSize();
     }
 }

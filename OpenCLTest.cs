@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -13,6 +14,20 @@ namespace MicrobenchmarkGui
     {
         private static List<OpenCLDevice> openCLDevices;
         private static string[] openCLPlatforms;
+
+        // for text results display
+        private static string[][] formattedResults;
+        private static string[] cols = { "Test Size", "Latency" };
+
+        // for graph
+        private static List<float> floatTestPoints;
+        private static List<float> testResultsList;
+
+        public static uint[] testSizes = { 2, 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 512, 600, 768, 1024, 1536, 2048,
+                               3072, 4096, 5120, 6144, 8192, 10240, 12288, 16384, 24567, 32768, 65536, 98304,
+                               131072, 262144, 393216, 524288, 1048576 };
+
+        public static Dictionary<string, List<Tuple<float, float>>> RunResults;
 
         public static string InitializeDeviceControls(GroupBox deviceGroupBox)
         {
@@ -77,6 +92,8 @@ namespace MicrobenchmarkGui
             }
 
             deviceGroupBox.ResumeLayout();
+
+            if (RunResults == null) RunResults = new Dictionary<string, List<Tuple<float, float>>>();
             return $"System has {totalDeviceCount} OpenCL devices across {platformCount} platforms";
         }
 
@@ -87,9 +104,11 @@ namespace MicrobenchmarkGui
             ListView resultListView,
             Chart resultChart,
             Label progressLabel,
-            BenchmarkFunctions.CLTestType testMode)
+            BenchmarkFunctions.CLTestType testMode,
+            CancellationToken runCancel)
         {
             // figure out which device is checked
+            string testLabel = "undef";
             int platformIndex = -1, deviceIndex = -1;
             foreach (OpenCLDevice clDevice in openCLDevices)
             {
@@ -97,6 +116,7 @@ namespace MicrobenchmarkGui
                 {
                     platformIndex = clDevice.PlatformIndex;
                     deviceIndex = clDevice.DeviceIndex;
+                    testLabel = clDevice.DeviceName + ", " + testMode.ToString();
                 }
             }
 
@@ -121,12 +141,103 @@ namespace MicrobenchmarkGui
                 return;
             }
 
+            // Set GUI stuff
+            List<Tuple<float, float>> currentRunResults = new List<Tuple<float, float>>();
+            testResultsList = new List<float>();
+            floatTestPoints = new List<float>();
+            resultListView.Invoke(setListViewColsDelegate, new object[] { cols });
+            float[] testResults = new float[testSizes.Length];
+            formattedResults = new string[testSizes.Length][];
+            for (uint i = 0; i < testSizes.Length; i++)
+            {
+                testResults[i] = 0;
+                formattedResults[i] = new string[2];
+                formattedResults[i][0] = string.Format("{0} KB", testSizes[i]);
+                formattedResults[i][1] = "Not Run";
+            }
+            resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
+
+            // Determine limits
+            ulong maxTestSizeKb = 0;
+            if (testMode == BenchmarkFunctions.CLTestType.GlobalScalar || testMode == BenchmarkFunctions.CLTestType.GlobalVector)
+            {
+                maxTestSizeKb = BenchmarkFunctions.GetDeviceMaxBufferSize() / 1024;
+            }
+            else if (testMode == BenchmarkFunctions.CLTestType.ConstantScalar)
+            {
+                maxTestSizeKb = BenchmarkFunctions.GetDeviceMaxConstantBufferSize() / 1024;
+            }
+
             // Run test
+            bool failed = false;
+            uint baseIterations = 50000;
+            for (uint testIdx = 0; testIdx < testSizes.Length; testIdx++)
+            {
+                if (runCancel.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                uint testSize = testSizes[testIdx];
+
+                if (testSize > maxTestSizeKb)
+                {
+                    progressLabel.Invoke(setLabelDelegate, new object[] { $"{testSize} KB would exceed device max of {maxTestSizeKb}" });
+                    break;
+                }
+
+                uint currentIterations = baseIterations;
+                double targetTimeMs = 2000, minTimeMs = 1000, lastTimeMs = 1;
+                float result;
+
+                do
+                {
+                    progressLabel.Invoke(setLabelDelegate, new object[] { $"Testing {testSize} KB with {(currentIterations / 1000)}K iterations (device limit is {maxTestSizeKb} KB)" });
+                    result = BenchmarkFunctions.RunCLLatencyTest(testSize, currentIterations, testMode);
+                    if (result < 0)
+                    {
+                        progressLabel.Invoke(setLabelDelegate, new object[] { $"Latency test with {testSize} KB failed" });
+                        failed = true;
+                        break;
+                    }
+
+                    // safeguard if things are really fast
+                    if (result < 0.001)
+                    {
+                        currentIterations *= 100;
+                        continue;
+                    }
+
+                    // scale iterations to reach target time
+                    lastTimeMs = result * currentIterations / 1e6;
+                    currentIterations = (uint)(currentIterations * targetTimeMs / lastTimeMs);
+                } while (lastTimeMs < minTimeMs);
+
+                // Update result table
+                if (failed)
+                {
+                    formattedResults[testIdx][1] = string.Format("{0:F2} ns", "(Fail)");
+                    resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
+                    break;
+                }
+
+                formattedResults[testIdx][1] = string.Format("{0:F2} ns", result);
+                resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
+
+                // Update chart
+                floatTestPoints.Add(testSize);
+                testResultsList.Add(result);
+                currentRunResults.Add(new Tuple<float, float>(testSize, result));
+                resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray() });
+            }
+
+            progressLabel.Invoke(setLabelDelegate, new object[] { $"Run finished" });
+            RunResults.Add(testLabel, currentRunResults);
 
             rc = BenchmarkFunctions.DeinitializeLatencyTest();
             if (rc < 0)
             {
-                progressLabel.Invoke(setLabelDelegate, new object[] { "Could clean up OpenCL state for selected device" });
+                progressLabel.Invoke(setLabelDelegate, new object[] { "Could not clean up OpenCL state for selected device" });
                 return;
             }
         }
