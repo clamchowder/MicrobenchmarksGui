@@ -141,7 +141,9 @@ namespace MicrobenchmarkGui
                 return;
             }
 
-            ExtractResourceFile("latencykernel.cl");
+            // Fermi can't build the texture kernel, so separate it out
+            if (testMode == BenchmarkFunctions.CLTestType.Texture) ExtractResourceFile("latencykernel_tex.cl");
+            else ExtractResourceFile("latencykernel.cl");
             rc = BenchmarkFunctions.InitializeLatencyTest(testMode);
             if (rc < 0)
             {

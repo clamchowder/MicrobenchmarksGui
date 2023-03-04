@@ -83,6 +83,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <EmbeddedResource Include="latencykernel_tex.cl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
