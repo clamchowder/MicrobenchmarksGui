@@ -151,7 +151,6 @@ cl_kernel latencyTestKernel;
 int InitializeLatencyTest(enum CLTestType testType)
 {
 	// build the latency test kernel for the device in question
-	cl_kernel testKernel;
 	FILE* fp = NULL;
 	char* sourceBuffer = NULL;
 	size_t sourceSize;
@@ -189,10 +188,15 @@ InitializeLatencyTestEnd:
 
 int DeinitializeLatencyTest()
 {
-	clReleaseKernel(latencyTestKernel);
-	clReleaseCommandQueue(command_queue);
-	clReleaseContext(context);
-	clReleaseProgram(program);
+	cl_int ret;
+	ret = clReleaseKernel(latencyTestKernel);
+	if (ret != CL_SUCCESS) return ret;
+	ret = clReleaseCommandQueue(command_queue);
+	if (ret != CL_SUCCESS) return ret;
+	ret = clReleaseContext(context);
+	if (ret != CL_SUCCESS) return ret;
+	ret = clReleaseProgram(program);
+	if (ret != CL_SUCCESS) return ret;
 }
 
 /// <summary>
@@ -253,7 +257,7 @@ float RunCLLatencyTest(uint32_t size_kb, uint32_t iterations, enum CLTestType te
 	if (ret != CL_SUCCESS) goto RunCLLatencyTestEnd;
 	ftime(&end);
 	int64_t time_diff_ms = 1000 * (end.time - start.time) + (end.millitm - start.millitm);
-	latency = 1e6 * (float)time_diff_ms / (float)iterations;
+	latency = (float)(1e6 * (float)time_diff_ms / (float)iterations);
 
 RunCLLatencyTestEnd:
 	free(A);
