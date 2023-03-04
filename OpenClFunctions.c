@@ -18,8 +18,11 @@ __declspec(dllexport) uint64_t __stdcall GetDeviceMaxConstantBufferSize();
 __declspec(dllexport) uint64_t __stdcall GetDeviceMaxBufferSize();
 __declspec(dllexport) uint64_t __stdcall GetDeviceMaxTextureSize();
 
+// Internal convenience functions
 cl_device_id GetDeviceIdFromIndex(int platformIndex, int deviceIndex);
 cl_platform_id GetPlatformIdFromIndex(int platformIndex);
+
+// Test run state
 cl_context context;
 cl_command_queue command_queue;
 cl_device_id selected_device_id;
@@ -143,11 +146,18 @@ enum CLTestType
 	GlobalScalar = 1,
 	GlobalVector = 2,
 	ConstantScalar = 3,
-	Texture
+	Texture = 4,
+	Local = 5
 };
 
 #define MAX_SOURCE_SIZE (0x100000)
 cl_kernel latencyTestKernel;
+
+/// <summary>
+/// Sets up state to run a latency test
+/// </summary>
+/// <param name="testType">Test type to set up for</param>
+/// <returns>0 on success, something else if it went south</returns>
 int InitializeLatencyTest(enum CLTestType testType)
 {
 	// build the latency test kernel for the device in question
@@ -181,12 +191,17 @@ int InitializeLatencyTest(enum CLTestType testType)
 	else if (testType == GlobalVector) latencyTestKernel = clCreateKernel(program, "unrolled_latency_test_amdvectorworkaround", &ret);
 	else if (testType == ConstantScalar) latencyTestKernel = clCreateKernel(program, "constant_unrolled_latency_test", &ret);
 	else if (testType == Texture) latencyTestKernel = clCreateKernel(program, "tex_latency_test", &ret);
+	else if (testType == Local) latencyTestKernel = clCreateKernel(program, "local_unrolled_latency_test", &ret);
 
 InitializeLatencyTestEnd:
 	free(sourceBuffer); // we don't have to hang onto it right?
 	return ret;
 }
 
+/// <summary>
+/// Cleans up OpenCL state after a test run completes
+/// </summary>
+/// <returns>error code if it didn't work</returns>
 int DeinitializeLatencyTest()
 {
 	cl_int ret;

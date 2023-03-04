@@ -31,6 +31,7 @@ namespace MicrobenchmarkGui
         private RadioButton GlobalVectorRadioButton;
         private RadioButton ConstantScalarRadioButton;
         private RadioButton TextureRadioButton;
+        private RadioButton LocalScalarRadioButton;
 
         private Random randomThings;
 
@@ -143,6 +144,12 @@ namespace MicrobenchmarkGui
             TextureRadioButton.Location = new Point(7, 92);
             TextureRadioButton.Size = groupBoxRadioButtonSize;
             tooltips.SetToolTip(TextureRadioButton, "Test latency through the texture pipeline (TMUs), using a 1D image buffer. Some Nvidia GPUs have separate texture caches.");
+
+            LocalScalarRadioButton = new RadioButton();
+            LocalScalarRadioButton.Text = "Local Memory";
+            LocalScalarRadioButton.Location = new Point(7, 116);
+            LocalScalarRadioButton.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(LocalScalarRadioButton, "Tests local memory (scratchpad) latency. Nvidia calls this Shared Memory, AMD calls it the LDS, and Intel calls it the SLM");
 
             tooltips.SetToolTip(ExportExcelButton, "Get results in an Excel (or custom JS) parse-able format");
             tooltips.SetToolTip(ClearChartButton, "Embarassingly bad results? Click here");
@@ -368,6 +375,7 @@ namespace MicrobenchmarkGui
             else if (GlobalVectorRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.GlobalVector;
             else if (ConstantScalarRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.ConstantScalar;
             else if (TextureRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.Texture;
+            else if (LocalScalarRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.Local;
             testTask = Task.Run(() => OpenCLTest.RunLatencyTest(SetResultListView,
                 SetResultListViewColumns,
                 SetResultChart,
@@ -694,6 +702,7 @@ namespace MicrobenchmarkGui
                 TestMethodGroupBox.Controls.Add(GlobalVectorRadioButton);
                 TestMethodGroupBox.Controls.Add(ConstantScalarRadioButton);
                 TestMethodGroupBox.Controls.Add(TextureRadioButton);
+                TestMethodGroupBox.Controls.Add(LocalScalarRadioButton);
                 GlobalScalarRadioButton.Checked = true;
                 GlobalVectorRadioButton.Checked = false;
                 ConstantScalarRadioButton.Checked = false;

@@ -18,6 +18,7 @@ namespace MicrobenchmarkGui
         // for text results display
         private static string[][] formattedResults;
         private static string[] cols = { "Test Size", "Latency" };
+        private static string[] localCols = { "Item", "Latency" };
 
         // for graph
         private static List<float> floatTestPoints;
@@ -166,54 +167,27 @@ namespace MicrobenchmarkGui
                 maxTestSizeKb = BenchmarkFunctions.GetDeviceMaxTextureSize() / 1024;
             }
 
-            // Set GUI stuff
-            List<Tuple<float, float>> currentRunResults = new List<Tuple<float, float>>();
-            testResultsList = new List<float>();
-            floatTestPoints = new List<float>();
-            resultListView.Invoke(setListViewColsDelegate, new object[] { cols });
-
-            uint validTestSizeCount;
-            for (validTestSizeCount = 0; validTestSizeCount < testSizes.Length; validTestSizeCount++)
+            if (testMode == BenchmarkFunctions.CLTestType.Local)
             {
-                if (testSizes[validTestSizeCount] > maxTestSizeKb) break;
-            }
+                // Set GUI stuff for local latency test
+                uint localTestSizeKb = 4; // keep in sync with latencykernel.cl code
+                resultListView.Invoke(setListViewColsDelegate, new object[] { localCols });
+                formattedResults = new string[1][];
+                formattedResults[0] = new string[2];
+                formattedResults[0][0] = "Local Mem";
+                formattedResults[0][1] = "Not Run";
+                resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
 
-            float[] testResults = new float[validTestSizeCount];
-            formattedResults = new string[validTestSizeCount][];
-            for (uint i = 0; i < validTestSizeCount; i++)
-            {
-                testResults[i] = 0;
-                formattedResults[i] = new string[2];
-                formattedResults[i][0] = string.Format("{0} KB", testSizes[i]);
-                formattedResults[i][1] = "Not Run";
-            }
-            resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
+                // more than regular latency test because we expect this to be relatively fast
+                uint currentIterations = 150000;
 
-            // Run test
-            bool failed = false;
-            uint baseIterations = 50000;
-            for (uint testIdx = 0; testIdx < validTestSizeCount; testIdx++)
-            {
-                if (runCancel.IsCancellationRequested)
-                {
-                    break;
-                }
-
-                uint testSize = testSizes[testIdx];
-                uint currentIterations = baseIterations;
-                double targetTimeMs = 2000, minTimeMs = 1000, lastTimeMs = 1;
+                // slightly higher targets for better accuracy
+                double targetTimeMs = 2200, minTimeMs = 1500, lastTimeMs = 1;
                 float result;
-
                 do
                 {
-                    progressLabel.Invoke(setLabelDelegate, new object[] { $"Testing {testSize} KB with {(currentIterations / 1000)}K iterations (device limit is {maxTestSizeKb} KB)" });
-                    result = BenchmarkFunctions.RunCLLatencyTest(testSize, currentIterations, testMode);
-                    if (result < 0)
-                    {
-                        progressLabel.Invoke(setLabelDelegate, new object[] { $"Latency test with {testSize} KB failed" });
-                        failed = true;
-                        break;
-                    }
+                    progressLabel.Invoke(setLabelDelegate, new object[] { $"Testing local memory latency, {currentIterations / 1000}K iterations" });
+                    result = BenchmarkFunctions.RunCLLatencyTest(localTestSizeKb, currentIterations, testMode);
 
                     // safeguard if things are really fast
                     if (result < 0.001)
@@ -227,26 +201,102 @@ namespace MicrobenchmarkGui
                     currentIterations = (uint)(currentIterations * targetTimeMs / lastTimeMs);
                 } while (lastTimeMs < minTimeMs);
 
-                // Update result table
-                if (failed)
+                formattedResults[0][1] = string.Format("{0:F2} ns", result);
+                resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
+            }
+            else
+            {
+                // Set GUI stuff
+                List<Tuple<float, float>> currentRunResults = new List<Tuple<float, float>>();
+                testResultsList = new List<float>();
+                floatTestPoints = new List<float>();
+                resultListView.Invoke(setListViewColsDelegate, new object[] { cols });
+
+                uint validTestSizeCount;
+                for (validTestSizeCount = 0; validTestSizeCount < testSizes.Length; validTestSizeCount++)
                 {
-                    formattedResults[testIdx][1] = string.Format("{0:F2} ns", "(Fail)");
-                    resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
-                    break;
+                    if (testSizes[validTestSizeCount] > maxTestSizeKb) break;
                 }
 
-                formattedResults[testIdx][1] = string.Format("{0:F2} ns", result);
+                float[] testResults = new float[validTestSizeCount];
+                formattedResults = new string[validTestSizeCount][];
+                for (uint i = 0; i < validTestSizeCount; i++)
+                {
+                    testResults[i] = 0;
+                    formattedResults[i] = new string[2];
+                    formattedResults[i][0] = string.Format("{0} KB", testSizes[i]);
+                    formattedResults[i][1] = "Not Run";
+                }
                 resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
 
-                // Update chart
-                floatTestPoints.Add(testSize);
-                testResultsList.Add(result);
-                currentRunResults.Add(new Tuple<float, float>(testSize, result));
-                resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray() });
-            }
+                // Run test
+                bool failed = false;
+                bool first = true;
+                uint baseIterations = 50000;
+                for (uint testIdx = 0; testIdx < validTestSizeCount; testIdx++)
+                {
+                    if (runCancel.IsCancellationRequested)
+                    {
+                        break;
+                    }
 
-            progressLabel.Invoke(setLabelDelegate, new object[] { $"Run finished" });
-            RunResults.Add(testLabel, currentRunResults);
+                    uint testSize = testSizes[testIdx];
+                    uint currentIterations = baseIterations;
+                    double targetTimeMs = 2000, minTimeMs = 1000, lastTimeMs = 1;
+                    float result;
+
+                    do
+                    {
+                        progressLabel.Invoke(setLabelDelegate, new object[] { $"Testing {testSize} KB with {(currentIterations / 1000)}K iterations (device limit is {maxTestSizeKb} KB)" });
+                        result = BenchmarkFunctions.RunCLLatencyTest(testSize, currentIterations, testMode);
+                        if (result < 0)
+                        {
+                            progressLabel.Invoke(setLabelDelegate, new object[] { $"Latency test with {testSize} KB failed" });
+                            failed = true;
+                            break;
+                        }
+
+                        // safeguard if things are really fast
+                        if (result < 0.001)
+                        {
+                            currentIterations *= 100;
+                            continue;
+                        }
+
+                        // scale iterations to reach target time
+                        lastTimeMs = result * currentIterations / 1e6;
+                        currentIterations = (uint)(currentIterations * targetTimeMs / lastTimeMs);
+                    } while (lastTimeMs < minTimeMs);
+
+                    if (first)
+                    {
+                        // run it a few more times because some GPUs take years to clock ramp
+                        progressLabel.Invoke(setLabelDelegate, new object[] { $"Making sure GPU is warmed up: {testSize} KB with {(currentIterations / 1000)}K iterations (device limit is {maxTestSizeKb} KB)" });
+                        for (int warmupRun = 0; warmupRun < 3; warmupRun++) result = BenchmarkFunctions.RunCLLatencyTest(testSize, currentIterations, testMode);
+                        first = false;
+                    }
+
+                    // Update result table
+                    if (failed)
+                    {
+                        formattedResults[testIdx][1] = string.Format("{0:F2} ns", "(Fail)");
+                        resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
+                        break;
+                    }
+
+                    formattedResults[testIdx][1] = string.Format("{0:F2} ns", result);
+                    resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
+
+                    // Update chart
+                    floatTestPoints.Add(testSize);
+                    testResultsList.Add(result);
+                    currentRunResults.Add(new Tuple<float, float>(testSize, result));
+                    resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray() });
+                }
+
+                progressLabel.Invoke(setLabelDelegate, new object[] { $"Run finished" });
+                RunResults.Add(testLabel, currentRunResults);
+            }
 
             rc = BenchmarkFunctions.DeinitializeLatencyTest();
             if (rc < 0)

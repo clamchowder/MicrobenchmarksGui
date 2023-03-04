@@ -91,7 +91,8 @@ namespace MicrobenchmarkGui
             GlobalScalar = 1,
             GlobalVector = 2,
             ConstantScalar = 3,
-            Texture
+            Texture = 4,
+            Local = 5
         };
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
