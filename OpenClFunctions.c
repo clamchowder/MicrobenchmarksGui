@@ -154,7 +154,8 @@ int InitializeLatencyTest(enum CLTestType testType)
 	FILE* fp = NULL;
 	char* sourceBuffer = NULL;
 	size_t sourceSize;
-	fp = fopen("latencykernel.cl", "rb");
+	if (testType == Texture) fp = fopen("latencykernel_tex.cl", "rb");
+	else fp = fopen("latencykernel.cl", "rb");
 	if (!fp)
 	{
 		return -1;
