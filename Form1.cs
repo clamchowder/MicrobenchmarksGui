@@ -283,9 +283,9 @@ namespace MicrobenchmarkGui
                     parseSucceeded &= int.TryParse(ColorRBox.Text, out red);
                     parseSucceeded &= int.TryParse(ColorGBox.Text, out green);
                     parseSucceeded &= int.TryParse(ColorBBox.Text, out blue);
-                    parseSucceeded &= (red < 255 && red >= 0);
-                    parseSucceeded &= (green < 255 && green >= 0);
-                    parseSucceeded &= (blue < 255 && blue >= 0);
+                    parseSucceeded &= (red <= 255 && red >= 0);
+                    parseSucceeded &= (green <= 255 && green >= 0);
+                    parseSucceeded &= (blue <= 255 && blue >= 0);
                     if (!parseSucceeded)
                     {
                         SetProgressLabel("Red/Green/Blue values must be numbers between 0-255");
