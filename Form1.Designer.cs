@@ -29,9 +29,9 @@ namespace MicrobenchmarkGui
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.RunBandwidthTestButton = new System.Windows.Forms.Button();
             this.resultListView = new System.Windows.Forms.ListView();
             this.ResultLabel = new System.Windows.Forms.Label();
@@ -76,8 +76,10 @@ namespace MicrobenchmarkGui
             this.SpecifyNextColorRadioButton = new System.Windows.Forms.RadioButton();
             this.RandomizeNextColorRadioButton = new System.Windows.Forms.RadioButton();
             this.TestTypeGroupBox = new System.Windows.Forms.GroupBox();
+            this.OpenCLLatencyRadioButton = new System.Windows.Forms.RadioButton();
             this.MemoryLatencyRadioButton = new System.Windows.Forms.RadioButton();
             this.MemoryBandwidthRadioButton = new System.Windows.Forms.RadioButton();
+            this.TestRunLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.ResultChart)).BeginInit();
             this.ThreadingModeGroupBox.SuspendLayout();
             this.AccessModeGroupBox.SuspendLayout();
@@ -90,7 +92,7 @@ namespace MicrobenchmarkGui
             // 
             // RunBandwidthTestButton
             // 
-            this.RunBandwidthTestButton.Location = new System.Drawing.Point(10, 545);
+            this.RunBandwidthTestButton.Location = new System.Drawing.Point(8, 637);
             this.RunBandwidthTestButton.Name = "RunBandwidthTestButton";
             this.RunBandwidthTestButton.Size = new System.Drawing.Size(75, 23);
             this.RunBandwidthTestButton.TabIndex = 3;
@@ -105,7 +107,7 @@ namespace MicrobenchmarkGui
             this.resultListView.HideSelection = false;
             this.resultListView.Location = new System.Drawing.Point(247, 30);
             this.resultListView.Name = "resultListView";
-            this.resultListView.Size = new System.Drawing.Size(195, 540);
+            this.resultListView.Size = new System.Drawing.Size(195, 632);
             this.resultListView.TabIndex = 4;
             this.resultListView.UseCompatibleStateImageBehavior = false;
             this.resultListView.View = System.Windows.Forms.View.Details;
@@ -124,17 +126,17 @@ namespace MicrobenchmarkGui
             this.ResultChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea2.Name = "ChartArea1";
-            this.ResultChart.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.ResultChart.Legends.Add(legend2);
+            chartArea1.Name = "ChartArea1";
+            this.ResultChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.ResultChart.Legends.Add(legend1);
             this.ResultChart.Location = new System.Drawing.Point(448, 159);
             this.ResultChart.Name = "ResultChart";
-            series2.ChartArea = "ChartArea1";
-            series2.Legend = "Legend1";
-            series2.Name = "Series1";
-            this.ResultChart.Series.Add(series2);
-            this.ResultChart.Size = new System.Drawing.Size(661, 411);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.ResultChart.Series.Add(series1);
+            this.ResultChart.Size = new System.Drawing.Size(764, 503);
             this.ResultChart.TabIndex = 6;
             this.ResultChart.Text = "chart1";
             // 
@@ -151,9 +153,9 @@ namespace MicrobenchmarkGui
             // 
             this.ThreadingModeGroupBox.Controls.Add(this.SharedRadioButton);
             this.ThreadingModeGroupBox.Controls.Add(this.PrivateRadioButton);
-            this.ThreadingModeGroupBox.Location = new System.Drawing.Point(10, 141);
+            this.ThreadingModeGroupBox.Location = new System.Drawing.Point(12, 187);
             this.ThreadingModeGroupBox.Name = "ThreadingModeGroupBox";
-            this.ThreadingModeGroupBox.Size = new System.Drawing.Size(229, 69);
+            this.ThreadingModeGroupBox.Size = new System.Drawing.Size(229, 70);
             this.ThreadingModeGroupBox.TabIndex = 9;
             this.ThreadingModeGroupBox.TabStop = false;
             this.ThreadingModeGroupBox.Text = "Threading Mode";
@@ -183,7 +185,7 @@ namespace MicrobenchmarkGui
             // CancelRunButton
             // 
             this.CancelRunButton.Enabled = false;
-            this.CancelRunButton.Location = new System.Drawing.Point(91, 545);
+            this.CancelRunButton.Location = new System.Drawing.Point(89, 637);
             this.CancelRunButton.Name = "CancelRunButton";
             this.CancelRunButton.Size = new System.Drawing.Size(75, 23);
             this.CancelRunButton.TabIndex = 10;
@@ -199,9 +201,9 @@ namespace MicrobenchmarkGui
             this.AccessModeGroupBox.Controls.Add(this.DataAddRadioButton);
             this.AccessModeGroupBox.Controls.Add(this.DataWriteRadioButton);
             this.AccessModeGroupBox.Controls.Add(this.DataReadRadioButton);
-            this.AccessModeGroupBox.Location = new System.Drawing.Point(10, 216);
+            this.AccessModeGroupBox.Location = new System.Drawing.Point(10, 263);
             this.AccessModeGroupBox.Name = "AccessModeGroupBox";
-            this.AccessModeGroupBox.Size = new System.Drawing.Size(229, 173);
+            this.AccessModeGroupBox.Size = new System.Drawing.Size(231, 218);
             this.AccessModeGroupBox.TabIndex = 14;
             this.AccessModeGroupBox.TabStop = false;
             this.AccessModeGroupBox.Text = "Access Mode";
@@ -279,9 +281,9 @@ namespace MicrobenchmarkGui
             this.TestMethodGroupBox.Controls.Add(this.Avx512RadioButton);
             this.TestMethodGroupBox.Controls.Add(this.AvxRadioButton);
             this.TestMethodGroupBox.Controls.Add(this.SseRadioButton);
-            this.TestMethodGroupBox.Location = new System.Drawing.Point(12, 395);
+            this.TestMethodGroupBox.Location = new System.Drawing.Point(10, 487);
             this.TestMethodGroupBox.Name = "TestMethodGroupBox";
-            this.TestMethodGroupBox.Size = new System.Drawing.Size(229, 116);
+            this.TestMethodGroupBox.Size = new System.Drawing.Size(231, 116);
             this.TestMethodGroupBox.TabIndex = 15;
             this.TestMethodGroupBox.TabStop = false;
             this.TestMethodGroupBox.Text = "Test Method";
@@ -353,7 +355,7 @@ namespace MicrobenchmarkGui
             // TestDurationLabel
             // 
             this.TestDurationLabel.AutoSize = true;
-            this.TestDurationLabel.Location = new System.Drawing.Point(10, 520);
+            this.TestDurationLabel.Location = new System.Drawing.Point(8, 612);
             this.TestDurationLabel.Name = "TestDurationLabel";
             this.TestDurationLabel.Size = new System.Drawing.Size(114, 13);
             this.TestDurationLabel.TabIndex = 19;
@@ -361,7 +363,7 @@ namespace MicrobenchmarkGui
             // 
             // dataToTransferTextBox
             // 
-            this.dataToTransferTextBox.Location = new System.Drawing.Point(126, 517);
+            this.dataToTransferTextBox.Location = new System.Drawing.Point(124, 609);
             this.dataToTransferTextBox.MaxLength = 10;
             this.dataToTransferTextBox.Name = "dataToTransferTextBox";
             this.dataToTransferTextBox.Size = new System.Drawing.Size(62, 20);
@@ -372,7 +374,7 @@ namespace MicrobenchmarkGui
             // gbLabel
             // 
             this.gbLabel.AutoSize = true;
-            this.gbLabel.Location = new System.Drawing.Point(189, 520);
+            this.gbLabel.Location = new System.Drawing.Point(187, 612);
             this.gbLabel.Name = "gbLabel";
             this.gbLabel.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.gbLabel.Size = new System.Drawing.Size(22, 13);
@@ -393,23 +395,24 @@ namespace MicrobenchmarkGui
             // 
             this.ExportTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.ExportTextBox.Location = new System.Drawing.Point(234, 10);
+            this.ExportTextBox.Location = new System.Drawing.Point(310, 10);
             this.ExportTextBox.Multiline = true;
             this.ExportTextBox.Name = "ExportTextBox";
             this.ExportTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.ExportTextBox.Size = new System.Drawing.Size(184, 107);
+            this.ExportTextBox.Size = new System.Drawing.Size(212, 107);
             this.ExportTextBox.TabIndex = 25;
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.TestRunLabel);
             this.groupBox2.Controls.Add(this.ExportListBox);
             this.groupBox2.Controls.Add(this.JsFormatRadioButton);
             this.groupBox2.Controls.Add(this.CsvFormatRadioButton);
             this.groupBox2.Controls.Add(this.ExportTextBox);
             this.groupBox2.Controls.Add(this.ExportExcelButton);
-            this.groupBox2.Location = new System.Drawing.Point(685, 30);
+            this.groupBox2.Location = new System.Drawing.Point(684, 30);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(424, 123);
+            this.groupBox2.Size = new System.Drawing.Size(528, 123);
             this.groupBox2.TabIndex = 26;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Export";
@@ -417,9 +420,9 @@ namespace MicrobenchmarkGui
             // ExportListBox
             // 
             this.ExportListBox.FormattingEnabled = true;
-            this.ExportListBox.Location = new System.Drawing.Point(108, 10);
+            this.ExportListBox.Location = new System.Drawing.Point(108, 36);
             this.ExportListBox.Name = "ExportListBox";
-            this.ExportListBox.Size = new System.Drawing.Size(120, 108);
+            this.ExportListBox.Size = new System.Drawing.Size(196, 82);
             this.ExportListBox.TabIndex = 26;
             // 
             // JsFormatRadioButton
@@ -467,7 +470,7 @@ namespace MicrobenchmarkGui
             this.ChartControlsGroupBox.Controls.Add(this.SpecifyNextColorRadioButton);
             this.ChartControlsGroupBox.Controls.Add(this.RandomizeNextColorRadioButton);
             this.ChartControlsGroupBox.Controls.Add(this.ClearChartButton);
-            this.ChartControlsGroupBox.Location = new System.Drawing.Point(449, 30);
+            this.ChartControlsGroupBox.Location = new System.Drawing.Point(448, 30);
             this.ChartControlsGroupBox.Name = "ChartControlsGroupBox";
             this.ChartControlsGroupBox.Size = new System.Drawing.Size(230, 123);
             this.ChartControlsGroupBox.TabIndex = 28;
@@ -563,14 +566,27 @@ namespace MicrobenchmarkGui
             // 
             // TestTypeGroupBox
             // 
+            this.TestTypeGroupBox.Controls.Add(this.OpenCLLatencyRadioButton);
             this.TestTypeGroupBox.Controls.Add(this.MemoryLatencyRadioButton);
             this.TestTypeGroupBox.Controls.Add(this.MemoryBandwidthRadioButton);
             this.TestTypeGroupBox.Location = new System.Drawing.Point(10, 67);
             this.TestTypeGroupBox.Name = "TestTypeGroupBox";
-            this.TestTypeGroupBox.Size = new System.Drawing.Size(229, 68);
+            this.TestTypeGroupBox.Size = new System.Drawing.Size(231, 114);
             this.TestTypeGroupBox.TabIndex = 29;
             this.TestTypeGroupBox.TabStop = false;
             this.TestTypeGroupBox.Text = "Test Type";
+            // 
+            // OpenCLLatencyRadioButton
+            // 
+            this.OpenCLLatencyRadioButton.AutoSize = true;
+            this.OpenCLLatencyRadioButton.Location = new System.Drawing.Point(7, 65);
+            this.OpenCLLatencyRadioButton.Name = "OpenCLLatencyRadioButton";
+            this.OpenCLLatencyRadioButton.Size = new System.Drawing.Size(177, 17);
+            this.OpenCLLatencyRadioButton.TabIndex = 2;
+            this.OpenCLLatencyRadioButton.TabStop = true;
+            this.OpenCLLatencyRadioButton.Text = "GPU Memory Latency (OpenCL)";
+            this.OpenCLLatencyRadioButton.UseVisualStyleBackColor = true;
+            this.OpenCLLatencyRadioButton.CheckedChanged += new System.EventHandler(this.LatencyTestRadioButton_CheckedChanged);
             // 
             // MemoryLatencyRadioButton
             // 
@@ -596,11 +612,20 @@ namespace MicrobenchmarkGui
             this.MemoryBandwidthRadioButton.UseVisualStyleBackColor = true;
             this.MemoryBandwidthRadioButton.CheckedChanged += new System.EventHandler(this.LatencyTestRadioButton_CheckedChanged);
             // 
+            // TestRunLabel
+            // 
+            this.TestRunLabel.AutoSize = true;
+            this.TestRunLabel.Location = new System.Drawing.Point(108, 17);
+            this.TestRunLabel.Name = "TestRunLabel";
+            this.TestRunLabel.Size = new System.Drawing.Size(87, 13);
+            this.TestRunLabel.TabIndex = 27;
+            this.TestRunLabel.Text = "Select Test Run:";
+            // 
             // MicrobenchmarkForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1121, 582);
+            this.ClientSize = new System.Drawing.Size(1224, 674);
             this.Controls.Add(this.TestTypeGroupBox);
             this.Controls.Add(this.ChartControlsGroupBox);
             this.Controls.Add(this.groupBox2);
@@ -688,6 +713,8 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.RadioButton MemoryLatencyRadioButton;
         private System.Windows.Forms.RadioButton MemoryBandwidthRadioButton;
         private System.Windows.Forms.ListBox ExportListBox;
+        private System.Windows.Forms.RadioButton OpenCLLatencyRadioButton;
+        private System.Windows.Forms.Label TestRunLabel;
     }
 }
 

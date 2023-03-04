@@ -58,5 +58,58 @@ namespace MicrobenchmarkGui
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern float RunAsmLatencyTest(uint sizeKb, uint iterations);
+
+        // OpenCL related functions
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern int SetOpenCLContext(int platformIndex, int deviceIndex);
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern int GetPlatformCount();
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern int GetDeviceCount(int platformIndex);
+
+        /// <summary>
+        /// Gets an OpenCL device's name
+        /// </summary>
+        /// <param name="platformIndex">Platform index</param>
+        /// <param name="deviceIndex">Device index</param>
+        /// <param name="deviceNamePtr">Pointer to block of memory to put the device name into</param>
+        /// <param name="maxDeviceNameLen">Max length of device (size of memory block above). Includes terminating null</param>
+        /// <returns>0 on success, opencl error code on failure</returns>
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern int GetDeviceName(int platformIndex, int deviceIndex, IntPtr deviceNamePtr, int maxDeviceNameLen);
+
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern int GetPlatformName(int platformIndex, IntPtr platformNamePtr, int maxPlatformNameLen);
+
+        // keep in sync with the one in OpenCLFunctions.c
+        public enum CLTestType
+        {
+            None = 0,
+            GlobalScalar = 1,
+            GlobalVector = 2,
+            ConstantScalar = 3,
+            Texture
+        };
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern float RunCLLatencyTest(uint sizeKb, uint iterations, CLTestType testType);
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern int InitializeLatencyTest(CLTestType testType);
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern int DeinitializeLatencyTest();
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern ulong GetDeviceMaxConstantBufferSize();
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern ulong GetDeviceMaxBufferSize();
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern ulong GetDeviceMaxTextureSize();
     }
 }

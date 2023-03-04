@@ -35,6 +35,9 @@
     <ClCompile Include="MemoryLatency.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OpenClFunctions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="MemoryBandwidthFunctions.asm">

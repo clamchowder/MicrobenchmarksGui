@@ -59,7 +59,7 @@ int SetLargePages(uint32_t enable)
 /// <param name="iterations">base iterations</param>
 /// <returns>scaled iterations</returns>
 uint64_t scale_iterations(uint32_t size_kb, uint64_t iterations) {
-    return 10 * iterations / pow(size_kb, 1.0 / 4.0);
+    return (uint64_t)(10 * iterations / pow(size_kb, 1.0 / 4.0));
 }
 
 /// <summary>
@@ -137,7 +137,7 @@ float RunAsmLatencyTest(uint32_t size_kb, uint64_t iterations) {
 float RunLatencyTest(uint32_t size_kb, uint64_t iterations) {
     struct timeb start, end;
     uint32_t list_size = size_kb * 1024 / 4;
-    uint32_t sum = 0, current;
+    uint32_t current;
 
     // Fill list to create random access pattern
     int* A;
@@ -152,15 +152,7 @@ float RunLatencyTest(uint32_t size_kb, uint64_t iterations) {
         A[i] = i;
     }
 
-    int iter = list_size;
-    while (iter > 1) {
-        iter -= 1;
-        int j = iter - 1 == 0 ? 0 : rand() % (iter - 1);
-        uint32_t tmp = A[iter];
-        A[iter] = A[j];
-        A[j] = tmp;
-    }
-
+    FillPatternArr(A, list_size, 64);
     uint64_t scaled_iterations = scale_iterations(size_kb, iterations);
 
     // Run test
@@ -168,12 +160,12 @@ float RunLatencyTest(uint32_t size_kb, uint64_t iterations) {
     current = A[0];
     for (int i = 0; i < scaled_iterations; i++) {
         current = A[current];
-        sum += current;
     }
     ftime(&end);
     int64_t time_diff_ms = 1000 * (end.time - start.time) + (end.millitm - start.millitm);
     float latency = 1e6 * (float)time_diff_ms / (float)scaled_iterations;
     if (mem == NULL) free(A);
+    if (current == A[current]) return 0;
     return latency;
 }
 

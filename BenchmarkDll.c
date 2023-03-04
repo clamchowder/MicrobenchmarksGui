@@ -306,5 +306,5 @@ float __fastcall instr_read(void* arr, uint64_t arr_length, uint64_t iterations)
     nopfunc = (void(*)(uint64_t))arr;
     int iterIdx;
     for (iterIdx = 0; iterIdx < iterations; iterIdx++) nopfunc(iterations);
-    return iterIdx;
+    return (float)iterIdx;
 }
