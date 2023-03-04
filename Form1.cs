@@ -26,6 +26,12 @@ namespace MicrobenchmarkGui
         private RadioButton RepStosbRadioButton;
         private RadioButton RepMovsdRadioButton;
         private RadioButton RepStosdRadioButton;
+
+        private RadioButton GlobalScalarRadioButton;
+        private RadioButton GlobalVectorRadioButton;
+        private RadioButton ConstantScalarRadioButton;
+        private RadioButton TextureRadioButton;
+
         private Random randomThings;
 
         private bool avxSupported;
@@ -37,68 +43,119 @@ namespace MicrobenchmarkGui
             InitializeComponent();
             ResultChart.Series.Clear();
 
+            #region manual control initialization
+            ToolTip tooltips = new ToolTip();
             Size groupBoxRadioButtonSize = new Size(220, 17);
             FourByteNops = new RadioButton();
             FourByteNops.Text = "4B NOPs (0F 1F 40 00)";
             FourByteNops.Location = new Point(7, 20);
             FourByteNops.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(FourByteNops, "Corresponds to average instruction lengths found in typical integer code");
 
             EightByteNops = new RadioButton();
             EightByteNops.Text = "8B NOPs (0F 1F 84 00 00 00 00 00)";
             EightByteNops.Location = new Point(7, 44);
             EightByteNops.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(EightByteNops, "Relatively long 8-byte instructions. More representative of AVX/AVX2/AVX-512 code, or code with lots of large immediates");
 
             BranchPer16B = new RadioButton();
             BranchPer16B.Text = "Taken Branch Per 16B";
             BranchPer16B.Location = new Point(7, 68);
             BranchPer16B.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(BranchPer16B, "Test with a chain of taken branches, spaced 16B apart. More of a BTB/branch predictor speed test.");
 
             K8FourByteNops = new RadioButton();
             K8FourByteNops.Text = "4B NOPs (66 66 66 90)";
             K8FourByteNops.Location = new Point(7, 92);
             K8FourByteNops.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(K8FourByteNops, "Use a NOP encoding recommended by the AMD Athlon/K8 optimization manual. Curiously avoids decoding bottlenecks on certain Intel CPUs, but doesn't matter for AMD (?)");
 
             RepMovsbRadioButton = new RadioButton();
             RepMovsbRadioButton.Text = "REP MOVSB (Copy)";
             RepMovsbRadioButton.Location = new Point(7, 20);
             RepMovsbRadioButton.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(RepMovsbRadioButton, "Tells CPU to copy a block of memory, with size known upfront");
 
             RepStosbRadioButton = new RadioButton();
             RepStosbRadioButton.Text = "REP STOSB (Write)";
             RepStosbRadioButton.Location = new Point(7, 44);
             RepStosbRadioButton.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(RepStosbRadioButton, "Tells CPU to write to a block of memory, with size known upfront");
 
             RepMovsdRadioButton = new RadioButton();
             RepMovsdRadioButton.Text = "REP MOVSD (Copy)";
             RepMovsdRadioButton.Location = new Point(7, 68);
             RepMovsdRadioButton.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(RepMovsdRadioButton, "Tells CPU to copy a block of memory with DWORD (4 byte) granularity. Potentially faster than REP MOVSB on some CPUs");
 
             RepStosdRadioButton = new RadioButton();
             RepStosdRadioButton.Text = "REP STOSD (Write)";
             RepStosdRadioButton.Location = new Point(7, 92);
             RepStosdRadioButton.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(RepStosdRadioButton, "Tells CPU to write to a block of memory with DWORD (4 byte) granularity. Potentially faster than REP STOSB on some CPUs");
 
             AsmRadioButton = new RadioButton();
             AsmRadioButton.Text = "Simple Addressing (ASM)";
             AsmRadioButton.Location = new Point(7, 20);
             AsmRadioButton.Size = groupBoxRadioButtonSize;
             AsmRadioButton.Checked = true;
+            tooltips.SetToolTip(AsmRadioButton, "Uses direct addressing, i.e. mov r15, [r15]. Should be the lowest latency way to hit the memory hierarchy");
 
             CRadioButton = new RadioButton();
             CRadioButton.Text = "Indexed Addressing (C)";
             CRadioButton.Location = new Point(7, 44);
             CRadioButton.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(CRadioButton, "Tests a = A[a] latency. The CPU has to add the offset to the array base address, which can incur additional latency");
 
             DefaultPagesRadioButton = new RadioButton();
             DefaultPagesRadioButton.Text = "Default (4 KB Pages)";
             DefaultPagesRadioButton.Location = new Point(7, 20);
             DefaultPagesRadioButton.Size = groupBoxRadioButtonSize;
             DefaultPagesRadioButton.Checked = true;
+            tooltips.SetToolTip(DefaultPagesRadioButton, "Should be representative of memory latency seen by most user applications");
 
             LargePagesRadioButton = new RadioButton();
             LargePagesRadioButton.Text = "Large Pages (2 MB Pages)";
             LargePagesRadioButton.Location = new Point(7, 44);
             LargePagesRadioButton.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(LargePagesRadioButton, "Asks the OS to handle address translation at a larger granularity, giving a better view of raw cache latency with TLB miss penalties minimized. Requires 'Lock Pages in Memory' permission");
+
+            GlobalScalarRadioButton = new RadioButton();
+            GlobalScalarRadioButton.Text = "Global Memory, Scalar";
+            GlobalScalarRadioButton.Location = new Point(7, 20);
+            GlobalScalarRadioButton.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(GlobalScalarRadioButton, "Similar to CPU latency test. Simple pointer chasing pattern in GPU global memory. AMD GPUs often have scalar caches.");
+
+            GlobalVectorRadioButton = new RadioButton();
+            GlobalVectorRadioButton.Text = "Global Memory, Vector";
+            GlobalVectorRadioButton.Location = new Point(7, 44);
+            GlobalVectorRadioButton.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(GlobalVectorRadioButton, "Uses two threads, set up so that the compiler can't determine if a loaded value will be constant across a wave/warp. AMD has separate vector and scalar caches.");
+
+            ConstantScalarRadioButton = new RadioButton();
+            ConstantScalarRadioButton.Text = "Constant Memory, Scalar";
+            ConstantScalarRadioButton.Location = new Point(7, 68);
+            ConstantScalarRadioButton.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(ConstantScalarRadioButton, "Uses constant, read-only memory. Nvidia GPUs have separate constant caches."); ;
+
+            TextureRadioButton = new RadioButton();
+            TextureRadioButton.Text = "Texture";
+            TextureRadioButton.Location = new Point(7, 92);
+            TextureRadioButton.Size = groupBoxRadioButtonSize;
+            tooltips.SetToolTip(TextureRadioButton, "Test latency through the texture pipeline (TMUs), using a 1D image buffer. Some Nvidia GPUs have separate texture caches.");
+
+            tooltips.SetToolTip(ExportExcelButton, "Get results in an Excel (or custom JS) parse-able format");
+            tooltips.SetToolTip(ClearChartButton, "Embarassingly bad results? Click here");
+            tooltips.SetToolTip(OpenCLLatencyRadioButton, "Test GPU memory latency using the OpenCL API");
+            tooltips.SetToolTip(DataReadRadioButton, "Tests memory read bandwidth. Most memory accesses are reads");
+            tooltips.SetToolTip(DataWriteRadioButton, "Tests memory write bandwidth. Usually 1/4-1/2 of memory accesses are writes, though that can vary a lot");
+            tooltips.SetToolTip(DataNtWriteRadioButton, "Tests memory write bandwidth with non-temporal accesses, which bypass caches. Potentially allows better use of DRAM write bandwidth by avoiding RFOs");
+            tooltips.SetToolTip(DataMicrocodedRadioButton, "Tests memory bandwidth using microcoded string instructions, which tell the CPU upfront how much data it has to move. Potentially allows RFO avoidance while using caches.");
+            tooltips.SetToolTip(InstructionFetchRadioButton, "Fills an array with valid instructions and jumps to it, to test how fast the CPU can bring instructions into the core");
+            tooltips.SetToolTip(DataAddRadioButton, "Tests bandwidth using a 1:1 read-to-write ratio, by adding a constant to every element of an array. Can show if there's an advantage to mixing reads and writes");
+            tooltips.SetToolTip(PrivateRadioButton, "Gives each thread its own data. Shows the sum of private cache capacity");
+            tooltips.SetToolTip(SharedRadioButton, "All threads read from one shared array. Shared data is duplicated across private caches, so you won't see the sum of cache capacity");
+            #endregion
 
             ThreadCountTrackbar.Maximum = Environment.ProcessorCount;
             ResultChart.Titles.Add("Result Plot");
@@ -226,9 +283,9 @@ namespace MicrobenchmarkGui
                     parseSucceeded &= int.TryParse(ColorRBox.Text, out red);
                     parseSucceeded &= int.TryParse(ColorGBox.Text, out green);
                     parseSucceeded &= int.TryParse(ColorBBox.Text, out blue);
-                    parseSucceeded &= (red < 255 && red > 0);
-                    parseSucceeded &= (green < 255 && green > 0);
-                    parseSucceeded &= (blue < 255 && blue > 0);
+                    parseSucceeded &= (red <= 255 && red >= 0);
+                    parseSucceeded &= (green <= 255 && green >= 0);
+                    parseSucceeded &= (blue <= 255 && blue >= 0);
                     if (!parseSucceeded)
                     {
                         SetProgressLabel("Red/Green/Blue values must be numbers between 0-255");
@@ -296,6 +353,32 @@ namespace MicrobenchmarkGui
             {
                 RunLatencyTest();
             }
+            else if (this.OpenCLLatencyRadioButton.Checked)
+            {
+                RunClLatencyTest();
+            }
+        }
+
+        private void RunClLatencyTest()
+        {
+            CancelRunningTest(true);
+            runCancel = new CancellationTokenSource();
+            BenchmarkFunctions.CLTestType clLatencyTestMode = BenchmarkFunctions.CLTestType.GlobalScalar;
+            if (GlobalScalarRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.GlobalScalar;
+            else if (GlobalVectorRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.GlobalVector;
+            else if (ConstantScalarRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.ConstantScalar;
+            else if (TextureRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.Texture;
+            testTask = Task.Run(() => OpenCLTest.RunLatencyTest(SetResultListView,
+                SetResultListViewColumns,
+                SetResultChart,
+                SetProgressLabel,
+                resultListView,
+                ResultChart,
+                progressLabel,
+                clLatencyTestMode,
+                runCancel.Token));
+            CancelRunButton.Enabled = true;
+            Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState));
         }
 
         private void RunLatencyTest()
@@ -420,7 +503,7 @@ namespace MicrobenchmarkGui
             // Update ExportListBox
             ExportListBox.Items.Clear();
 
-            // Add latency test results
+            // Add test results
             if (bwRunner != null)
             {
                 foreach (KeyValuePair<string, List<Tuple<float, float>>> kvp in bwRunner.RunResults)
@@ -432,6 +515,14 @@ namespace MicrobenchmarkGui
             if (latencyRunner != null)
             {
                 foreach (KeyValuePair<string, List<Tuple<float, float>>> kvp in latencyRunner.RunResults)
+                {
+                    ExportListBox.Items.Add(kvp.Key);
+                }
+            }
+
+            if (OpenCLTest.RunResults != null)
+            {
+                foreach (KeyValuePair<string, List<Tuple<float, float>>> kvp in OpenCLTest.RunResults)
                 {
                     ExportListBox.Items.Add(kvp.Key);
                 }
@@ -528,10 +619,9 @@ namespace MicrobenchmarkGui
             CheckWriteModeChange(sender, e);
         }
 
-        bool latencyTestSet = false;
         private void LatencyTestRadioButton_CheckedChanged(object sender, EventArgs e)
         {
-            if (MemoryLatencyRadioButton.Checked && latencyTestSet == false)
+            if (MemoryLatencyRadioButton.Checked)
             {
                 // mem latency test is always ST, no exceptions
                 ThreadingModeGroupBox.Enabled = false;
@@ -546,19 +636,24 @@ namespace MicrobenchmarkGui
                 TestMethodGroupBox.Controls.Add(LargePagesRadioButton);
                 TestMethodGroupBox.PerformLayout();
 
+                AccessModeGroupBox.Text = "Access Mode";
                 AccessModeGroupBox.Controls.Clear();
                 AccessModeGroupBox.Controls.Add(CRadioButton);
                 AccessModeGroupBox.Controls.Add(AsmRadioButton);
                 AccessModeGroupBox.PerformLayout();
+
+                TestDurationLabel.Enabled = true;
+                dataToTransferTextBox.Enabled = true;
                 TestDurationLabel.Text = "Base Iterations:";
                 dataToTransferTextBox.Text = "400000000";
                 gbLabel.Text = "times";
+                gbLabel.Enabled = true;
 
+                // CPU mem latencies are easier to read on a log axis
                 ResultChart.ChartAreas[0].AxisY.IsLogarithmic = true;
                 ResultChart.ChartAreas[0].AxisY.LogarithmBase = 2;
-                latencyTestSet = true;
             }
-            else if (MemoryBandwidthRadioButton.Checked && latencyTestSet == true)
+            else if (MemoryBandwidthRadioButton.Checked)
             {
                 ThreadingModeGroupBox.Enabled = true;
                 ThreadCountTrackbar.Enabled = true;
@@ -576,12 +671,44 @@ namespace MicrobenchmarkGui
                 AccessModeGroupBox.Controls.Add(InstructionFetchRadioButton);
                 AccessModeGroupBox.PerformLayout();
 
+                TestDurationLabel.Enabled = true;
+                dataToTransferTextBox.Enabled = true;
                 TestDurationLabel.Text = "Base Data to Transfer:";
                 dataToTransferTextBox.Text = "512";
                 gbLabel.Text = "GB";
+                gbLabel.Enabled = true;
 
                 ResultChart.ChartAreas[0].AxisY.IsLogarithmic = false;
-                latencyTestSet = false;
+            }
+            else if (OpenCLLatencyRadioButton.Checked)
+            {
+                ThreadingModeGroupBox.Enabled = false;
+                ThreadCountTrackbar.Enabled = false;
+                ThreadCountTrackbar.Value = 1;
+                ThreadingModeGroupBox.Enabled = false;
+
+                TestMethodGroupBox.Text = "Access Mode";
+                TestMethodGroupBox.SuspendLayout();
+                TestMethodGroupBox.Controls.Clear();
+                TestMethodGroupBox.Controls.Add(GlobalScalarRadioButton);
+                TestMethodGroupBox.Controls.Add(GlobalVectorRadioButton);
+                TestMethodGroupBox.Controls.Add(ConstantScalarRadioButton);
+                TestMethodGroupBox.Controls.Add(TextureRadioButton);
+                GlobalScalarRadioButton.Checked = true;
+                GlobalVectorRadioButton.Checked = false;
+                ConstantScalarRadioButton.Checked = false;
+                TestMethodGroupBox.PerformLayout();
+
+                // have to auto set duration to avoid TDR
+                TestDurationLabel.Enabled = false;
+                dataToTransferTextBox.Enabled = false;
+                gbLabel.Enabled = false;
+
+                // Add OpenCL devices via pinvoke call
+                progressLabel.Text = OpenCLTest.InitializeDeviceControls(AccessModeGroupBox);
+
+                // GPU mem latencies are easier to view on a linear axis
+                ResultChart.ChartAreas[0].AxisY.IsLogarithmic = false;
             }
         }
 
@@ -600,6 +727,7 @@ namespace MicrobenchmarkGui
         {
             string output = "";
             bool jsFormat = JsFormatRadioButton.Checked;
+
             if (ExportListBox.SelectedItem == null)
             {
                 ExportTextBox.Text = "No run selected";
@@ -616,6 +744,11 @@ namespace MicrobenchmarkGui
             else if (latencyRunner != null && latencyRunner.RunResults.ContainsKey(selectedRun))
             {
                 runResults = latencyRunner.RunResults[selectedRun];
+                if (!jsFormat) output = "Test Size (KB), Latency (ns)";
+            }
+            else if (OpenCLTest.RunResults != null && OpenCLTest.RunResults.ContainsKey(selectedRun))
+            {
+                runResults = OpenCLTest.RunResults[selectedRun];
                 if (!jsFormat) output = "Test Size (KB), Latency (ns)";
             }
             else
@@ -648,6 +781,7 @@ namespace MicrobenchmarkGui
             ExportListBox.Items.Clear();
             if (bwRunner != null) bwRunner.RunResults.Clear();
             if (latencyRunner != null) latencyRunner.RunResults.Clear();
+            if (OpenCLTest.RunResults != null) OpenCLTest.RunResults.Clear();
         }
 
         private void specifyNextColorRadioButton_CheckedChanged(object sender, EventArgs e)
