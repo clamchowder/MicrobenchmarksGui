@@ -79,6 +79,7 @@ namespace MicrobenchmarkGui
             this.OpenCLLatencyRadioButton = new System.Windows.Forms.RadioButton();
             this.MemoryLatencyRadioButton = new System.Windows.Forms.RadioButton();
             this.MemoryBandwidthRadioButton = new System.Windows.Forms.RadioButton();
+            this.TestRunLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.ResultChart)).BeginInit();
             this.ThreadingModeGroupBox.SuspendLayout();
             this.AccessModeGroupBox.SuspendLayout();
@@ -403,6 +404,7 @@ namespace MicrobenchmarkGui
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.TestRunLabel);
             this.groupBox2.Controls.Add(this.ExportListBox);
             this.groupBox2.Controls.Add(this.JsFormatRadioButton);
             this.groupBox2.Controls.Add(this.CsvFormatRadioButton);
@@ -418,9 +420,9 @@ namespace MicrobenchmarkGui
             // ExportListBox
             // 
             this.ExportListBox.FormattingEnabled = true;
-            this.ExportListBox.Location = new System.Drawing.Point(108, 10);
+            this.ExportListBox.Location = new System.Drawing.Point(108, 36);
             this.ExportListBox.Name = "ExportListBox";
-            this.ExportListBox.Size = new System.Drawing.Size(196, 108);
+            this.ExportListBox.Size = new System.Drawing.Size(196, 82);
             this.ExportListBox.TabIndex = 26;
             // 
             // JsFormatRadioButton
@@ -610,6 +612,15 @@ namespace MicrobenchmarkGui
             this.MemoryBandwidthRadioButton.UseVisualStyleBackColor = true;
             this.MemoryBandwidthRadioButton.CheckedChanged += new System.EventHandler(this.LatencyTestRadioButton_CheckedChanged);
             // 
+            // TestRunLabel
+            // 
+            this.TestRunLabel.AutoSize = true;
+            this.TestRunLabel.Location = new System.Drawing.Point(108, 17);
+            this.TestRunLabel.Name = "TestRunLabel";
+            this.TestRunLabel.Size = new System.Drawing.Size(87, 13);
+            this.TestRunLabel.TabIndex = 27;
+            this.TestRunLabel.Text = "Select Test Run:";
+            // 
             // MicrobenchmarkForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -703,6 +714,7 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.RadioButton MemoryBandwidthRadioButton;
         private System.Windows.Forms.ListBox ExportListBox;
         private System.Windows.Forms.RadioButton OpenCLLatencyRadioButton;
+        private System.Windows.Forms.Label TestRunLabel;
     }
 }
 

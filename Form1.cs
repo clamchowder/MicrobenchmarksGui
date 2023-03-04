@@ -776,6 +776,7 @@ namespace MicrobenchmarkGui
             ExportListBox.Items.Clear();
             if (bwRunner != null) bwRunner.RunResults.Clear();
             if (latencyRunner != null) latencyRunner.RunResults.Clear();
+            if (OpenCLTest.RunResults != null) OpenCLTest.RunResults.Clear();
         }
 
         private void specifyNextColorRadioButton_CheckedChanged(object sender, EventArgs e)

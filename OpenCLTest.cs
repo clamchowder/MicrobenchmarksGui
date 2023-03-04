@@ -67,6 +67,7 @@ namespace MicrobenchmarkGui
 
             // Assemble controls. We populate the list by platforms, sequentially
             int currentPlatform = -1, currentVerticalOffset = 20, controlSpacing = 24;
+            bool first = true;
             Size groupBoxRadioButtonSize = new Size(220, 17);
             foreach (OpenCLDevice clDevice in openCLDevices)
             {
@@ -87,6 +88,12 @@ namespace MicrobenchmarkGui
                 deviceButton.Name = $"platform{clDevice.PlatformIndex}dev{clDevice.DeviceIndex}RadioButton";
                 deviceButton.Location = new Point(7, currentVerticalOffset);
                 deviceButton.Size = groupBoxRadioButtonSize;
+                if (first)
+                {
+                    deviceButton.Checked = true;
+                    first = false;
+                }
+
                 currentVerticalOffset += controlSpacing;
                 deviceGroupBox.Controls.Add(deviceButton);
                 clDevice.DeviceButton = deviceButton;
