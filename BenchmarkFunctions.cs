@@ -80,7 +80,13 @@ namespace MicrobenchmarkGui
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern int GetDeviceName(int platformIndex, int deviceIndex, IntPtr deviceNamePtr, int maxDeviceNameLen);
 
-
+        /// <summary>
+        /// Gets an OpenCL platform's name
+        /// </summary>
+        /// <param name="platformIndex">Platform index</param>
+        /// <param name="platformNamePtr">Pointer to block of memory to put the name into</param>
+        /// <param name="maxPlatformNameLen">Max name length, includes terminating null</param>
+        /// <returns>0 on success, error code on fail</returns>
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern int GetPlatformName(int platformIndex, IntPtr platformNamePtr, int maxPlatformNameLen);
 
