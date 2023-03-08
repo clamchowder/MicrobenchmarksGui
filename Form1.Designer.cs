@@ -35,7 +35,7 @@ namespace MicrobenchmarkGui
             this.RunBandwidthTestButton = new System.Windows.Forms.Button();
             this.resultListView = new System.Windows.Forms.ListView();
             this.ResultLabel = new System.Windows.Forms.Label();
-            this.ResultChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.ResultsChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.ThreadCountLabel = new System.Windows.Forms.Label();
             this.ThreadingModeGroupBox = new System.Windows.Forms.GroupBox();
             this.SharedRadioButton = new System.Windows.Forms.RadioButton();
@@ -49,15 +49,13 @@ namespace MicrobenchmarkGui
             this.DataWriteRadioButton = new System.Windows.Forms.RadioButton();
             this.DataReadRadioButton = new System.Windows.Forms.RadioButton();
             this.TestMethodGroupBox = new System.Windows.Forms.GroupBox();
-            this.MmxRadioButton = new System.Windows.Forms.RadioButton();
-            this.Avx512RadioButton = new System.Windows.Forms.RadioButton();
-            this.AvxRadioButton = new System.Windows.Forms.RadioButton();
+            this.BandwidthTestMethodFlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.SseRadioButton = new System.Windows.Forms.RadioButton();
+            this.AvxRadioButton = new System.Windows.Forms.RadioButton();
+            this.Avx512RadioButton = new System.Windows.Forms.RadioButton();
+            this.MmxRadioButton = new System.Windows.Forms.RadioButton();
             this.progressLabel = new System.Windows.Forms.Label();
             this.ThreadCountTrackbar = new System.Windows.Forms.TrackBar();
-            this.TestDurationLabel = new System.Windows.Forms.Label();
-            this.dataToTransferTextBox = new System.Windows.Forms.TextBox();
-            this.gbLabel = new System.Windows.Forms.Label();
             this.ExportExcelButton = new System.Windows.Forms.Button();
             this.ExportTextBox = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -76,18 +74,42 @@ namespace MicrobenchmarkGui
             this.RLabel = new System.Windows.Forms.Label();
             this.SpecifyNextColorRadioButton = new System.Windows.Forms.RadioButton();
             this.RandomizeNextColorRadioButton = new System.Windows.Forms.RadioButton();
-            this.TestTypeGroupBox = new System.Windows.Forms.GroupBox();
-            this.OpenCLLatencyRadioButton = new System.Windows.Forms.RadioButton();
-            this.MemoryLatencyRadioButton = new System.Windows.Forms.RadioButton();
-            this.MemoryBandwidthRadioButton = new System.Windows.Forms.RadioButton();
-            ((System.ComponentModel.ISupportInitialize)(this.ResultChart)).BeginInit();
+            this.TestSelectTabControl = new System.Windows.Forms.TabControl();
+            this.MemoryBandwidthTab = new System.Windows.Forms.TabPage();
+            this.CpuMemoryBandwidthLabel = new System.Windows.Forms.Label();
+            this.MemoryLatencyTab = new System.Windows.Forms.TabPage();
+            this.CpuMemoryLatencyLabel = new System.Windows.Forms.Label();
+            this.MemoryLatencyPagingModeGroupBox = new System.Windows.Forms.GroupBox();
+            this.MemoryLatencyLargePagesRadioButton = new System.Windows.Forms.RadioButton();
+            this.MemoryLatencyDefaultPagesRadioButton = new System.Windows.Forms.RadioButton();
+            this.MemoryLatencyAddressingModeGroupBox = new System.Windows.Forms.GroupBox();
+            this.MemoryLatencyAsmRadioButton = new System.Windows.Forms.RadioButton();
+            this.MemoryLatencyIndexedAddressingRadioButton = new System.Windows.Forms.RadioButton();
+            this.GpuMemLatencyTab = new System.Windows.Forms.TabPage();
+            this.GpuMemoryLatencyDeviceGroupBox = new System.Windows.Forms.GroupBox();
+            this.GpuMemoryLatencyDeviceFlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.GpuMemoryLatencyMemoryPathGroupBox = new System.Windows.Forms.GroupBox();
+            this.GpuMemoryLatencyLocalRadioButton = new System.Windows.Forms.RadioButton();
+            this.GpuMemoryLatencyTextureRadioButton = new System.Windows.Forms.RadioButton();
+            this.GpuMemoryLatencyConstantScalarRadioButton = new System.Windows.Forms.RadioButton();
+            this.GpuMemoryLatencyVectorRadioButton = new System.Windows.Forms.RadioButton();
+            this.GpuMemoryLatencyScalarRadioButton = new System.Windows.Forms.RadioButton();
+            ((System.ComponentModel.ISupportInitialize)(this.ResultsChart)).BeginInit();
             this.ThreadingModeGroupBox.SuspendLayout();
             this.AccessModeGroupBox.SuspendLayout();
             this.TestMethodGroupBox.SuspendLayout();
+            this.BandwidthTestMethodFlowLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ThreadCountTrackbar)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.ChartControlsGroupBox.SuspendLayout();
-            this.TestTypeGroupBox.SuspendLayout();
+            this.TestSelectTabControl.SuspendLayout();
+            this.MemoryBandwidthTab.SuspendLayout();
+            this.MemoryLatencyTab.SuspendLayout();
+            this.MemoryLatencyPagingModeGroupBox.SuspendLayout();
+            this.MemoryLatencyAddressingModeGroupBox.SuspendLayout();
+            this.GpuMemLatencyTab.SuspendLayout();
+            this.GpuMemoryLatencyDeviceGroupBox.SuspendLayout();
+            this.GpuMemoryLatencyMemoryPathGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // RunBandwidthTestButton
@@ -105,7 +127,7 @@ namespace MicrobenchmarkGui
             this.resultListView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.resultListView.HideSelection = false;
-            this.resultListView.Location = new System.Drawing.Point(247, 30);
+            this.resultListView.Location = new System.Drawing.Point(298, 30);
             this.resultListView.Name = "resultListView";
             this.resultListView.Size = new System.Drawing.Size(195, 688);
             this.resultListView.TabIndex = 4;
@@ -115,35 +137,35 @@ namespace MicrobenchmarkGui
             // ResultLabel
             // 
             this.ResultLabel.AutoSize = true;
-            this.ResultLabel.Location = new System.Drawing.Point(244, 12);
+            this.ResultLabel.Location = new System.Drawing.Point(295, 12);
             this.ResultLabel.Name = "ResultLabel";
             this.ResultLabel.Size = new System.Drawing.Size(74, 13);
             this.ResultLabel.TabIndex = 5;
             this.ResultLabel.Text = "Run Progress:";
             // 
-            // ResultChart
+            // ResultsChart
             // 
-            this.ResultChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.ResultsChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             chartArea1.Name = "ChartArea1";
-            this.ResultChart.ChartAreas.Add(chartArea1);
+            this.ResultsChart.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
-            this.ResultChart.Legends.Add(legend1);
-            this.ResultChart.Location = new System.Drawing.Point(448, 159);
-            this.ResultChart.Name = "ResultChart";
+            this.ResultsChart.Legends.Add(legend1);
+            this.ResultsChart.Location = new System.Drawing.Point(499, 159);
+            this.ResultsChart.Name = "ResultsChart";
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
             series1.Name = "Series1";
-            this.ResultChart.Series.Add(series1);
-            this.ResultChart.Size = new System.Drawing.Size(764, 559);
-            this.ResultChart.TabIndex = 6;
-            this.ResultChart.Text = "chart1";
+            this.ResultsChart.Series.Add(series1);
+            this.ResultsChart.Size = new System.Drawing.Size(764, 559);
+            this.ResultsChart.TabIndex = 6;
+            this.ResultsChart.Text = "chart1";
             // 
             // ThreadCountLabel
             // 
             this.ThreadCountLabel.AutoSize = true;
-            this.ThreadCountLabel.Location = new System.Drawing.Point(12, 12);
+            this.ThreadCountLabel.Location = new System.Drawing.Point(3, 37);
             this.ThreadCountLabel.Name = "ThreadCountLabel";
             this.ThreadCountLabel.Size = new System.Drawing.Size(58, 13);
             this.ThreadCountLabel.TabIndex = 8;
@@ -153,9 +175,9 @@ namespace MicrobenchmarkGui
             // 
             this.ThreadingModeGroupBox.Controls.Add(this.SharedRadioButton);
             this.ThreadingModeGroupBox.Controls.Add(this.PrivateRadioButton);
-            this.ThreadingModeGroupBox.Location = new System.Drawing.Point(12, 187);
+            this.ThreadingModeGroupBox.Location = new System.Drawing.Point(9, 107);
             this.ThreadingModeGroupBox.Name = "ThreadingModeGroupBox";
-            this.ThreadingModeGroupBox.Size = new System.Drawing.Size(229, 70);
+            this.ThreadingModeGroupBox.Size = new System.Drawing.Size(227, 70);
             this.ThreadingModeGroupBox.TabIndex = 9;
             this.ThreadingModeGroupBox.TabStop = false;
             this.ThreadingModeGroupBox.Text = "Threading Mode";
@@ -201,9 +223,9 @@ namespace MicrobenchmarkGui
             this.AccessModeGroupBox.Controls.Add(this.DataAddRadioButton);
             this.AccessModeGroupBox.Controls.Add(this.DataWriteRadioButton);
             this.AccessModeGroupBox.Controls.Add(this.DataReadRadioButton);
-            this.AccessModeGroupBox.Location = new System.Drawing.Point(10, 263);
+            this.AccessModeGroupBox.Location = new System.Drawing.Point(9, 183);
             this.AccessModeGroupBox.Name = "AccessModeGroupBox";
-            this.AccessModeGroupBox.Size = new System.Drawing.Size(231, 218);
+            this.AccessModeGroupBox.Size = new System.Drawing.Size(227, 160);
             this.AccessModeGroupBox.TabIndex = 14;
             this.AccessModeGroupBox.TabStop = false;
             this.AccessModeGroupBox.Text = "Access Mode";
@@ -277,43 +299,42 @@ namespace MicrobenchmarkGui
             // 
             // TestMethodGroupBox
             // 
-            this.TestMethodGroupBox.Controls.Add(this.MmxRadioButton);
-            this.TestMethodGroupBox.Controls.Add(this.Avx512RadioButton);
-            this.TestMethodGroupBox.Controls.Add(this.AvxRadioButton);
-            this.TestMethodGroupBox.Controls.Add(this.SseRadioButton);
-            this.TestMethodGroupBox.Location = new System.Drawing.Point(10, 487);
+            this.TestMethodGroupBox.Controls.Add(this.BandwidthTestMethodFlowLayoutPanel);
+            this.TestMethodGroupBox.Location = new System.Drawing.Point(9, 349);
             this.TestMethodGroupBox.Name = "TestMethodGroupBox";
-            this.TestMethodGroupBox.Size = new System.Drawing.Size(231, 174);
+            this.TestMethodGroupBox.Size = new System.Drawing.Size(227, 174);
             this.TestMethodGroupBox.TabIndex = 15;
             this.TestMethodGroupBox.TabStop = false;
             this.TestMethodGroupBox.Text = "Test Method";
             // 
-            // MmxRadioButton
+            // BandwidthTestMethodFlowLayoutPanel
             // 
-            this.MmxRadioButton.AutoSize = true;
-            this.MmxRadioButton.Location = new System.Drawing.Point(7, 93);
-            this.MmxRadioButton.Name = "MmxRadioButton";
-            this.MmxRadioButton.Size = new System.Drawing.Size(85, 17);
-            this.MmxRadioButton.TabIndex = 3;
-            this.MmxRadioButton.TabStop = true;
-            this.MmxRadioButton.Text = "MMX (64-bit)";
-            this.MmxRadioButton.UseVisualStyleBackColor = true;
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.SseRadioButton);
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.AvxRadioButton);
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.Avx512RadioButton);
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.MmxRadioButton);
+            this.BandwidthTestMethodFlowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.BandwidthTestMethodFlowLayoutPanel.Location = new System.Drawing.Point(6, 19);
+            this.BandwidthTestMethodFlowLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.BandwidthTestMethodFlowLayoutPanel.Name = "BandwidthTestMethodFlowLayoutPanel";
+            this.BandwidthTestMethodFlowLayoutPanel.Size = new System.Drawing.Size(215, 149);
+            this.BandwidthTestMethodFlowLayoutPanel.TabIndex = 4;
             // 
-            // Avx512RadioButton
+            // SseRadioButton
             // 
-            this.Avx512RadioButton.AutoSize = true;
-            this.Avx512RadioButton.Location = new System.Drawing.Point(7, 68);
-            this.Avx512RadioButton.Name = "Avx512RadioButton";
-            this.Avx512RadioButton.Size = new System.Drawing.Size(108, 17);
-            this.Avx512RadioButton.TabIndex = 2;
-            this.Avx512RadioButton.Text = "AVX-512 (512-bit)";
-            this.Avx512RadioButton.UseVisualStyleBackColor = true;
+            this.SseRadioButton.AutoSize = true;
+            this.SseRadioButton.Location = new System.Drawing.Point(3, 3);
+            this.SseRadioButton.Name = "SseRadioButton";
+            this.SseRadioButton.Size = new System.Drawing.Size(87, 17);
+            this.SseRadioButton.TabIndex = 0;
+            this.SseRadioButton.Text = "SSE (128-bit)";
+            this.SseRadioButton.UseVisualStyleBackColor = true;
             // 
             // AvxRadioButton
             // 
             this.AvxRadioButton.AutoSize = true;
             this.AvxRadioButton.Checked = true;
-            this.AvxRadioButton.Location = new System.Drawing.Point(7, 44);
+            this.AvxRadioButton.Location = new System.Drawing.Point(3, 26);
             this.AvxRadioButton.Name = "AvxRadioButton";
             this.AvxRadioButton.Size = new System.Drawing.Size(87, 17);
             this.AvxRadioButton.TabIndex = 1;
@@ -321,20 +342,31 @@ namespace MicrobenchmarkGui
             this.AvxRadioButton.Text = "AVX (256-bit)";
             this.AvxRadioButton.UseVisualStyleBackColor = true;
             // 
-            // SseRadioButton
+            // Avx512RadioButton
             // 
-            this.SseRadioButton.AutoSize = true;
-            this.SseRadioButton.Location = new System.Drawing.Point(7, 20);
-            this.SseRadioButton.Name = "SseRadioButton";
-            this.SseRadioButton.Size = new System.Drawing.Size(87, 17);
-            this.SseRadioButton.TabIndex = 0;
-            this.SseRadioButton.Text = "SSE (128-bit)";
-            this.SseRadioButton.UseVisualStyleBackColor = true;
+            this.Avx512RadioButton.AutoSize = true;
+            this.Avx512RadioButton.Location = new System.Drawing.Point(3, 49);
+            this.Avx512RadioButton.Name = "Avx512RadioButton";
+            this.Avx512RadioButton.Size = new System.Drawing.Size(108, 17);
+            this.Avx512RadioButton.TabIndex = 2;
+            this.Avx512RadioButton.Text = "AVX-512 (512-bit)";
+            this.Avx512RadioButton.UseVisualStyleBackColor = true;
+            // 
+            // MmxRadioButton
+            // 
+            this.MmxRadioButton.AutoSize = true;
+            this.MmxRadioButton.Location = new System.Drawing.Point(3, 72);
+            this.MmxRadioButton.Name = "MmxRadioButton";
+            this.MmxRadioButton.Size = new System.Drawing.Size(85, 17);
+            this.MmxRadioButton.TabIndex = 3;
+            this.MmxRadioButton.TabStop = true;
+            this.MmxRadioButton.Text = "MMX (64-bit)";
+            this.MmxRadioButton.UseVisualStyleBackColor = true;
             // 
             // progressLabel
             // 
             this.progressLabel.AutoSize = true;
-            this.progressLabel.Location = new System.Drawing.Point(324, 12);
+            this.progressLabel.Location = new System.Drawing.Point(375, 12);
             this.progressLabel.Name = "progressLabel";
             this.progressLabel.Size = new System.Drawing.Size(61, 13);
             this.progressLabel.TabIndex = 16;
@@ -343,43 +375,14 @@ namespace MicrobenchmarkGui
             // ThreadCountTrackbar
             // 
             this.ThreadCountTrackbar.LargeChange = 2;
-            this.ThreadCountTrackbar.Location = new System.Drawing.Point(12, 30);
+            this.ThreadCountTrackbar.Location = new System.Drawing.Point(6, 56);
             this.ThreadCountTrackbar.Maximum = 4;
             this.ThreadCountTrackbar.Minimum = 1;
             this.ThreadCountTrackbar.Name = "ThreadCountTrackbar";
-            this.ThreadCountTrackbar.Size = new System.Drawing.Size(229, 45);
+            this.ThreadCountTrackbar.Size = new System.Drawing.Size(230, 45);
             this.ThreadCountTrackbar.TabIndex = 18;
             this.ThreadCountTrackbar.Value = 1;
             this.ThreadCountTrackbar.Scroll += new System.EventHandler(this.ThreadCountTrackbar_Scroll);
-            // 
-            // TestDurationLabel
-            // 
-            this.TestDurationLabel.AutoSize = true;
-            this.TestDurationLabel.Location = new System.Drawing.Point(7, 670);
-            this.TestDurationLabel.Name = "TestDurationLabel";
-            this.TestDurationLabel.Size = new System.Drawing.Size(114, 13);
-            this.TestDurationLabel.TabIndex = 19;
-            this.TestDurationLabel.Text = "Base Data to Transfer:";
-            // 
-            // dataToTransferTextBox
-            // 
-            this.dataToTransferTextBox.Location = new System.Drawing.Point(123, 667);
-            this.dataToTransferTextBox.MaxLength = 10;
-            this.dataToTransferTextBox.Name = "dataToTransferTextBox";
-            this.dataToTransferTextBox.Size = new System.Drawing.Size(62, 20);
-            this.dataToTransferTextBox.TabIndex = 20;
-            this.dataToTransferTextBox.Text = "512";
-            this.dataToTransferTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // gbLabel
-            // 
-            this.gbLabel.AutoSize = true;
-            this.gbLabel.Location = new System.Drawing.Point(186, 670);
-            this.gbLabel.Name = "gbLabel";
-            this.gbLabel.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.gbLabel.Size = new System.Drawing.Size(22, 13);
-            this.gbLabel.TabIndex = 21;
-            this.gbLabel.Text = "GB";
             // 
             // ExportExcelButton
             // 
@@ -410,7 +413,7 @@ namespace MicrobenchmarkGui
             this.groupBox2.Controls.Add(this.CsvFormatRadioButton);
             this.groupBox2.Controls.Add(this.ExportTextBox);
             this.groupBox2.Controls.Add(this.ExportExcelButton);
-            this.groupBox2.Location = new System.Drawing.Point(684, 30);
+            this.groupBox2.Location = new System.Drawing.Point(735, 30);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(528, 123);
             this.groupBox2.TabIndex = 26;
@@ -479,7 +482,7 @@ namespace MicrobenchmarkGui
             this.ChartControlsGroupBox.Controls.Add(this.SpecifyNextColorRadioButton);
             this.ChartControlsGroupBox.Controls.Add(this.RandomizeNextColorRadioButton);
             this.ChartControlsGroupBox.Controls.Add(this.ClearChartButton);
-            this.ChartControlsGroupBox.Location = new System.Drawing.Point(448, 30);
+            this.ChartControlsGroupBox.Location = new System.Drawing.Point(499, 30);
             this.ChartControlsGroupBox.Name = "ChartControlsGroupBox";
             this.ChartControlsGroupBox.Size = new System.Drawing.Size(230, 123);
             this.ChartControlsGroupBox.TabIndex = 28;
@@ -573,94 +576,274 @@ namespace MicrobenchmarkGui
             this.RandomizeNextColorRadioButton.Text = "Random Next Color";
             this.RandomizeNextColorRadioButton.UseVisualStyleBackColor = true;
             // 
-            // TestTypeGroupBox
+            // TestSelectTabControl
             // 
-            this.TestTypeGroupBox.Controls.Add(this.OpenCLLatencyRadioButton);
-            this.TestTypeGroupBox.Controls.Add(this.MemoryLatencyRadioButton);
-            this.TestTypeGroupBox.Controls.Add(this.MemoryBandwidthRadioButton);
-            this.TestTypeGroupBox.Location = new System.Drawing.Point(10, 67);
-            this.TestTypeGroupBox.Name = "TestTypeGroupBox";
-            this.TestTypeGroupBox.Size = new System.Drawing.Size(231, 114);
-            this.TestTypeGroupBox.TabIndex = 29;
-            this.TestTypeGroupBox.TabStop = false;
-            this.TestTypeGroupBox.Text = "Test Type";
+            this.TestSelectTabControl.Alignment = System.Windows.Forms.TabAlignment.Left;
+            this.TestSelectTabControl.Controls.Add(this.MemoryBandwidthTab);
+            this.TestSelectTabControl.Controls.Add(this.MemoryLatencyTab);
+            this.TestSelectTabControl.Controls.Add(this.GpuMemLatencyTab);
+            this.TestSelectTabControl.Location = new System.Drawing.Point(10, 12);
+            this.TestSelectTabControl.Multiline = true;
+            this.TestSelectTabControl.Name = "TestSelectTabControl";
+            this.TestSelectTabControl.SelectedIndex = 0;
+            this.TestSelectTabControl.Size = new System.Drawing.Size(269, 592);
+            this.TestSelectTabControl.TabIndex = 30;
+            this.TestSelectTabControl.Selected += new System.Windows.Forms.TabControlEventHandler(this.TestSelectTabControl_Selected);
             // 
-            // OpenCLLatencyRadioButton
+            // MemoryBandwidthTab
             // 
-            this.OpenCLLatencyRadioButton.AutoSize = true;
-            this.OpenCLLatencyRadioButton.Location = new System.Drawing.Point(7, 65);
-            this.OpenCLLatencyRadioButton.Name = "OpenCLLatencyRadioButton";
-            this.OpenCLLatencyRadioButton.Size = new System.Drawing.Size(177, 17);
-            this.OpenCLLatencyRadioButton.TabIndex = 2;
-            this.OpenCLLatencyRadioButton.TabStop = true;
-            this.OpenCLLatencyRadioButton.Text = "GPU Memory Latency (OpenCL)";
-            this.OpenCLLatencyRadioButton.UseVisualStyleBackColor = true;
-            this.OpenCLLatencyRadioButton.CheckedChanged += new System.EventHandler(this.LatencyTestRadioButton_CheckedChanged);
+            this.MemoryBandwidthTab.BackColor = System.Drawing.SystemColors.Control;
+            this.MemoryBandwidthTab.Controls.Add(this.CpuMemoryBandwidthLabel);
+            this.MemoryBandwidthTab.Controls.Add(this.ThreadCountLabel);
+            this.MemoryBandwidthTab.Controls.Add(this.ThreadCountTrackbar);
+            this.MemoryBandwidthTab.Controls.Add(this.ThreadingModeGroupBox);
+            this.MemoryBandwidthTab.Controls.Add(this.AccessModeGroupBox);
+            this.MemoryBandwidthTab.Controls.Add(this.TestMethodGroupBox);
+            this.MemoryBandwidthTab.Location = new System.Drawing.Point(23, 4);
+            this.MemoryBandwidthTab.Name = "MemoryBandwidthTab";
+            this.MemoryBandwidthTab.Padding = new System.Windows.Forms.Padding(3);
+            this.MemoryBandwidthTab.Size = new System.Drawing.Size(242, 584);
+            this.MemoryBandwidthTab.TabIndex = 0;
+            this.MemoryBandwidthTab.Text = "CPU Memory Bandwidth";
             // 
-            // MemoryLatencyRadioButton
+            // CpuMemoryBandwidthLabel
             // 
-            this.MemoryLatencyRadioButton.AutoSize = true;
-            this.MemoryLatencyRadioButton.Location = new System.Drawing.Point(7, 42);
-            this.MemoryLatencyRadioButton.Name = "MemoryLatencyRadioButton";
-            this.MemoryLatencyRadioButton.Size = new System.Drawing.Size(103, 17);
-            this.MemoryLatencyRadioButton.TabIndex = 1;
-            this.MemoryLatencyRadioButton.Text = "Memory Latency";
-            this.MemoryLatencyRadioButton.UseVisualStyleBackColor = true;
-            this.MemoryLatencyRadioButton.CheckedChanged += new System.EventHandler(this.LatencyTestRadioButton_CheckedChanged);
+            this.CpuMemoryBandwidthLabel.Location = new System.Drawing.Point(3, 3);
+            this.CpuMemoryBandwidthLabel.Name = "CpuMemoryBandwidthLabel";
+            this.CpuMemoryBandwidthLabel.Size = new System.Drawing.Size(236, 34);
+            this.CpuMemoryBandwidthLabel.TabIndex = 19;
+            this.CpuMemoryBandwidthLabel.Text = "Tests CPU cache and memory bandwidth using a linear access pattern";
             // 
-            // MemoryBandwidthRadioButton
+            // MemoryLatencyTab
             // 
-            this.MemoryBandwidthRadioButton.AutoSize = true;
-            this.MemoryBandwidthRadioButton.Checked = true;
-            this.MemoryBandwidthRadioButton.Location = new System.Drawing.Point(7, 19);
-            this.MemoryBandwidthRadioButton.Name = "MemoryBandwidthRadioButton";
-            this.MemoryBandwidthRadioButton.Size = new System.Drawing.Size(115, 17);
-            this.MemoryBandwidthRadioButton.TabIndex = 0;
-            this.MemoryBandwidthRadioButton.TabStop = true;
-            this.MemoryBandwidthRadioButton.Text = "Memory Bandwidth";
-            this.MemoryBandwidthRadioButton.UseVisualStyleBackColor = true;
-            this.MemoryBandwidthRadioButton.CheckedChanged += new System.EventHandler(this.LatencyTestRadioButton_CheckedChanged);
+            this.MemoryLatencyTab.BackColor = System.Drawing.SystemColors.Control;
+            this.MemoryLatencyTab.Controls.Add(this.CpuMemoryLatencyLabel);
+            this.MemoryLatencyTab.Controls.Add(this.MemoryLatencyPagingModeGroupBox);
+            this.MemoryLatencyTab.Controls.Add(this.MemoryLatencyAddressingModeGroupBox);
+            this.MemoryLatencyTab.Location = new System.Drawing.Point(23, 4);
+            this.MemoryLatencyTab.Name = "MemoryLatencyTab";
+            this.MemoryLatencyTab.Padding = new System.Windows.Forms.Padding(3);
+            this.MemoryLatencyTab.Size = new System.Drawing.Size(242, 584);
+            this.MemoryLatencyTab.TabIndex = 1;
+            this.MemoryLatencyTab.Text = "CPU Memory Latency";
+            // 
+            // CpuMemoryLatencyLabel
+            // 
+            this.CpuMemoryLatencyLabel.Location = new System.Drawing.Point(3, 3);
+            this.CpuMemoryLatencyLabel.Name = "CpuMemoryLatencyLabel";
+            this.CpuMemoryLatencyLabel.Size = new System.Drawing.Size(232, 32);
+            this.CpuMemoryLatencyLabel.TabIndex = 2;
+            this.CpuMemoryLatencyLabel.Text = "Tests CPU memory latency using random, dependent accesses";
+            // 
+            // MemoryLatencyPagingModeGroupBox
+            // 
+            this.MemoryLatencyPagingModeGroupBox.Controls.Add(this.MemoryLatencyLargePagesRadioButton);
+            this.MemoryLatencyPagingModeGroupBox.Controls.Add(this.MemoryLatencyDefaultPagesRadioButton);
+            this.MemoryLatencyPagingModeGroupBox.Location = new System.Drawing.Point(6, 110);
+            this.MemoryLatencyPagingModeGroupBox.Name = "MemoryLatencyPagingModeGroupBox";
+            this.MemoryLatencyPagingModeGroupBox.Size = new System.Drawing.Size(229, 66);
+            this.MemoryLatencyPagingModeGroupBox.TabIndex = 1;
+            this.MemoryLatencyPagingModeGroupBox.TabStop = false;
+            this.MemoryLatencyPagingModeGroupBox.Text = "Paging Mode";
+            // 
+            // MemoryLatencyLargePagesRadioButton
+            // 
+            this.MemoryLatencyLargePagesRadioButton.AutoSize = true;
+            this.MemoryLatencyLargePagesRadioButton.Location = new System.Drawing.Point(6, 43);
+            this.MemoryLatencyLargePagesRadioButton.Name = "MemoryLatencyLargePagesRadioButton";
+            this.MemoryLatencyLargePagesRadioButton.Size = new System.Drawing.Size(152, 17);
+            this.MemoryLatencyLargePagesRadioButton.TabIndex = 1;
+            this.MemoryLatencyLargePagesRadioButton.TabStop = true;
+            this.MemoryLatencyLargePagesRadioButton.Text = "Large Pages (2 MB Pages)";
+            this.MemoryLatencyLargePagesRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // MemoryLatencyDefaultPagesRadioButton
+            // 
+            this.MemoryLatencyDefaultPagesRadioButton.AutoSize = true;
+            this.MemoryLatencyDefaultPagesRadioButton.Checked = true;
+            this.MemoryLatencyDefaultPagesRadioButton.Location = new System.Drawing.Point(6, 19);
+            this.MemoryLatencyDefaultPagesRadioButton.Name = "MemoryLatencyDefaultPagesRadioButton";
+            this.MemoryLatencyDefaultPagesRadioButton.Size = new System.Drawing.Size(124, 17);
+            this.MemoryLatencyDefaultPagesRadioButton.TabIndex = 0;
+            this.MemoryLatencyDefaultPagesRadioButton.TabStop = true;
+            this.MemoryLatencyDefaultPagesRadioButton.Text = "Default (4 KB Pages)";
+            this.MemoryLatencyDefaultPagesRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // MemoryLatencyAddressingModeGroupBox
+            // 
+            this.MemoryLatencyAddressingModeGroupBox.Controls.Add(this.MemoryLatencyAsmRadioButton);
+            this.MemoryLatencyAddressingModeGroupBox.Controls.Add(this.MemoryLatencyIndexedAddressingRadioButton);
+            this.MemoryLatencyAddressingModeGroupBox.Location = new System.Drawing.Point(6, 38);
+            this.MemoryLatencyAddressingModeGroupBox.Name = "MemoryLatencyAddressingModeGroupBox";
+            this.MemoryLatencyAddressingModeGroupBox.Size = new System.Drawing.Size(230, 66);
+            this.MemoryLatencyAddressingModeGroupBox.TabIndex = 0;
+            this.MemoryLatencyAddressingModeGroupBox.TabStop = false;
+            this.MemoryLatencyAddressingModeGroupBox.Text = "Addressing Mode";
+            // 
+            // MemoryLatencyAsmRadioButton
+            // 
+            this.MemoryLatencyAsmRadioButton.AutoSize = true;
+            this.MemoryLatencyAsmRadioButton.Checked = true;
+            this.MemoryLatencyAsmRadioButton.Location = new System.Drawing.Point(6, 21);
+            this.MemoryLatencyAsmRadioButton.Name = "MemoryLatencyAsmRadioButton";
+            this.MemoryLatencyAsmRadioButton.Size = new System.Drawing.Size(143, 17);
+            this.MemoryLatencyAsmRadioButton.TabIndex = 1;
+            this.MemoryLatencyAsmRadioButton.TabStop = true;
+            this.MemoryLatencyAsmRadioButton.Text = "Simple Addressing (ASM)";
+            this.MemoryLatencyAsmRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // MemoryLatencyIndexedAddressingRadioButton
+            // 
+            this.MemoryLatencyIndexedAddressingRadioButton.AutoSize = true;
+            this.MemoryLatencyIndexedAddressingRadioButton.Location = new System.Drawing.Point(6, 43);
+            this.MemoryLatencyIndexedAddressingRadioButton.Name = "MemoryLatencyIndexedAddressingRadioButton";
+            this.MemoryLatencyIndexedAddressingRadioButton.Size = new System.Drawing.Size(161, 17);
+            this.MemoryLatencyIndexedAddressingRadioButton.TabIndex = 0;
+            this.MemoryLatencyIndexedAddressingRadioButton.TabStop = true;
+            this.MemoryLatencyIndexedAddressingRadioButton.Text = "Indexed Addressing (C Array)";
+            this.MemoryLatencyIndexedAddressingRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // GpuMemLatencyTab
+            // 
+            this.GpuMemLatencyTab.BackColor = System.Drawing.SystemColors.Control;
+            this.GpuMemLatencyTab.Controls.Add(this.GpuMemoryLatencyDeviceGroupBox);
+            this.GpuMemLatencyTab.Controls.Add(this.GpuMemoryLatencyMemoryPathGroupBox);
+            this.GpuMemLatencyTab.Location = new System.Drawing.Point(23, 4);
+            this.GpuMemLatencyTab.Name = "GpuMemLatencyTab";
+            this.GpuMemLatencyTab.Size = new System.Drawing.Size(242, 584);
+            this.GpuMemLatencyTab.TabIndex = 2;
+            this.GpuMemLatencyTab.Text = "GPU Memory Latency";
+            // 
+            // GpuMemoryLatencyDeviceGroupBox
+            // 
+            this.GpuMemoryLatencyDeviceGroupBox.Controls.Add(this.GpuMemoryLatencyDeviceFlowLayoutPanel);
+            this.GpuMemoryLatencyDeviceGroupBox.Location = new System.Drawing.Point(4, 148);
+            this.GpuMemoryLatencyDeviceGroupBox.Name = "GpuMemoryLatencyDeviceGroupBox";
+            this.GpuMemoryLatencyDeviceGroupBox.Size = new System.Drawing.Size(235, 300);
+            this.GpuMemoryLatencyDeviceGroupBox.TabIndex = 1;
+            this.GpuMemoryLatencyDeviceGroupBox.TabStop = false;
+            this.GpuMemoryLatencyDeviceGroupBox.Text = "OpenCL Device";
+            // 
+            // GpuMemoryLatencyDeviceFlowLayoutPanel
+            // 
+            this.GpuMemoryLatencyDeviceFlowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.GpuMemoryLatencyDeviceFlowLayoutPanel.Location = new System.Drawing.Point(7, 20);
+            this.GpuMemoryLatencyDeviceFlowLayoutPanel.Name = "GpuMemoryLatencyDeviceFlowLayoutPanel";
+            this.GpuMemoryLatencyDeviceFlowLayoutPanel.Size = new System.Drawing.Size(222, 274);
+            this.GpuMemoryLatencyDeviceFlowLayoutPanel.TabIndex = 0;
+            // 
+            // GpuMemoryLatencyMemoryPathGroupBox
+            // 
+            this.GpuMemoryLatencyMemoryPathGroupBox.Controls.Add(this.GpuMemoryLatencyLocalRadioButton);
+            this.GpuMemoryLatencyMemoryPathGroupBox.Controls.Add(this.GpuMemoryLatencyTextureRadioButton);
+            this.GpuMemoryLatencyMemoryPathGroupBox.Controls.Add(this.GpuMemoryLatencyConstantScalarRadioButton);
+            this.GpuMemoryLatencyMemoryPathGroupBox.Controls.Add(this.GpuMemoryLatencyVectorRadioButton);
+            this.GpuMemoryLatencyMemoryPathGroupBox.Controls.Add(this.GpuMemoryLatencyScalarRadioButton);
+            this.GpuMemoryLatencyMemoryPathGroupBox.Location = new System.Drawing.Point(4, 4);
+            this.GpuMemoryLatencyMemoryPathGroupBox.Name = "GpuMemoryLatencyMemoryPathGroupBox";
+            this.GpuMemoryLatencyMemoryPathGroupBox.Size = new System.Drawing.Size(235, 138);
+            this.GpuMemoryLatencyMemoryPathGroupBox.TabIndex = 0;
+            this.GpuMemoryLatencyMemoryPathGroupBox.TabStop = false;
+            this.GpuMemoryLatencyMemoryPathGroupBox.Text = "Memory Access Method";
+            // 
+            // GpuMemoryLatencyLocalRadioButton
+            // 
+            this.GpuMemoryLatencyLocalRadioButton.AutoSize = true;
+            this.GpuMemoryLatencyLocalRadioButton.Location = new System.Drawing.Point(6, 109);
+            this.GpuMemoryLatencyLocalRadioButton.Name = "GpuMemoryLatencyLocalRadioButton";
+            this.GpuMemoryLatencyLocalRadioButton.Size = new System.Drawing.Size(127, 17);
+            this.GpuMemoryLatencyLocalRadioButton.TabIndex = 4;
+            this.GpuMemoryLatencyLocalRadioButton.TabStop = true;
+            this.GpuMemoryLatencyLocalRadioButton.Text = "Local Memory, Scalar";
+            this.GpuMemoryLatencyLocalRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // GpuMemoryLatencyTextureRadioButton
+            // 
+            this.GpuMemoryLatencyTextureRadioButton.AutoSize = true;
+            this.GpuMemoryLatencyTextureRadioButton.Location = new System.Drawing.Point(6, 86);
+            this.GpuMemoryLatencyTextureRadioButton.Name = "GpuMemoryLatencyTextureRadioButton";
+            this.GpuMemoryLatencyTextureRadioButton.Size = new System.Drawing.Size(61, 17);
+            this.GpuMemoryLatencyTextureRadioButton.TabIndex = 3;
+            this.GpuMemoryLatencyTextureRadioButton.TabStop = true;
+            this.GpuMemoryLatencyTextureRadioButton.Text = "Texture";
+            this.GpuMemoryLatencyTextureRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // GpuMemoryLatencyConstantScalarRadioButton
+            // 
+            this.GpuMemoryLatencyConstantScalarRadioButton.AutoSize = true;
+            this.GpuMemoryLatencyConstantScalarRadioButton.Location = new System.Drawing.Point(6, 63);
+            this.GpuMemoryLatencyConstantScalarRadioButton.Name = "GpuMemoryLatencyConstantScalarRadioButton";
+            this.GpuMemoryLatencyConstantScalarRadioButton.Size = new System.Drawing.Size(143, 17);
+            this.GpuMemoryLatencyConstantScalarRadioButton.TabIndex = 2;
+            this.GpuMemoryLatencyConstantScalarRadioButton.TabStop = true;
+            this.GpuMemoryLatencyConstantScalarRadioButton.Text = "Constant Memory, Scalar";
+            this.GpuMemoryLatencyConstantScalarRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // GpuMemoryLatencyVectorRadioButton
+            // 
+            this.GpuMemoryLatencyVectorRadioButton.AutoSize = true;
+            this.GpuMemoryLatencyVectorRadioButton.Location = new System.Drawing.Point(6, 39);
+            this.GpuMemoryLatencyVectorRadioButton.Name = "GpuMemoryLatencyVectorRadioButton";
+            this.GpuMemoryLatencyVectorRadioButton.Size = new System.Drawing.Size(132, 17);
+            this.GpuMemoryLatencyVectorRadioButton.TabIndex = 1;
+            this.GpuMemoryLatencyVectorRadioButton.TabStop = true;
+            this.GpuMemoryLatencyVectorRadioButton.Text = "Global Memory, Vector";
+            this.GpuMemoryLatencyVectorRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // GpuMemoryLatencyScalarRadioButton
+            // 
+            this.GpuMemoryLatencyScalarRadioButton.AutoSize = true;
+            this.GpuMemoryLatencyScalarRadioButton.Checked = true;
+            this.GpuMemoryLatencyScalarRadioButton.Location = new System.Drawing.Point(6, 16);
+            this.GpuMemoryLatencyScalarRadioButton.Name = "GpuMemoryLatencyScalarRadioButton";
+            this.GpuMemoryLatencyScalarRadioButton.Size = new System.Drawing.Size(131, 17);
+            this.GpuMemoryLatencyScalarRadioButton.TabIndex = 0;
+            this.GpuMemoryLatencyScalarRadioButton.TabStop = true;
+            this.GpuMemoryLatencyScalarRadioButton.Text = "Global Memory, Scalar";
+            this.GpuMemoryLatencyScalarRadioButton.UseVisualStyleBackColor = true;
             // 
             // MicrobenchmarkForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1224, 730);
-            this.Controls.Add(this.TestTypeGroupBox);
+            this.ClientSize = new System.Drawing.Size(1275, 730);
+            this.Controls.Add(this.TestSelectTabControl);
             this.Controls.Add(this.ChartControlsGroupBox);
             this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.gbLabel);
-            this.Controls.Add(this.dataToTransferTextBox);
-            this.Controls.Add(this.TestDurationLabel);
-            this.Controls.Add(this.ThreadCountTrackbar);
             this.Controls.Add(this.progressLabel);
-            this.Controls.Add(this.TestMethodGroupBox);
-            this.Controls.Add(this.AccessModeGroupBox);
             this.Controls.Add(this.CancelRunButton);
-            this.Controls.Add(this.ThreadingModeGroupBox);
-            this.Controls.Add(this.ThreadCountLabel);
-            this.Controls.Add(this.ResultChart);
+            this.Controls.Add(this.ResultsChart);
             this.Controls.Add(this.ResultLabel);
             this.Controls.Add(this.resultListView);
             this.Controls.Add(this.RunBandwidthTestButton);
             this.Name = "MicrobenchmarkForm";
             this.Text = "Clam Cache and Mem Benchmark";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MicrobenchmarkForm_FormClosed);
-            this.Load += new System.EventHandler(this.MicrobenchmarkForm_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.ResultChart)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ResultsChart)).EndInit();
             this.ThreadingModeGroupBox.ResumeLayout(false);
             this.ThreadingModeGroupBox.PerformLayout();
             this.AccessModeGroupBox.ResumeLayout(false);
             this.AccessModeGroupBox.PerformLayout();
             this.TestMethodGroupBox.ResumeLayout(false);
-            this.TestMethodGroupBox.PerformLayout();
+            this.BandwidthTestMethodFlowLayoutPanel.ResumeLayout(false);
+            this.BandwidthTestMethodFlowLayoutPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ThreadCountTrackbar)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.ChartControlsGroupBox.ResumeLayout(false);
             this.ChartControlsGroupBox.PerformLayout();
-            this.TestTypeGroupBox.ResumeLayout(false);
-            this.TestTypeGroupBox.PerformLayout();
+            this.TestSelectTabControl.ResumeLayout(false);
+            this.MemoryBandwidthTab.ResumeLayout(false);
+            this.MemoryBandwidthTab.PerformLayout();
+            this.MemoryLatencyTab.ResumeLayout(false);
+            this.MemoryLatencyPagingModeGroupBox.ResumeLayout(false);
+            this.MemoryLatencyPagingModeGroupBox.PerformLayout();
+            this.MemoryLatencyAddressingModeGroupBox.ResumeLayout(false);
+            this.MemoryLatencyAddressingModeGroupBox.PerformLayout();
+            this.GpuMemLatencyTab.ResumeLayout(false);
+            this.GpuMemoryLatencyDeviceGroupBox.ResumeLayout(false);
+            this.GpuMemoryLatencyMemoryPathGroupBox.ResumeLayout(false);
+            this.GpuMemoryLatencyMemoryPathGroupBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -670,7 +853,7 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.Button RunBandwidthTestButton;
         private System.Windows.Forms.ListView resultListView;
         private System.Windows.Forms.Label ResultLabel;
-        private System.Windows.Forms.DataVisualization.Charting.Chart ResultChart;
+        private System.Windows.Forms.DataVisualization.Charting.Chart ResultsChart;
         private System.Windows.Forms.Label ThreadCountLabel;
         private System.Windows.Forms.GroupBox ThreadingModeGroupBox;
         private System.Windows.Forms.RadioButton SharedRadioButton;
@@ -687,9 +870,6 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.RadioButton SseRadioButton;
         private System.Windows.Forms.Label progressLabel;
         private System.Windows.Forms.TrackBar ThreadCountTrackbar;
-        private System.Windows.Forms.Label TestDurationLabel;
-        private System.Windows.Forms.TextBox dataToTransferTextBox;
-        private System.Windows.Forms.Label gbLabel;
         private System.Windows.Forms.Button ExportExcelButton;
         private System.Windows.Forms.TextBox ExportTextBox;
         private System.Windows.Forms.GroupBox groupBox2;
@@ -709,12 +889,29 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.Label GLabel;
         private System.Windows.Forms.RadioButton DataNtWriteRadioButton;
         private System.Windows.Forms.RadioButton DataMicrocodedRadioButton;
-        private System.Windows.Forms.GroupBox TestTypeGroupBox;
-        private System.Windows.Forms.RadioButton MemoryLatencyRadioButton;
-        private System.Windows.Forms.RadioButton MemoryBandwidthRadioButton;
         private System.Windows.Forms.ListBox ExportListBox;
-        private System.Windows.Forms.RadioButton OpenCLLatencyRadioButton;
         private System.Windows.Forms.Label TestRunLabel;
+        private System.Windows.Forms.FlowLayoutPanel BandwidthTestMethodFlowLayoutPanel;
+        private System.Windows.Forms.TabControl TestSelectTabControl;
+        private System.Windows.Forms.TabPage MemoryBandwidthTab;
+        private System.Windows.Forms.TabPage MemoryLatencyTab;
+        private System.Windows.Forms.GroupBox MemoryLatencyAddressingModeGroupBox;
+        private System.Windows.Forms.GroupBox MemoryLatencyPagingModeGroupBox;
+        private System.Windows.Forms.RadioButton MemoryLatencyIndexedAddressingRadioButton;
+        private System.Windows.Forms.RadioButton MemoryLatencyAsmRadioButton;
+        private System.Windows.Forms.RadioButton MemoryLatencyLargePagesRadioButton;
+        private System.Windows.Forms.RadioButton MemoryLatencyDefaultPagesRadioButton;
+        private System.Windows.Forms.TabPage GpuMemLatencyTab;
+        private System.Windows.Forms.GroupBox GpuMemoryLatencyMemoryPathGroupBox;
+        private System.Windows.Forms.RadioButton GpuMemoryLatencyScalarRadioButton;
+        private System.Windows.Forms.RadioButton GpuMemoryLatencyVectorRadioButton;
+        private System.Windows.Forms.RadioButton GpuMemoryLatencyTextureRadioButton;
+        private System.Windows.Forms.RadioButton GpuMemoryLatencyConstantScalarRadioButton;
+        private System.Windows.Forms.RadioButton GpuMemoryLatencyLocalRadioButton;
+        private System.Windows.Forms.GroupBox GpuMemoryLatencyDeviceGroupBox;
+        private System.Windows.Forms.Label CpuMemoryBandwidthLabel;
+        private System.Windows.Forms.Label CpuMemoryLatencyLabel;
+        private System.Windows.Forms.FlowLayoutPanel GpuMemoryLatencyDeviceFlowLayoutPanel;
     }
 }
 

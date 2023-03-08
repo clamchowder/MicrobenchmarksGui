@@ -53,16 +53,6 @@ int SetLargePages(uint32_t enable)
 }
 
 /// <summary>
-/// Heuristic to make sure test runs for enough time but not too long
-/// </summary>
-/// <param name="size_kb">Region size</param>
-/// <param name="iterations">base iterations</param>
-/// <returns>scaled iterations</returns>
-uint64_t scale_iterations(uint32_t size_kb, uint64_t iterations) {
-    return (uint64_t)(10 * iterations / pow(size_kb, 1.0 / 4.0));
-}
-
-/// <summary>
 /// Fills pattern array with 32-bit integers
 /// </summary>
 /// <param name="pattern_arr">array to fill</param>
@@ -123,13 +113,12 @@ float RunAsmLatencyTest(uint32_t size_kb, uint64_t iterations) {
     memset(A, 0, 1024 * size_kb);
     FillPatternArr64(A, size_kb * 1024 / sizeof(uint64_t), 64);
     preplatencyarr(A, size_kb * 1024 / sizeof(uint64_t));
-    uint64_t scaled_iterations = scale_iterations(size_kb, iterations);
 
     ftime(&start);
-    uint64_t sum = latencytest(scaled_iterations, A);
+    uint64_t sum = latencytest(iterations, A);
     ftime(&end);
     int64_t time_diff_ms = 1000 * (end.time - start.time) + (end.millitm - start.millitm);
-    float latency = 1e6 * (float)time_diff_ms / (float)scaled_iterations;
+    float latency = 1e6 * (float)time_diff_ms / (float)iterations;
     if (mem == NULL) free(A);
     return latency;
 }
@@ -153,17 +142,16 @@ float RunLatencyTest(uint32_t size_kb, uint64_t iterations) {
     }
 
     FillPatternArr(A, list_size, 64);
-    uint64_t scaled_iterations = scale_iterations(size_kb, iterations);
 
     // Run test
     ftime(&start);
     current = A[0];
-    for (int i = 0; i < scaled_iterations; i++) {
+    for (int i = 0; i < iterations; i++) {
         current = A[current];
     }
     ftime(&end);
     int64_t time_diff_ms = 1000 * (end.time - start.time) + (end.millitm - start.millitm);
-    float latency = 1e6 * (float)time_diff_ms / (float)scaled_iterations;
+    float latency = 1e6 * (float)time_diff_ms / (float)iterations;
     if (mem == NULL) free(A);
     if (current == A[current]) return 0;
     return latency;

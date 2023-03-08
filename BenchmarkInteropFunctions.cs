@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace MicrobenchmarkGui
 {
-    public static class BenchmarkFunctions
+    public static class BenchmarkInteropFunctions
     {
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern float test(int size);
@@ -42,7 +42,7 @@ namespace MicrobenchmarkGui
         };
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-        public static extern float MeasureBw(uint sizeKb, uint iterations, uint threads, int shared, TestType testType);
+        public static extern float MeasureBw(uint sizeKb, ulong iterations, uint threads, int shared, TestType testType);
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern int CheckAvxSupport();
@@ -54,10 +54,10 @@ namespace MicrobenchmarkGui
         public static extern int SetLargePages(uint enable);
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-        public static extern float RunLatencyTest(uint sizeKb, uint iterations);
+        public static extern float RunLatencyTest(uint sizeKb, ulong iterations);
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-        public static extern float RunAsmLatencyTest(uint sizeKb, uint iterations);
+        public static extern float RunAsmLatencyTest(uint sizeKb, ulong iterations);
 
         // OpenCL related functions
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +20,7 @@ namespace MicrobenchmarkGui
         /// <summary>
         /// Test type to run, for automated test
         /// </summary>
-        public BenchmarkFunctions.TestType testType;
+        public BenchmarkInteropFunctions.TestType testType;
 
         // run results
         public Dictionary<string, List<Tuple<float, float>>> RunResults;
@@ -66,7 +66,7 @@ namespace MicrobenchmarkGui
             this.RunResults = new Dictionary<string, List<Tuple<float, float>>>();
         }
 
-        private uint GetIterationCount(uint testSize, uint threads, uint dataGb)
+        private uint GetIterationCount(uint testSize, uint dataGb)
         {
             uint gbToTransfer = dataGb;
             if (testSize > 64) gbToTransfer = dataGb / 2;
@@ -80,7 +80,7 @@ namespace MicrobenchmarkGui
         }
 
         // Run through test sizes, meant to be run in a background thread
-        public void StartFullTest(uint threads, bool shared, BenchmarkFunctions.TestType testType, uint dataGb, CancellationToken runCancel)
+        public void StartFullTest(uint threads, bool shared, BenchmarkInteropFunctions.TestType testType, CancellationToken runCancel)
         {
             running = true;
             string testLabel = threads + "T " + testType.ToString();
@@ -101,6 +101,7 @@ namespace MicrobenchmarkGui
 
             resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
 
+            float lastTimeMs = 0;
             for (uint testIdx = 0; testIdx < testSizes.Length; testIdx++)
             {
                 if (runCancel.IsCancellationRequested)
@@ -109,8 +110,24 @@ namespace MicrobenchmarkGui
                 }
 
                 uint testSize = testSizes[testIdx];
-                progressLabel.Invoke(setProgressLabelDelegate, new object[] { "Testing " + testSize + " KB" });
-                float result = BenchmarkFunctions.MeasureBw(testSize, GetIterationCount(testSize, threads, dataGb), threads, shared ? 1 : 0, testType);
+                ulong currentIterations = GetIterationCount(testSize, 32);
+                float targetTimeMs = 3000, minTimeMs = 1000, result;
+                Stopwatch debugStopwatch = new Stopwatch();
+
+                do {
+                    float dataTransferredGb = (float)((currentIterations * testSize * 1024.0 * threads) / 1e9);
+                    string progressMessage = string.Format("Testing bandwidth over {0} KB, {1}K iterations = {2:F2} GB, last run = {3:F2} ms", testSize, currentIterations / 1000, dataTransferredGb, lastTimeMs);
+                    progressLabel.Invoke(setProgressLabelDelegate, new object[] { progressMessage });
+
+                    debugStopwatch.Restart();
+                    result = BenchmarkInteropFunctions.MeasureBw(testSize, currentIterations, threads, shared ? 1 : 0, testType);
+                    debugStopwatch.Stop();
+
+                    lastTimeMs = 1000 * dataTransferredGb / result;
+                    currentIterations = TestUtilities.ScaleIterations(currentIterations, targetTimeMs, lastTimeMs);
+                    Console.WriteLine("Reported {0:F2} ms, sw {1} ms. Next Iteration Count: {2}", lastTimeMs, debugStopwatch.ElapsedMilliseconds, currentIterations);
+                } while (lastTimeMs < minTimeMs);
+
                 testResults[testIdx] = result;
                 if (result != 0) formattedResults[testIdx][1] = string.Format("{0:F2} GB/s", result);
                 else formattedResults[testIdx][1] = "N/A";
@@ -121,7 +138,7 @@ namespace MicrobenchmarkGui
                     floatTestPoints.Add(testSize);
                     testResultsList.Add(result);
                     currentRunResults.Add(new Tuple<float, float>(testSize, result));
-                    resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray() });
+                    resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray(), MicrobenchmarkForm.ResultChartType.CpuMemoryBandwidth });
                 }
             }
 
@@ -131,10 +148,10 @@ namespace MicrobenchmarkGui
         }
 
         // Run a single test size, meant to be run in a background thread
-        public void RunSingleTest(uint sizeKb, uint threads, bool shared, BenchmarkFunctions.TestType testType)
+        public void RunSingleTest(uint sizeKb, uint threads, bool shared, BenchmarkInteropFunctions.TestType testType)
         {
             running = true;
-            float result = BenchmarkFunctions.MeasureBw(sizeKb, GetIterationCount(sizeKb, threads, 512), threads, shared ? 1 : 0, testType);
+            float result = BenchmarkInteropFunctions.MeasureBw(sizeKb, GetIterationCount(sizeKb, 512), threads, shared ? 1 : 0, testType);
             resultListView.Invoke(setListViewColumnsDelegate, new object[] { bwCols });
             string[][] formattedResults = new string[1][];
             formattedResults[0] = new string[2];

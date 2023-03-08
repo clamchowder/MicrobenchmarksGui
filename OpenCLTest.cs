@@ -30,13 +30,13 @@ namespace MicrobenchmarkGui
 
         public static Dictionary<string, List<Tuple<float, float>>> RunResults;
 
-        public static string InitializeDeviceControls(GroupBox deviceGroupBox)
+        public static string InitializeDeviceControls(FlowLayoutPanel deviceFlowLayoutPanel)
         {
             // what can we fit in the GUI
             int maxNameLength = 128;
 
             // Enumerate platforms and devices
-            int platformCount = BenchmarkFunctions.GetPlatformCount();
+            int platformCount = BenchmarkInteropFunctions.GetPlatformCount();
             openCLPlatforms = new string[platformCount];
             openCLDevices = new List<OpenCLDevice>();
 
@@ -44,16 +44,16 @@ namespace MicrobenchmarkGui
             IntPtr nameBuffer = Marshal.AllocHGlobal(maxNameLength);
             for (int platformIdx = 0; platformIdx < platformCount; platformIdx++)
             {
-                int platformDeviceCount = BenchmarkFunctions.GetDeviceCount(platformIdx);
+                int platformDeviceCount = BenchmarkInteropFunctions.GetDeviceCount(platformIdx);
                 totalDeviceCount += platformDeviceCount;
-                BenchmarkFunctions.GetPlatformName(platformIdx, nameBuffer, maxNameLength);
+                BenchmarkInteropFunctions.GetPlatformName(platformIdx, nameBuffer, maxNameLength);
                 openCLPlatforms[platformIdx] = Marshal.PtrToStringAnsi(nameBuffer);
                 for (int deviceIdx = 0; deviceIdx < platformDeviceCount; deviceIdx++)
                 {
                     OpenCLDevice device = new OpenCLDevice();
                     device.PlatformIndex = platformIdx;
                     device.DeviceIndex = deviceIdx;
-                    BenchmarkFunctions.GetDeviceName(platformIdx, deviceIdx, nameBuffer, maxNameLength);
+                    BenchmarkInteropFunctions.GetDeviceName(platformIdx, deviceIdx, nameBuffer, maxNameLength);
                     device.DeviceName = Marshal.PtrToStringAnsi(nameBuffer);
                     device.DeviceName = device.DeviceName.Trim();
                     openCLDevices.Add(device);
@@ -62,13 +62,12 @@ namespace MicrobenchmarkGui
 
             Marshal.FreeHGlobal(nameBuffer);
 
-            deviceGroupBox.Text = "OpenCL Device";
-            deviceGroupBox.Controls.Clear();
-            deviceGroupBox.SuspendLayout();
+            deviceFlowLayoutPanel.Controls.Clear();
+            deviceFlowLayoutPanel.SuspendLayout();
 
             // Assemble controls. We populate the list by platforms, sequentially
-            int currentPlatform = -1, currentVerticalOffset = 20, controlSpacing = 24;
-            bool first = true;
+            int currentPlatform = -1;
+            bool firstDevice = true, firstPlatform = true;
             Size groupBoxRadioButtonSize = new Size(220, 17);
             foreach (OpenCLDevice clDevice in openCLDevices)
             {
@@ -78,29 +77,35 @@ namespace MicrobenchmarkGui
                     Label platformLabel = new Label();
                     platformLabel.Text = openCLPlatforms[clDevice.PlatformIndex] + ":";
                     platformLabel.Name = $"platform{clDevice.PlatformIndex}Label";
-                    platformLabel.Location = new Point(3, currentVerticalOffset);
                     platformLabel.Size = groupBoxRadioButtonSize;
-                    currentVerticalOffset += controlSpacing - 4; // labels seem to be a bit shorter?
-                    deviceGroupBox.Controls.Add(platformLabel);
+                    if (firstPlatform)
+                    {
+                        firstPlatform = false;
+                    }
+                    else
+                    {
+                        platformLabel.Margin = new Padding(0, 10, 0, 0);
+                    }
+
+                    deviceFlowLayoutPanel.Controls.Add(platformLabel);
                 }
 
                 RadioButton deviceButton = new RadioButton();
                 deviceButton.Text = clDevice.DeviceName;
                 deviceButton.Name = $"platform{clDevice.PlatformIndex}dev{clDevice.DeviceIndex}RadioButton";
-                deviceButton.Location = new Point(7, currentVerticalOffset);
                 deviceButton.Size = groupBoxRadioButtonSize;
-                if (first)
+                if (firstDevice)
                 {
                     deviceButton.Checked = true;
-                    first = false;
+                    firstDevice = false;
                 }
 
-                currentVerticalOffset += controlSpacing;
-                deviceGroupBox.Controls.Add(deviceButton);
+                deviceFlowLayoutPanel.Controls.Add(deviceButton);
                 clDevice.DeviceButton = deviceButton;
             }
 
-            deviceGroupBox.ResumeLayout();
+            deviceFlowLayoutPanel.ResumeLayout();
+            deviceFlowLayoutPanel.PerformLayout();
 
             if (RunResults == null) RunResults = new Dictionary<string, List<Tuple<float, float>>>();
             return $"System has {totalDeviceCount} OpenCL devices across {platformCount} platforms";
@@ -113,7 +118,7 @@ namespace MicrobenchmarkGui
             ListView resultListView,
             Chart resultChart,
             Label progressLabel,
-            BenchmarkFunctions.CLTestType testMode,
+            BenchmarkInteropFunctions.CLTestType testMode,
             CancellationToken runCancel)
         {
             // figure out which device is checked
@@ -135,7 +140,7 @@ namespace MicrobenchmarkGui
                 return;
             }
 
-            int rc = BenchmarkFunctions.SetOpenCLContext(platformIndex, deviceIndex);
+            int rc = BenchmarkInteropFunctions.SetOpenCLContext(platformIndex, deviceIndex);
             if (rc < 0)
             {
                 progressLabel.Invoke(setLabelDelegate, new object[] { "Could not create OpenCL context and command queue for selected device" });
@@ -143,9 +148,9 @@ namespace MicrobenchmarkGui
             }
 
             // Fermi can't build the texture kernel, so separate it out
-            if (testMode == BenchmarkFunctions.CLTestType.Texture) ExtractResourceFile("latencykernel_tex.cl");
+            if (testMode == BenchmarkInteropFunctions.CLTestType.Texture) ExtractResourceFile("latencykernel_tex.cl");
             else ExtractResourceFile("latencykernel.cl");
-            rc = BenchmarkFunctions.InitializeLatencyTest(testMode);
+            rc = BenchmarkInteropFunctions.InitializeLatencyTest(testMode);
             if (rc < 0)
             {
                 progressLabel.Invoke(setLabelDelegate, new object[] { "Could not build OpenCL kernel for selected device" });
@@ -154,20 +159,20 @@ namespace MicrobenchmarkGui
 
             // Determine limits
             ulong maxTestSizeKb = 0;
-            if (testMode == BenchmarkFunctions.CLTestType.GlobalScalar || testMode == BenchmarkFunctions.CLTestType.GlobalVector)
+            if (testMode == BenchmarkInteropFunctions.CLTestType.GlobalScalar || testMode == BenchmarkInteropFunctions.CLTestType.GlobalVector)
             {
-                maxTestSizeKb = BenchmarkFunctions.GetDeviceMaxBufferSize() / 1024;
+                maxTestSizeKb = BenchmarkInteropFunctions.GetDeviceMaxBufferSize() / 1024;
             }
-            else if (testMode == BenchmarkFunctions.CLTestType.ConstantScalar)
+            else if (testMode == BenchmarkInteropFunctions.CLTestType.ConstantScalar)
             {
-                maxTestSizeKb = BenchmarkFunctions.GetDeviceMaxConstantBufferSize() / 1024;
+                maxTestSizeKb = BenchmarkInteropFunctions.GetDeviceMaxConstantBufferSize() / 1024;
             }
-            else if (testMode == BenchmarkFunctions.CLTestType.Texture)
+            else if (testMode == BenchmarkInteropFunctions.CLTestType.Texture)
             {
-                maxTestSizeKb = BenchmarkFunctions.GetDeviceMaxTextureSize() / 1024;
+                maxTestSizeKb = BenchmarkInteropFunctions.GetDeviceMaxTextureSize() / 1024;
             }
 
-            if (testMode == BenchmarkFunctions.CLTestType.Local)
+            if (testMode == BenchmarkInteropFunctions.CLTestType.Local)
             {
                 // Set GUI stuff for local latency test
                 uint localTestSizeKb = 4; // keep in sync with latencykernel.cl code
@@ -181,24 +186,25 @@ namespace MicrobenchmarkGui
                 // more than regular latency test because we expect this to be relatively fast
                 uint currentIterations = 150000;
 
-                // slightly higher targets for better accuracy
-                double targetTimeMs = 2200, minTimeMs = 1500, lastTimeMs = 1;
+                // slightly higher targets for better accuracy. really risking that TDR limit
+                float targetTimeMs = 2200, minTimeMs = 1500, lastTimeMs = 1;
                 float result;
                 do
                 {
                     progressLabel.Invoke(setLabelDelegate, new object[] { $"Testing local memory latency, {currentIterations / 1000}K iterations" });
-                    result = BenchmarkFunctions.RunCLLatencyTest(localTestSizeKb, currentIterations, testMode);
-
-                    // safeguard if things are really fast
-                    if (result < 0.001)
-                    {
-                        currentIterations *= 100;
-                        continue;
-                    }
+                    result = BenchmarkInteropFunctions.RunCLLatencyTest(localTestSizeKb, currentIterations, testMode);
 
                     // scale iterations to reach target time
-                    lastTimeMs = result * currentIterations / 1e6;
-                    currentIterations = (uint)(currentIterations * targetTimeMs / lastTimeMs);
+                    lastTimeMs = (float)(result * currentIterations / 1e6);
+                    ulong desiredIterations = TestUtilities.ScaleIterations(currentIterations, targetTimeMs, lastTimeMs);
+                    if (desiredIterations > uint.MaxValue)
+                    {
+                        currentIterations = uint.MaxValue;
+                    }
+                    else
+                    {
+                        currentIterations = (uint)desiredIterations;
+                    }
                 } while (lastTimeMs < minTimeMs);
 
                 formattedResults[0][1] = string.Format("{0:F2} ns", result);
@@ -242,13 +248,13 @@ namespace MicrobenchmarkGui
 
                     uint testSize = testSizes[testIdx];
                     uint currentIterations = baseIterations;
-                    double targetTimeMs = 2000, minTimeMs = 1000, lastTimeMs = 1;
+                    float targetTimeMs = 2000, minTimeMs = 1000, lastTimeMs = 1;
                     float result;
 
                     do
                     {
-                        progressLabel.Invoke(setLabelDelegate, new object[] { $"Testing {testSize} KB with {(currentIterations / 1000)}K iterations (device limit is {maxTestSizeKb} KB)" });
-                        result = BenchmarkFunctions.RunCLLatencyTest(testSize, currentIterations, testMode);
+                        progressLabel.Invoke(setLabelDelegate, new object[] { $"Testing {testSize} KB with {(currentIterations / 1000)}K iterations (device limit is {maxTestSizeKb} KB). Last run = {lastTimeMs} ms" });
+                        result = BenchmarkInteropFunctions.RunCLLatencyTest(testSize, currentIterations, testMode);
                         if (result < 0)
                         {
                             progressLabel.Invoke(setLabelDelegate, new object[] { $"Latency test with {testSize} KB failed" });
@@ -256,23 +262,24 @@ namespace MicrobenchmarkGui
                             break;
                         }
 
-                        // safeguard if things are really fast
-                        if (result < 0.001)
-                        {
-                            currentIterations *= 100;
-                            continue;
-                        }
-
                         // scale iterations to reach target time
-                        lastTimeMs = result * currentIterations / 1e6;
-                        currentIterations = (uint)(currentIterations * targetTimeMs / lastTimeMs);
+                        lastTimeMs = (float)(result * currentIterations / 1e6);
+                        ulong desiredIterations = TestUtilities.ScaleIterations(currentIterations, targetTimeMs, lastTimeMs);
+                        if (desiredIterations > uint.MaxValue)
+                        {
+                            currentIterations = uint.MaxValue;
+                        }
+                        else
+                        {
+                            currentIterations = (uint)desiredIterations;
+                        }
                     } while (lastTimeMs < minTimeMs);
 
                     if (first)
                     {
                         // run it a few more times because some GPUs take years to clock ramp
                         progressLabel.Invoke(setLabelDelegate, new object[] { $"Making sure GPU is warmed up: {testSize} KB with {(currentIterations / 1000)}K iterations (device limit is {maxTestSizeKb} KB)" });
-                        for (int warmupRun = 0; warmupRun < 3; warmupRun++) result = BenchmarkFunctions.RunCLLatencyTest(testSize, currentIterations, testMode);
+                        for (int warmupRun = 0; warmupRun < 3; warmupRun++) result = BenchmarkInteropFunctions.RunCLLatencyTest(testSize, currentIterations, testMode);
                         first = false;
                     }
 
@@ -291,14 +298,14 @@ namespace MicrobenchmarkGui
                     floatTestPoints.Add(testSize);
                     testResultsList.Add(result);
                     currentRunResults.Add(new Tuple<float, float>(testSize, result));
-                    resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray() });
+                    resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray(), MicrobenchmarkForm.ResultChartType.GpuMemoryLatency });
                 }
 
                 progressLabel.Invoke(setLabelDelegate, new object[] { $"Run finished" });
                 RunResults.Add(testLabel, currentRunResults);
             }
 
-            rc = BenchmarkFunctions.DeinitializeLatencyTest();
+            rc = BenchmarkInteropFunctions.DeinitializeLatencyTest();
             if (rc < 0)
             {
                 progressLabel.Invoke(setLabelDelegate, new object[] { "Could not clean up OpenCL state for selected device" });

@@ -160,9 +160,9 @@ void FillInstructionArray(uint64_t* arr, uint64_t sizeKb, enum TestType nopSize)
         arr[nopIdx] = *(uint64_t*)ret8b;
     }
 }
-__declspec(dllexport) float __stdcall MeasureBw(uint32_t sizeKb, uint32_t iterations, uint32_t threads, int shared, enum TestType mode);
+__declspec(dllexport) float __stdcall MeasureBw(uint32_t sizeKb, uint64_t iterations, uint32_t threads, int shared, enum TestType mode);
 
-float __stdcall MeasureBw(uint32_t sizeKb, uint32_t iterations, uint32_t threads, int shared, enum TestType mode) {
+float __stdcall MeasureBw(uint32_t sizeKb, uint64_t iterations, uint32_t threads, int shared, enum TestType mode) {
     struct timeb start, end;
     float bw = 0;
     uint32_t elements = sizeKb * 1024 / sizeof(float);
@@ -237,7 +237,6 @@ float __stdcall MeasureBw(uint32_t sizeKb, uint32_t iterations, uint32_t threads
     for (uint64_t i = 0; i < threads; i++) {
         if (shared) {
             threadData[i].arr = testArr;
-            threadData[i].iterations = iterations;
         }
         else {
             threadData[i].arr = (float*)VirtualAlloc(NULL, elements * sizeof(float), MEM_COMMIT | MEM_RESERVE, protection_flags);
@@ -255,12 +254,11 @@ float __stdcall MeasureBw(uint32_t sizeKb, uint32_t iterations, uint32_t threads
                     threadData[i].arr[arr_idx] = arr_idx + i + 0.5f;
                 }
             }
-
-            threadData[i].iterations = iterations * threads;
         }
 
         threadData[i].arr_length = elements;
         threadData[i].bw = 0;
+        threadData[i].iterations = iterations;
         testThreads[i] = CreateThread(NULL, 0, ReadBandwidthTestThread, threadData + i, CREATE_SUSPENDED, tids + i);
 
         // turns out setting affinity makes no difference, and it's easier to set affinity via start /affinity <mask> anyway

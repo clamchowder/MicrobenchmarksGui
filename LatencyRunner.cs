@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -59,7 +60,7 @@ namespace MicrobenchmarkGui
         }
 
         // Run through test sizes, meant to be run in a background thread
-        public void StartFullTest(bool asm, bool largePages, uint iterations, CancellationToken runCancel)
+        public void StartFullTest(bool asm, bool largePages, CancellationToken runCancel)
         {
             string testLabel = (asm ? "ASM" : "C") + ", " + (largePages ? "Large Pages" : "Default Pages");
             List<Tuple<float, float>> currentRunResults = new List<Tuple<float, float>>();
@@ -81,12 +82,12 @@ namespace MicrobenchmarkGui
 
             if (!largePages)
             {
-                BenchmarkFunctions.SetLargePages(0);
+                BenchmarkInteropFunctions.SetLargePages(0);
             }
             else
             {
                 uint maxTestSize = testSizes[testSizes.Length - 1];
-                int rc = BenchmarkFunctions.SetLargePages(maxTestSize * 1024);
+                int rc = BenchmarkInteropFunctions.SetLargePages(maxTestSize * 1024);
                 if (rc == -1)
                 {
                     progressLabel.Invoke(setProgressLabelDelegate, 
@@ -101,7 +102,8 @@ namespace MicrobenchmarkGui
                 }
             }
 
-
+            float targetTimeMs = 3500, minTimeMs = 1500, lastTimeMs = 0;
+            Stopwatch testStopwatch = new Stopwatch();
             for (uint testIdx = 0; testIdx < testSizes.Length; testIdx++)
             {
                 if (runCancel.IsCancellationRequested)
@@ -110,10 +112,24 @@ namespace MicrobenchmarkGui
                 }
 
                 uint testSize = testSizes[testIdx];
-                progressLabel.Invoke(setProgressLabelDelegate, new object[] { "Testing " + testSize + " KB" });
                 float result;
-                if (asm) result = BenchmarkFunctions.RunAsmLatencyTest(testSize, iterations);
-                else result = BenchmarkFunctions.RunLatencyTest(testSize, iterations);
+                ulong currentIterations = 2500000;
+
+                do
+                {
+                    progressLabel.Invoke(setProgressLabelDelegate, new object[] { $"Testing {testSize} KB with {currentIterations / 1000}K iterations. Last run = {lastTimeMs} ms" });
+
+                    Console.WriteLine("Starting run with {0}K iterations", currentIterations / 1000);
+                    testStopwatch.Restart();
+                    if (asm) result = BenchmarkInteropFunctions.RunAsmLatencyTest(testSize, currentIterations);
+                    else result = BenchmarkInteropFunctions.RunLatencyTest(testSize, currentIterations);
+                    testStopwatch.Stop();
+
+                    lastTimeMs = (float)(result * currentIterations / 1e6);
+                    Console.WriteLine("Calculated time: {0:F2}, stopwatch time: {1}", lastTimeMs, testStopwatch.ElapsedMilliseconds);
+                    currentIterations = TestUtilities.ScaleIterations(currentIterations, targetTimeMs, lastTimeMs);
+                } while (lastTimeMs < minTimeMs);
+
                 testResults[testIdx] = result;
 
                 if (result != 0) formattedResults[testIdx][1] = string.Format("{0:F2} ns", result);
@@ -125,7 +141,7 @@ namespace MicrobenchmarkGui
                     floatTestPoints.Add(testSize);
                     testResultsList.Add(result);
                     currentRunResults.Add(new Tuple<float, float>(testSize, result));
-                    resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray() });
+                    resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray(), MicrobenchmarkForm.ResultChartType.CpuMemoryLatency });
                 }
             }
 

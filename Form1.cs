@@ -18,20 +18,10 @@ namespace MicrobenchmarkGui
         private RadioButton EightByteNops;
         private RadioButton BranchPer16B;
         private RadioButton K8FourByteNops;
-        private RadioButton AsmRadioButton;
-        private RadioButton CRadioButton;
-        private RadioButton DefaultPagesRadioButton;
-        private RadioButton LargePagesRadioButton;
         private RadioButton RepMovsbRadioButton;
         private RadioButton RepStosbRadioButton;
         private RadioButton RepMovsdRadioButton;
         private RadioButton RepStosdRadioButton;
-
-        private RadioButton GlobalScalarRadioButton;
-        private RadioButton GlobalVectorRadioButton;
-        private RadioButton ConstantScalarRadioButton;
-        private RadioButton TextureRadioButton;
-        private RadioButton LocalScalarRadioButton;
 
         private Random randomThings;
 
@@ -40,120 +30,67 @@ namespace MicrobenchmarkGui
 
         public MicrobenchmarkForm()
         {
-            plottedSeries = new Dictionary<string, Series>();
+            plottedSeries = new Dictionary<ResultChartType, Dictionary<string, Series>>();
             InitializeComponent();
-            ResultChart.Series.Clear();
+            ResultsChart.Series.Clear();
 
             #region manual control initialization
             ToolTip tooltips = new ToolTip();
             Size groupBoxRadioButtonSize = new Size(220, 17);
             FourByteNops = new RadioButton();
             FourByteNops.Text = "4B NOPs (0F 1F 40 00)";
-            FourByteNops.Location = new Point(7, 20);
             FourByteNops.Size = groupBoxRadioButtonSize;
             tooltips.SetToolTip(FourByteNops, "Corresponds to average instruction lengths found in typical integer code");
 
             EightByteNops = new RadioButton();
             EightByteNops.Text = "8B NOPs (0F 1F 84 00 00 00 00 00)";
-            EightByteNops.Location = new Point(7, 44);
             EightByteNops.Size = groupBoxRadioButtonSize;
             tooltips.SetToolTip(EightByteNops, "Relatively long 8-byte instructions. More representative of AVX/AVX2/AVX-512 code, or code with lots of large immediates");
 
             BranchPer16B = new RadioButton();
             BranchPer16B.Text = "Taken Branch Per 16B";
-            BranchPer16B.Location = new Point(7, 68);
             BranchPer16B.Size = groupBoxRadioButtonSize;
             tooltips.SetToolTip(BranchPer16B, "Test with a chain of taken branches, spaced 16B apart. More of a BTB/branch predictor speed test.");
 
             K8FourByteNops = new RadioButton();
             K8FourByteNops.Text = "4B NOPs (66 66 66 90)";
-            K8FourByteNops.Location = new Point(7, 92);
             K8FourByteNops.Size = groupBoxRadioButtonSize;
             tooltips.SetToolTip(K8FourByteNops, "Use a NOP encoding recommended by the AMD Athlon/K8 optimization manual. Curiously avoids decoding bottlenecks on certain Intel CPUs, but doesn't matter for AMD (?)");
 
             RepMovsbRadioButton = new RadioButton();
             RepMovsbRadioButton.Text = "REP MOVSB (Copy)";
-            RepMovsbRadioButton.Location = new Point(7, 20);
             RepMovsbRadioButton.Size = groupBoxRadioButtonSize;
             tooltips.SetToolTip(RepMovsbRadioButton, "Tells CPU to copy a block of memory, with size known upfront");
 
             RepStosbRadioButton = new RadioButton();
             RepStosbRadioButton.Text = "REP STOSB (Write)";
-            RepStosbRadioButton.Location = new Point(7, 44);
             RepStosbRadioButton.Size = groupBoxRadioButtonSize;
             tooltips.SetToolTip(RepStosbRadioButton, "Tells CPU to write to a block of memory, with size known upfront");
 
             RepMovsdRadioButton = new RadioButton();
             RepMovsdRadioButton.Text = "REP MOVSD (Copy)";
-            RepMovsdRadioButton.Location = new Point(7, 68);
             RepMovsdRadioButton.Size = groupBoxRadioButtonSize;
             tooltips.SetToolTip(RepMovsdRadioButton, "Tells CPU to copy a block of memory with DWORD (4 byte) granularity. Potentially faster than REP MOVSB on some CPUs");
 
             RepStosdRadioButton = new RadioButton();
             RepStosdRadioButton.Text = "REP STOSD (Write)";
-            RepStosdRadioButton.Location = new Point(7, 92);
             RepStosdRadioButton.Size = groupBoxRadioButtonSize;
             tooltips.SetToolTip(RepStosdRadioButton, "Tells CPU to write to a block of memory with DWORD (4 byte) granularity. Potentially faster than REP STOSB on some CPUs");
 
-            AsmRadioButton = new RadioButton();
-            AsmRadioButton.Text = "Simple Addressing (ASM)";
-            AsmRadioButton.Location = new Point(7, 20);
-            AsmRadioButton.Size = groupBoxRadioButtonSize;
-            AsmRadioButton.Checked = true;
-            tooltips.SetToolTip(AsmRadioButton, "Uses direct addressing, i.e. mov r15, [r15]. Should be the lowest latency way to hit the memory hierarchy");
+            tooltips.SetToolTip(MemoryLatencyAsmRadioButton, "Uses direct addressing, i.e. mov r15, [r15]. Should be the lowest latency way to hit the memory hierarchy");
+            tooltips.SetToolTip(MemoryLatencyIndexedAddressingRadioButton, "Tests a = A[a] latency. The CPU has to add the offset to the array base address, which can incur additional latency");
+            tooltips.SetToolTip(MemoryLatencyDefaultPagesRadioButton, "Should be representative of memory latency seen by most user applications");
+            tooltips.SetToolTip(MemoryLatencyLargePagesRadioButton, "Asks the OS to handle address translation at a larger granularity, giving a better view of raw cache latency with TLB miss penalties minimized. Requires 'Lock Pages in Memory' permission");
 
-            CRadioButton = new RadioButton();
-            CRadioButton.Text = "Indexed Addressing (C)";
-            CRadioButton.Location = new Point(7, 44);
-            CRadioButton.Size = groupBoxRadioButtonSize;
-            tooltips.SetToolTip(CRadioButton, "Tests a = A[a] latency. The CPU has to add the offset to the array base address, which can incur additional latency");
+            tooltips.SetToolTip(GpuMemoryLatencyScalarRadioButton, "Similar to CPU latency test. Simple pointer chasing pattern in GPU global memory. AMD GPUs often have scalar caches.");
+            tooltips.SetToolTip(GpuMemoryLatencyVectorRadioButton, "Uses two threads, set up so that the compiler can't determine if a loaded value will be constant across a wave/warp. AMD has separate vector and scalar caches.");
+            tooltips.SetToolTip(GpuMemoryLatencyConstantScalarRadioButton, "Uses constant, read-only memory. Nvidia GPUs have separate constant caches."); ;
 
-            DefaultPagesRadioButton = new RadioButton();
-            DefaultPagesRadioButton.Text = "Default (4 KB Pages)";
-            DefaultPagesRadioButton.Location = new Point(7, 20);
-            DefaultPagesRadioButton.Size = groupBoxRadioButtonSize;
-            DefaultPagesRadioButton.Checked = true;
-            tooltips.SetToolTip(DefaultPagesRadioButton, "Should be representative of memory latency seen by most user applications");
-
-            LargePagesRadioButton = new RadioButton();
-            LargePagesRadioButton.Text = "Large Pages (2 MB Pages)";
-            LargePagesRadioButton.Location = new Point(7, 44);
-            LargePagesRadioButton.Size = groupBoxRadioButtonSize;
-            tooltips.SetToolTip(LargePagesRadioButton, "Asks the OS to handle address translation at a larger granularity, giving a better view of raw cache latency with TLB miss penalties minimized. Requires 'Lock Pages in Memory' permission");
-
-            GlobalScalarRadioButton = new RadioButton();
-            GlobalScalarRadioButton.Text = "Global Memory, Scalar";
-            GlobalScalarRadioButton.Location = new Point(7, 20);
-            GlobalScalarRadioButton.Size = groupBoxRadioButtonSize;
-            tooltips.SetToolTip(GlobalScalarRadioButton, "Similar to CPU latency test. Simple pointer chasing pattern in GPU global memory. AMD GPUs often have scalar caches.");
-
-            GlobalVectorRadioButton = new RadioButton();
-            GlobalVectorRadioButton.Text = "Global Memory, Vector";
-            GlobalVectorRadioButton.Location = new Point(7, 44);
-            GlobalVectorRadioButton.Size = groupBoxRadioButtonSize;
-            tooltips.SetToolTip(GlobalVectorRadioButton, "Uses two threads, set up so that the compiler can't determine if a loaded value will be constant across a wave/warp. AMD has separate vector and scalar caches.");
-
-            ConstantScalarRadioButton = new RadioButton();
-            ConstantScalarRadioButton.Text = "Constant Memory, Scalar";
-            ConstantScalarRadioButton.Location = new Point(7, 68);
-            ConstantScalarRadioButton.Size = groupBoxRadioButtonSize;
-            tooltips.SetToolTip(ConstantScalarRadioButton, "Uses constant, read-only memory. Nvidia GPUs have separate constant caches."); ;
-
-            TextureRadioButton = new RadioButton();
-            TextureRadioButton.Text = "Texture";
-            TextureRadioButton.Location = new Point(7, 92);
-            TextureRadioButton.Size = groupBoxRadioButtonSize;
-            tooltips.SetToolTip(TextureRadioButton, "Test latency through the texture pipeline (TMUs), using a 1D image buffer. Some Nvidia GPUs have separate texture caches.");
-
-            LocalScalarRadioButton = new RadioButton();
-            LocalScalarRadioButton.Text = "Local Memory";
-            LocalScalarRadioButton.Location = new Point(7, 116);
-            LocalScalarRadioButton.Size = groupBoxRadioButtonSize;
-            tooltips.SetToolTip(LocalScalarRadioButton, "Tests local memory (scratchpad) latency. Nvidia calls this Shared Memory, AMD calls it the LDS, and Intel calls it the SLM");
+            tooltips.SetToolTip(GpuMemoryLatencyTextureRadioButton, "Test latency through the texture pipeline (TMUs), using a 1D image buffer. Some Nvidia GPUs have separate texture caches.");
+            tooltips.SetToolTip(GpuMemoryLatencyLocalRadioButton, "Tests local memory (scratchpad) latency. Nvidia calls this Shared Memory, AMD calls it the LDS, and Intel calls it the SLM");
 
             tooltips.SetToolTip(ExportExcelButton, "Get results in an Excel (or custom JS) parse-able format");
             tooltips.SetToolTip(ClearChartButton, "Embarassingly bad results? Click here");
-            tooltips.SetToolTip(OpenCLLatencyRadioButton, "Test GPU memory latency using the OpenCL API");
             tooltips.SetToolTip(DataReadRadioButton, "Tests memory read bandwidth. Most memory accesses are reads");
             tooltips.SetToolTip(DataWriteRadioButton, "Tests memory write bandwidth. Usually 1/4-1/2 of memory accesses are writes, though that can vary a lot");
             tooltips.SetToolTip(DataNtWriteRadioButton, "Tests memory write bandwidth with non-temporal accesses, which bypass caches. Potentially allows better use of DRAM write bandwidth by avoiding RFOs");
@@ -165,9 +102,9 @@ namespace MicrobenchmarkGui
             #endregion
 
             ThreadCountTrackbar.Maximum = Environment.ProcessorCount;
-            ResultChart.Titles.Add("Result Plot");
+            ResultsChart.Titles.Add("Result Plot");
 
-            if (BenchmarkFunctions.CheckAvxSupport() != 1)
+            if (BenchmarkInteropFunctions.CheckAvxSupport() != 1)
             {
                 avxSupported = false;
             }
@@ -176,7 +113,7 @@ namespace MicrobenchmarkGui
                 avxSupported = true;
             }
 
-            if (BenchmarkFunctions.CheckAvx512Support() != 1)
+            if (BenchmarkInteropFunctions.CheckAvx512Support() != 1)
             {
                 avx512Supported = false;
             }
@@ -217,7 +154,7 @@ namespace MicrobenchmarkGui
 
         public delegate void SafeSetResultListViewColumns(string[] cols);
         public delegate void SafeSetResultListView(string[][] items);
-        public delegate void SafeSetResultsChart(string seriesNames, float[] testPoints, float[] testResults);
+        public delegate void SafeSetResultsChart(string seriesNames, float[] testPoints, float[] testResults, ResultChartType chartType);
         public delegate void SafeSetCancelButtonState(bool enabled);
         public delegate void SafeSetProgressLabel(string message);
 
@@ -261,18 +198,32 @@ namespace MicrobenchmarkGui
             }
         }
 
-        private Dictionary<string, Series> plottedSeries;
+        private Dictionary<ResultChartType, Dictionary<string, Series>> plottedSeries;
 
         // Make sure we don't reduce the max when a new test is run
-        private double chartMax = 0;
+        private double chartMax = 0, chartMin = 0;
 
         // Somehow can't retrieve radio button value?
         private bool specifyColor = false;
 
-        public void SetResultChart(string seriesName, float[] testPoints, float[] testResults)
+        public enum ResultChartType
+        {
+            CpuMemoryBandwidth,
+            CpuMemoryLatency,
+            GpuMemoryLatency
+        }
+
+        public void SetResultChart(string seriesName, float[] testPoints, float[] testResults, ResultChartType chartType)
         {
             Series series;
-            if (!plottedSeries.TryGetValue(seriesName, out series))
+            Dictionary<string, Series> chartTypeSeries;
+            if (!plottedSeries.TryGetValue(chartType, out chartTypeSeries))
+            {
+                chartTypeSeries = new Dictionary<string, Series>();
+                plottedSeries.Add(chartType, chartTypeSeries);
+            }
+
+            if (!chartTypeSeries.TryGetValue(seriesName, out series))
             {
                 series = new Series(seriesName);
                 series.ChartType = SeriesChartType.Line;
@@ -303,12 +254,13 @@ namespace MicrobenchmarkGui
                     }
                 }
 
-                plottedSeries.Add(seriesName, series);
-                ResultChart.ChartAreas[0].AxisX.IsLogarithmic = true;
-                ResultChart.ChartAreas[0].AxisX.LogarithmBase = 2;
-                ResultChart.ChartAreas[0].AxisX.LabelStyle.Format = "#";
-                ResultChart.ChartAreas[0].AxisX.Title = "Data (KB)";
-                ResultChart.Series.Add(series);
+                chartTypeSeries.Add(seriesName, series);
+                ResultsChart.ChartAreas[0].AxisX.IsLogarithmic = true;
+                ResultsChart.ChartAreas[0].AxisX.LogarithmBase = 2;
+                ResultsChart.ChartAreas[0].AxisX.LabelStyle.Format = "#";
+                ResultsChart.ChartAreas[0].AxisX.Title = "Data (KB)";
+                ResultsChart.Series.Add(series);
+                SetChartYAxis(chartType);
             }
 
             series.Points.Clear();
@@ -320,10 +272,15 @@ namespace MicrobenchmarkGui
                 if (testPoints[i] < min) min = testPoints[i];
             }
 
-            ResultChart.ChartAreas[0].AxisX.Minimum = min;
+            if (chartMin == 0 || min < chartMin)
+            {
+                ResultsChart.ChartAreas[0].AxisX.Minimum = min;
+                chartMin = min;
+            }
+
             if (max > chartMax)
             {
-                ResultChart.ChartAreas[0].AxisX.Maximum = max;
+                ResultsChart.ChartAreas[0].AxisX.Maximum = max;
                 chartMax = max;
             }
 
@@ -332,12 +289,55 @@ namespace MicrobenchmarkGui
                 series.Points.AddXY((double)testPoints[i], (double)testResults[i]);
             }
 
-            foreach (Legend a in ResultChart.Legends)
+            foreach (Legend a in ResultsChart.Legends)
             {
                 a.Docking = Docking.Bottom;
             }
 
             return;
+        }
+
+        private void SetChartType(ResultChartType chartType)
+        {
+            ResultsChart.ChartAreas[0].AxisX.IsLogarithmic = false;
+            ResultsChart.Series.Clear();
+            Dictionary<string, Series> chartSeries;
+            if (!plottedSeries.TryGetValue(chartType, out chartSeries)) return;
+            foreach (KeyValuePair<string, Series> a in chartSeries)
+            {
+                ResultsChart.Series.Add(a.Value);
+            }
+
+            if (chartSeries.Count() > 0)
+            {
+                SetChartYAxis(chartType);
+                ResultsChart.ChartAreas[0].AxisX.IsLogarithmic = true;
+            }
+        }
+
+        /// <summary>
+        /// Set up chart's Y axis. Can't be called if nothing has been plotted yet
+        /// because setting a log axis can error out
+        /// </summary>
+        /// <param name="chartType">Chart type</param>
+        private void SetChartYAxis(ResultChartType chartType)
+        {
+            if (chartType == ResultChartType.CpuMemoryLatency)
+            {
+                ResultsChart.ChartAreas[0].AxisY.IsLogarithmic = true;
+                ResultsChart.ChartAreas[0].AxisY.LogarithmBase = 2;
+                ResultsChart.ChartAreas[0].AxisY.Title = "Latency (ns)";
+            }
+            else if (chartType == ResultChartType.CpuMemoryBandwidth)
+            {
+                ResultsChart.ChartAreas[0].AxisY.IsLogarithmic = false;
+                ResultsChart.ChartAreas[0].AxisY.Title = "Bandwidth (GB/s)";
+            }
+            else if (chartType == ResultChartType.GpuMemoryLatency)
+            {
+                ResultsChart.ChartAreas[0].AxisY.IsLogarithmic = false;
+                ResultsChart.ChartAreas[0].AxisY.Title = "Latency (ns)";
+            }
         }
 
         private BandwidthRunner bwRunner;
@@ -352,15 +352,15 @@ namespace MicrobenchmarkGui
         /// <param name="e"></param>
         private void RunBandwidthTestButton_Click(object sender, EventArgs e)
         {
-            if (this.MemoryBandwidthRadioButton.Checked)
+            if (TestSelectTabControl.SelectedTab == MemoryBandwidthTab)
             {
                 RunBandwidthTest();
             }
-            else if (this.MemoryLatencyRadioButton.Checked)
+            else if (TestSelectTabControl.SelectedTab == MemoryLatencyTab)
             {
                 RunLatencyTest();
             }
-            else if (this.OpenCLLatencyRadioButton.Checked)
+            else if (TestSelectTabControl.SelectedTab == GpuMemLatencyTab)
             {
                 RunClLatencyTest();
             }
@@ -370,18 +370,18 @@ namespace MicrobenchmarkGui
         {
             CancelRunningTest(true);
             runCancel = new CancellationTokenSource();
-            BenchmarkFunctions.CLTestType clLatencyTestMode = BenchmarkFunctions.CLTestType.GlobalScalar;
-            if (GlobalScalarRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.GlobalScalar;
-            else if (GlobalVectorRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.GlobalVector;
-            else if (ConstantScalarRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.ConstantScalar;
-            else if (TextureRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.Texture;
-            else if (LocalScalarRadioButton.Checked) clLatencyTestMode = BenchmarkFunctions.CLTestType.Local;
+            BenchmarkInteropFunctions.CLTestType clLatencyTestMode = BenchmarkInteropFunctions.CLTestType.GlobalScalar;
+            if (GpuMemoryLatencyScalarRadioButton.Checked) clLatencyTestMode = BenchmarkInteropFunctions.CLTestType.GlobalScalar;
+            else if (GpuMemoryLatencyVectorRadioButton.Checked) clLatencyTestMode = BenchmarkInteropFunctions.CLTestType.GlobalVector;
+            else if (GpuMemoryLatencyConstantScalarRadioButton.Checked) clLatencyTestMode = BenchmarkInteropFunctions.CLTestType.ConstantScalar;
+            else if (GpuMemoryLatencyTextureRadioButton.Checked) clLatencyTestMode = BenchmarkInteropFunctions.CLTestType.Texture;
+            else if (GpuMemoryLatencyLocalRadioButton.Checked) clLatencyTestMode = BenchmarkInteropFunctions.CLTestType.Local;
             testTask = Task.Run(() => OpenCLTest.RunLatencyTest(SetResultListView,
                 SetResultListViewColumns,
                 SetResultChart,
                 SetProgressLabel,
                 resultListView,
-                ResultChart,
+                ResultsChart,
                 progressLabel,
                 clLatencyTestMode,
                 runCancel.Token));
@@ -392,27 +392,14 @@ namespace MicrobenchmarkGui
         private void RunLatencyTest()
         {
             if (latencyRunner == null) latencyRunner = new LatencyRunner(SetResultListView,
-                SetResultListViewColumns, SetResultChart, SetProgressLabel, resultListView, ResultChart, progressLabel);
+                SetResultListViewColumns, SetResultChart, SetProgressLabel, resultListView, ResultsChart, progressLabel);
 
-            bool largePages = LargePagesRadioButton.Checked;
-            bool asm = AsmRadioButton.Checked;
-            uint iterations;
-            string iterationsStr = dataToTransferTextBox.Text;
-            if (!uint.TryParse(iterationsStr, out iterations))
-            {
-                SetProgressLabel("Iteration count " + iterationsStr + " must be a whole number");
-                return;
-            }
-
-            if (iterations < 1000)
-            {
-                SetProgressLabel("Iteration count is unreasonably low. Try a value over 1000");
-                return;
-            }
+            bool largePages = MemoryLatencyLargePagesRadioButton.Checked;
+            bool asm = MemoryLatencyAsmRadioButton.Checked;
 
             CancelRunningTest(true);
             runCancel = new CancellationTokenSource();
-            testTask = Task.Run(() => latencyRunner.StartFullTest(asm, largePages, iterations, runCancel.Token));
+            testTask = Task.Run(() => latencyRunner.StartFullTest(asm, largePages, runCancel.Token));
             CancelRunButton.Enabled = true;
             Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState));
         }
@@ -420,51 +407,43 @@ namespace MicrobenchmarkGui
         private void RunBandwidthTest()
         {
             if (bwRunner == null) bwRunner = new BandwidthRunner(SetResultListView,
-                SetResultListViewColumns, SetResultChart, SetProgressLabel, resultListView, ResultChart, progressLabel);
+                SetResultListViewColumns, SetResultChart, SetProgressLabel, resultListView, ResultsChart, progressLabel);
 
             // Read test parameters from interface
             uint threadCount = (uint)ThreadCountTrackbar.Value;
             bool sharedMode = SharedRadioButton.Checked;
 
-            string dataGbStr = dataToTransferTextBox.Text;
-            uint dataGb;
-            if (!uint.TryParse(dataGbStr, out dataGb))
-            {
-                SetProgressLabel("Data to transfer or iter count (" + dataGbStr + ") has to be a whole number");
-                return;
-            }
-
-            BenchmarkFunctions.TestType testType = BenchmarkFunctions.TestType.AvxRead;
+            BenchmarkInteropFunctions.TestType testType = BenchmarkInteropFunctions.TestType.AvxRead;
             if (DataReadRadioButton.Checked)
             {
-                if (SseRadioButton.Checked) testType = BenchmarkFunctions.TestType.SseRead;
-                else if (AvxRadioButton.Checked) testType = BenchmarkFunctions.TestType.AvxRead;
-                else if (Avx512RadioButton.Checked) testType = BenchmarkFunctions.TestType.Avx512Read;
-                else if (MmxRadioButton.Checked) testType = BenchmarkFunctions.TestType.MmxRead;
+                if (SseRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.SseRead;
+                else if (AvxRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.AvxRead;
+                else if (Avx512RadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.Avx512Read;
+                else if (MmxRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.MmxRead;
             }
             else if (DataWriteRadioButton.Checked)
             {
-                if (SseRadioButton.Checked) testType = BenchmarkFunctions.TestType.SseWrite;
-                else if (AvxRadioButton.Checked) testType = BenchmarkFunctions.TestType.AvxWrite;
-                else if (Avx512RadioButton.Checked) testType = BenchmarkFunctions.TestType.Avx512Write;
-                else if (MmxRadioButton.Checked) testType = BenchmarkFunctions.TestType.MmxWrite;
+                if (SseRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.SseWrite;
+                else if (AvxRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.AvxWrite;
+                else if (Avx512RadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.Avx512Write;
+                else if (MmxRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.MmxWrite;
             }
             else if (DataNtWriteRadioButton.Checked)
             {
-                if (SseRadioButton.Checked) testType = BenchmarkFunctions.TestType.SseNtWrite;
-                else if (AvxRadioButton.Checked) testType = BenchmarkFunctions.TestType.AvxNtWrite;
-                else if (Avx512RadioButton.Checked) testType = BenchmarkFunctions.TestType.Avx512NtWrite;
-                else if (MmxRadioButton.Checked) testType = BenchmarkFunctions.TestType.MmxNtWrite;
+                if (SseRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.SseNtWrite;
+                else if (AvxRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.AvxNtWrite;
+                else if (Avx512RadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.Avx512NtWrite;
+                else if (MmxRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.MmxNtWrite;
             }
             else if (DataMicrocodedRadioButton.Checked)
             {
-                testType = BenchmarkFunctions.TestType.SseNtRead;
+                testType = BenchmarkInteropFunctions.TestType.SseNtRead;
             }
             else if (DataAddRadioButton.Checked)
             {
-                if (SseRadioButton.Checked) testType = BenchmarkFunctions.TestType.SseAdd;
-                else if (AvxRadioButton.Checked) testType = BenchmarkFunctions.TestType.AvxAdd;
-                else if (Avx512RadioButton.Checked) testType = BenchmarkFunctions.TestType.Avx512Add;
+                if (SseRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.SseAdd;
+                else if (AvxRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.AvxAdd;
+                else if (Avx512RadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.Avx512Add;
                 else if (MmxRadioButton.Checked)
                 {
                     SetProgressLabel("Sorry no FP support in MMX. And x87 is scary so nope.");
@@ -474,23 +453,23 @@ namespace MicrobenchmarkGui
 
             if (InstructionFetchRadioButton.Checked)
             {
-                if (FourByteNops.Checked) testType = BenchmarkFunctions.TestType.Instr4;
-                else if (EightByteNops.Checked) testType = BenchmarkFunctions.TestType.Instr8;
-                else if (K8FourByteNops.Checked) testType = BenchmarkFunctions.TestType.K8Instr4;
-                else if (BranchPer16B.Checked) testType = BenchmarkFunctions.TestType.Branch16;
+                if (FourByteNops.Checked) testType = BenchmarkInteropFunctions.TestType.Instr4;
+                else if (EightByteNops.Checked) testType = BenchmarkInteropFunctions.TestType.Instr8;
+                else if (K8FourByteNops.Checked) testType = BenchmarkInteropFunctions.TestType.K8Instr4;
+                else if (BranchPer16B.Checked) testType = BenchmarkInteropFunctions.TestType.Branch16;
             }
 
             if (DataMicrocodedRadioButton.Checked)
             {
-                if (RepMovsbRadioButton.Checked) testType = BenchmarkFunctions.TestType.RepMovsb;
-                else if (RepStosbRadioButton.Checked) testType = BenchmarkFunctions.TestType.RepStosb;
-                else if (RepMovsdRadioButton.Checked) testType = BenchmarkFunctions.TestType.RepMovsd;
-                else if (RepStosdRadioButton.Checked) testType = BenchmarkFunctions.TestType.RepStosd;
+                if (RepMovsbRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.RepMovsb;
+                else if (RepStosbRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.RepStosb;
+                else if (RepMovsdRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.RepMovsd;
+                else if (RepStosdRadioButton.Checked) testType = BenchmarkInteropFunctions.TestType.RepStosd;
             }
 
             CancelRunningTest(true);
             runCancel = new CancellationTokenSource();
-            testTask = Task.Run(() => bwRunner.StartFullTest(threadCount, sharedMode, testType, dataGb, runCancel.Token));
+            testTask = Task.Run(() => bwRunner.StartFullTest(threadCount, sharedMode, testType, runCancel.Token));
             CancelRunButton.Enabled = true;
             Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState));
         }
@@ -566,13 +545,14 @@ namespace MicrobenchmarkGui
 
         private void SetInstructionFetchTestMethods()
         {
-            this.TestMethodGroupBox.SuspendLayout();
-            this.TestMethodGroupBox.Controls.Clear();
-            this.TestMethodGroupBox.Controls.Add(this.FourByteNops);
-            this.TestMethodGroupBox.Controls.Add(this.EightByteNops);
-            this.TestMethodGroupBox.Controls.Add(this.K8FourByteNops);
-            this.TestMethodGroupBox.Controls.Add(this.BranchPer16B);
-            this.TestMethodGroupBox.PerformLayout();
+            this.BandwidthTestMethodFlowLayoutPanel.SuspendLayout();
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Clear();
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.FourByteNops);
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.EightByteNops);
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.K8FourByteNops);
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.BranchPer16B);
+            this.BandwidthTestMethodFlowLayoutPanel.ResumeLayout();
+            this.BandwidthTestMethodFlowLayoutPanel.PerformLayout();
             this.EightByteNops.Checked = true;
             this.FourByteNops.Checked = false;
             this.K8FourByteNops.Checked = false;
@@ -581,28 +561,31 @@ namespace MicrobenchmarkGui
 
         private void SetDataTestMethods()
         {
-            this.TestMethodGroupBox.SuspendLayout();
-            this.TestMethodGroupBox.Controls.Clear();
-            this.TestMethodGroupBox.Controls.Add(this.Avx512RadioButton);
-            this.TestMethodGroupBox.Controls.Add(this.AvxRadioButton);
-            this.TestMethodGroupBox.Controls.Add(this.SseRadioButton);
-            this.TestMethodGroupBox.Controls.Add(this.MmxRadioButton);
+            this.BandwidthTestMethodFlowLayoutPanel.SuspendLayout();
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Clear();
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.Avx512RadioButton);
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.AvxRadioButton);
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.SseRadioButton);
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.MmxRadioButton);
             SetDefaultMethodState();
-            this.TestMethodGroupBox.PerformLayout();
+            this.BandwidthTestMethodFlowLayoutPanel.ResumeLayout();
+            this.BandwidthTestMethodFlowLayoutPanel.PerformLayout();
         }
 
         private void SetMicrocodedTestMethods()
         {
-            this.TestMethodGroupBox.SuspendLayout();
-            this.TestMethodGroupBox.Controls.Clear();
-            this.TestMethodGroupBox.Controls.Add(this.RepMovsbRadioButton);
-            this.TestMethodGroupBox.Controls.Add(this.RepStosbRadioButton);
-            this.TestMethodGroupBox.Controls.Add(this.RepMovsdRadioButton);
-            this.TestMethodGroupBox.Controls.Add(this.RepStosdRadioButton);
+            this.BandwidthTestMethodFlowLayoutPanel.SuspendLayout();
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Clear();
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.RepMovsbRadioButton);
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.RepStosbRadioButton);
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.RepMovsdRadioButton);
+            this.BandwidthTestMethodFlowLayoutPanel.Controls.Add(this.RepStosdRadioButton);
             this.RepMovsbRadioButton.Checked = true;
             this.RepStosbRadioButton.Checked = false;
             this.RepMovsdRadioButton.Checked = false;
             this.RepStosdRadioButton.Checked = false;
+            this.BandwidthTestMethodFlowLayoutPanel.ResumeLayout();
+            this.BandwidthTestMethodFlowLayoutPanel.PerformLayout();
         }
 
         private void SetTestMethodState()
@@ -625,105 +608,6 @@ namespace MicrobenchmarkGui
         {
             SetTestMethodState();
             CheckWriteModeChange(sender, e);
-        }
-
-        private void LatencyTestRadioButton_CheckedChanged(object sender, EventArgs e)
-        {
-            if (MemoryLatencyRadioButton.Checked)
-            {
-                // mem latency test is always ST, no exceptions
-                ThreadingModeGroupBox.Enabled = false;
-                ThreadCountTrackbar.Enabled = false;
-                ThreadCountTrackbar.Value = 1;
-
-                // switch other controls over
-                TestMethodGroupBox.Text = "Paging Mode";
-                TestMethodGroupBox.SuspendLayout();
-                TestMethodGroupBox.Controls.Clear();
-                TestMethodGroupBox.Controls.Add(DefaultPagesRadioButton);
-                TestMethodGroupBox.Controls.Add(LargePagesRadioButton);
-                TestMethodGroupBox.PerformLayout();
-
-                AccessModeGroupBox.Text = "Access Mode";
-                AccessModeGroupBox.Controls.Clear();
-                AccessModeGroupBox.Controls.Add(CRadioButton);
-                AccessModeGroupBox.Controls.Add(AsmRadioButton);
-                AccessModeGroupBox.PerformLayout();
-
-                TestDurationLabel.Enabled = true;
-                dataToTransferTextBox.Enabled = true;
-                TestDurationLabel.Text = "Base Iterations:";
-                dataToTransferTextBox.Text = "400000000";
-                gbLabel.Text = "times";
-                gbLabel.Enabled = true;
-
-                // CPU mem latencies are easier to read on a log axis
-                ResultChart.ChartAreas[0].AxisY.IsLogarithmic = true;
-                ResultChart.ChartAreas[0].AxisY.LogarithmBase = 2;
-            }
-            else if (MemoryBandwidthRadioButton.Checked)
-            {
-                ThreadingModeGroupBox.Enabled = true;
-                ThreadCountTrackbar.Enabled = true;
-                TestMethodGroupBox.Text = "Test Method";
-                TestMethodGroupBox.Controls.Clear();
-                InstructionFetchRadioButton_CheckedChanged(sender, e);
-
-                AccessModeGroupBox.Text = "Access Mode";
-                AccessModeGroupBox.Controls.Clear();
-                AccessModeGroupBox.Controls.Add(DataReadRadioButton);
-                AccessModeGroupBox.Controls.Add(DataMicrocodedRadioButton);
-                AccessModeGroupBox.Controls.Add(DataWriteRadioButton);
-                AccessModeGroupBox.Controls.Add(DataNtWriteRadioButton);
-                AccessModeGroupBox.Controls.Add(DataAddRadioButton);
-                AccessModeGroupBox.Controls.Add(InstructionFetchRadioButton);
-                AccessModeGroupBox.PerformLayout();
-
-                TestDurationLabel.Enabled = true;
-                dataToTransferTextBox.Enabled = true;
-                TestDurationLabel.Text = "Base Data to Transfer:";
-                dataToTransferTextBox.Text = "512";
-                gbLabel.Text = "GB";
-                gbLabel.Enabled = true;
-
-                ResultChart.ChartAreas[0].AxisY.IsLogarithmic = false;
-            }
-            else if (OpenCLLatencyRadioButton.Checked)
-            {
-                ThreadingModeGroupBox.Enabled = false;
-                ThreadCountTrackbar.Enabled = false;
-                ThreadCountTrackbar.Value = 1;
-                ThreadingModeGroupBox.Enabled = false;
-
-                TestMethodGroupBox.Text = "Access Mode";
-                TestMethodGroupBox.SuspendLayout();
-                TestMethodGroupBox.Controls.Clear();
-                TestMethodGroupBox.Controls.Add(GlobalScalarRadioButton);
-                TestMethodGroupBox.Controls.Add(GlobalVectorRadioButton);
-                TestMethodGroupBox.Controls.Add(ConstantScalarRadioButton);
-                TestMethodGroupBox.Controls.Add(TextureRadioButton);
-                TestMethodGroupBox.Controls.Add(LocalScalarRadioButton);
-                GlobalScalarRadioButton.Checked = true;
-                GlobalVectorRadioButton.Checked = false;
-                ConstantScalarRadioButton.Checked = false;
-                TestMethodGroupBox.PerformLayout();
-
-                // have to auto set duration to avoid TDR
-                TestDurationLabel.Enabled = false;
-                dataToTransferTextBox.Enabled = false;
-                gbLabel.Enabled = false;
-
-                // Add OpenCL devices via pinvoke call
-                progressLabel.Text = OpenCLTest.InitializeDeviceControls(AccessModeGroupBox);
-
-                // GPU mem latencies are easier to view on a linear axis
-                ResultChart.ChartAreas[0].AxisY.IsLogarithmic = false;
-            }
-        }
-
-        private void MicrobenchmarkForm_Load(object sender, EventArgs e)
-        {
-
         }
 
         private void ThreadCountTrackbar_Scroll(object sender, EventArgs e)
@@ -783,9 +667,9 @@ namespace MicrobenchmarkGui
 
         private void ClearChartButton_Click(object sender, EventArgs e)
         {
-            ResultChart.DataSource = null;
-            ResultChart.Series.Clear();
-            ResultChart.ChartAreas[0].AxisX.IsLogarithmic = false;
+            ResultsChart.DataSource = null;
+            ResultsChart.Series.Clear();
+            ResultsChart.ChartAreas[0].AxisX.IsLogarithmic = false;
             plottedSeries.Clear();
             ExportListBox.Items.Clear();
             if (bwRunner != null) bwRunner.RunResults.Clear();
@@ -814,6 +698,23 @@ namespace MicrobenchmarkGui
         private void MicrobenchmarkForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             OpCode.Close();
+        }
+
+        private void TestSelectTabControl_Selected(object sender, TabControlEventArgs e)
+        {
+            if (TestSelectTabControl.SelectedTab == GpuMemLatencyTab)
+            {
+                progressLabel.Text = OpenCLTest.InitializeDeviceControls(GpuMemoryLatencyDeviceFlowLayoutPanel);
+                SetChartType(ResultChartType.GpuMemoryLatency);
+            }
+            else if (TestSelectTabControl.SelectedTab == MemoryLatencyTab)
+            {
+                SetChartType(ResultChartType.CpuMemoryLatency);
+            }
+            else if (TestSelectTabControl.SelectedTab == MemoryBandwidthTab)
+            {
+                SetChartType(ResultChartType.CpuMemoryBandwidth);
+            }
         }
     }
 }

@@ -72,7 +72,7 @@ asm_avx_test_iteration_count:
   cmp r9, rsi
   jnz avx_asm_read_pass_loop ; skip iteration decrement if we're not back to start
   dec r8
-  jnz avx_asm_read_pass_loop
+  jg avx_asm_read_pass_loop
   pop r14
   pop r15
   pop rbx
@@ -123,7 +123,7 @@ asm_avx_write_iteration_count:
   cmp r9, rsi
   jnz avx_asm_write_pass_loop ; skip iteration decrement if we're not back to start
   dec r8
-  jnz avx_asm_write_pass_loop
+  jg avx_asm_write_pass_loop
   pop r14
   pop r15
   pop rbx
@@ -174,7 +174,7 @@ asm_avx_ntwrite_iteration_count:
   cmp r9, rsi
   jnz avx_asm_ntwrite_pass_loop ; skip iteration decrement if we're not back to start
   dec r8
-  jnz avx_asm_ntwrite_pass_loop
+  jg avx_asm_ntwrite_pass_loop
   pop r14
   pop r15
   pop rbx
@@ -227,7 +227,7 @@ avx_copy_pass_loop:
   lea rdi, [rcx + rsi * 4] ; back to start
   lea r14, [rcx + r9 * 4]
   dec r8                  ; decrement iteration counter 
-  jnz avx_copy_pass_loop
+  jg avx_copy_pass_loop
   pop r13
   pop r14 
   pop r15 
@@ -297,7 +297,7 @@ asm_avx_cflip_iteration_count:
   cmp r9, rsi
   jnz avx_asm_cflip_pass_loop ; skip iteration decrement if we're not back to start
   sub r8, 2
-  jnz avx_asm_cflip_pass_loop
+  jg avx_asm_cflip_pass_loop
   pop r14
   pop r15
   pop rbx
@@ -367,7 +367,7 @@ asm_avx_add_iteration_count:
   cmp r9, rsi
   jnz avx_asm_add_pass_loop ; skip iteration decrement if we're not back to start
   sub r8, 2
-  jnz avx_asm_add_pass_loop
+  jg avx_asm_add_pass_loop
   pop r14
   pop r15
   pop rbx
@@ -410,7 +410,7 @@ asm_avx512_test_iteration_count:
   cmp r9, rsi
   jnz avx512_asm_read_pass_loop ; skip iteration decrement if we're not back to start
   dec r8
-  jnz avx512_asm_read_pass_loop
+  jg avx512_asm_read_pass_loop
   pop r14
   pop r15
   pop rbx
@@ -454,7 +454,7 @@ asm_avx512_write_iteration_count:
   cmp r9, rsi
   jnz avx512_asm_write_pass_loop ; skip iteration decrement if we're not back to start
   dec r8
-  jnz avx512_asm_write_pass_loop
+  jg avx512_asm_write_pass_loop
   pop r14
   pop r15
   pop rbx
@@ -498,7 +498,7 @@ asm_avx512_ntwrite_iteration_count:
   cmp r9, rsi
   jnz avx512_asm_ntwrite_pass_loop ; skip iteration decrement if we're not back to start
   dec r8
-  jnz avx512_asm_ntwrite_pass_loop
+  jg avx512_asm_ntwrite_pass_loop
   pop r14
   pop r15
   pop rbx
@@ -551,7 +551,7 @@ asm_avx512_add_iteration_count:
   cmp r9, rsi
   jnz avx512_asm_add_pass_loop ; skip iteration decrement if we're not back to start
   sub r8, 2                    ; count read + writeback as two accesses
-  jnz avx512_asm_add_pass_loop
+  jg avx512_asm_add_pass_loop
   pop r14
   pop r15
   pop rbx
@@ -618,7 +618,7 @@ sse_test_iteration_count:
   cmp r9, rsi
   jnz sse_read_pass_loop ; skip iteration decrement if we're not back to start
   dec r8
-  jnz sse_read_pass_loop
+  jg sse_read_pass_loop
   pop r14
   pop r15
   pop rbx
@@ -685,7 +685,7 @@ sse_ntread_iteration_count:
   cmp r9, rsi
   jnz sse_ntread_pass_loop ; skip iteration decrement if we're not back to start
   dec r8
-  jnz sse_ntread_pass_loop
+  jg sse_ntread_pass_loop
   pop r14
   pop r15
   pop rbx
@@ -890,7 +890,7 @@ sse_copy_pass_loop:
   lea rdi, [rcx + rsi * 4] ; back to start
   lea r14, [rcx + r9 * 4]
   dec r8                  ; decrement iteration counter 
-  jnz sse_copy_pass_loop
+  jg sse_copy_pass_loop
   pop r13
   pop r14 
   pop r15 
@@ -1126,7 +1126,7 @@ mmx_test_iteration_count:
   cmp r9, rsi
   jnz mmx_read_pass_loop ; skip iteration decrement if we're not back to start
   dec r8
-  jnz mmx_read_pass_loop
+  jg mmx_read_pass_loop
   pop r14
   pop r15
   pop rbx
@@ -1224,7 +1224,7 @@ mmx_write_iteration_count:
   cmp r9, rsi
   jnz mmx_write_pass_loop ; skip iteration decrement if we're not back to start
   dec r8
-  jnz mmx_write_pass_loop
+  jg mmx_write_pass_loop
   pop r14
   pop r15
   pop rbx
@@ -1322,7 +1322,7 @@ mmx_ntwrite_iteration_count:
   cmp r9, rsi
   jnz mmx_ntwrite_pass_loop ; skip iteration decrement if we're not back to start
   dec r8
-  jnz mmx_ntwrite_pass_loop
+  jg mmx_ntwrite_pass_loop
   pop r14
   pop r15
   pop rbx
@@ -1356,7 +1356,7 @@ repmovsb_copy_pass_loop:
   mov rcx, r14
   rep movsb
   dec r8
-  jnz repmovsb_copy_pass_loop
+  jg repmovsb_copy_pass_loop
   movss xmm0, [r12]
   pop rax
   pop rdi
@@ -1391,7 +1391,7 @@ repmovsd_copy_pass_loop:
   mov rcx, r14
   rep movsd
   dec r8
-  jnz repmovsd_copy_pass_loop
+  jg repmovsd_copy_pass_loop
   movss xmm0, [r12]
   pop rax
   pop rdi
@@ -1422,7 +1422,7 @@ repstosb_write_pass_loop:
   mov rcx, r14
   rep stosb
   dec r8
-  jnz repstosb_write_pass_loop
+  jg repstosb_write_pass_loop
   movss xmm0, [r13]
   pop rax
   pop rdi
@@ -1451,7 +1451,7 @@ repstosd_write_pass_loop:
   mov rcx, r14
   rep stosd
   dec r8
-  jnz repstosd_write_pass_loop
+  jg repstosd_write_pass_loop
   movss xmm0, [r13]
   pop rax
   pop rdi
