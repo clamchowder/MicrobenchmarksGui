@@ -94,6 +94,7 @@ namespace MicrobenchmarkGui
             this.GpuMemoryLatencyConstantScalarRadioButton = new System.Windows.Forms.RadioButton();
             this.GpuMemoryLatencyVectorRadioButton = new System.Windows.Forms.RadioButton();
             this.GpuMemoryLatencyScalarRadioButton = new System.Windows.Forms.RadioButton();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.ResultsChart)).BeginInit();
             this.ThreadingModeGroupBox.SuspendLayout();
             this.AccessModeGroupBox.SuspendLayout();
@@ -675,7 +676,7 @@ namespace MicrobenchmarkGui
             this.MemoryLatencyAddressingModeGroupBox.Controls.Add(this.MemoryLatencyIndexedAddressingRadioButton);
             this.MemoryLatencyAddressingModeGroupBox.Location = new System.Drawing.Point(6, 38);
             this.MemoryLatencyAddressingModeGroupBox.Name = "MemoryLatencyAddressingModeGroupBox";
-            this.MemoryLatencyAddressingModeGroupBox.Size = new System.Drawing.Size(230, 66);
+            this.MemoryLatencyAddressingModeGroupBox.Size = new System.Drawing.Size(229, 66);
             this.MemoryLatencyAddressingModeGroupBox.TabIndex = 0;
             this.MemoryLatencyAddressingModeGroupBox.TabStop = false;
             this.MemoryLatencyAddressingModeGroupBox.Text = "Addressing Mode";
@@ -706,6 +707,7 @@ namespace MicrobenchmarkGui
             // GpuMemLatencyTab
             // 
             this.GpuMemLatencyTab.BackColor = System.Drawing.SystemColors.Control;
+            this.GpuMemLatencyTab.Controls.Add(this.label2);
             this.GpuMemLatencyTab.Controls.Add(this.GpuMemoryLatencyDeviceGroupBox);
             this.GpuMemLatencyTab.Controls.Add(this.GpuMemoryLatencyMemoryPathGroupBox);
             this.GpuMemLatencyTab.Location = new System.Drawing.Point(23, 4);
@@ -717,9 +719,9 @@ namespace MicrobenchmarkGui
             // GpuMemoryLatencyDeviceGroupBox
             // 
             this.GpuMemoryLatencyDeviceGroupBox.Controls.Add(this.GpuMemoryLatencyDeviceFlowLayoutPanel);
-            this.GpuMemoryLatencyDeviceGroupBox.Location = new System.Drawing.Point(4, 148);
+            this.GpuMemoryLatencyDeviceGroupBox.Location = new System.Drawing.Point(7, 197);
             this.GpuMemoryLatencyDeviceGroupBox.Name = "GpuMemoryLatencyDeviceGroupBox";
-            this.GpuMemoryLatencyDeviceGroupBox.Size = new System.Drawing.Size(235, 300);
+            this.GpuMemoryLatencyDeviceGroupBox.Size = new System.Drawing.Size(226, 300);
             this.GpuMemoryLatencyDeviceGroupBox.TabIndex = 1;
             this.GpuMemoryLatencyDeviceGroupBox.TabStop = false;
             this.GpuMemoryLatencyDeviceGroupBox.Text = "OpenCL Device";
@@ -727,9 +729,9 @@ namespace MicrobenchmarkGui
             // GpuMemoryLatencyDeviceFlowLayoutPanel
             // 
             this.GpuMemoryLatencyDeviceFlowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.GpuMemoryLatencyDeviceFlowLayoutPanel.Location = new System.Drawing.Point(7, 20);
+            this.GpuMemoryLatencyDeviceFlowLayoutPanel.Location = new System.Drawing.Point(6, 20);
             this.GpuMemoryLatencyDeviceFlowLayoutPanel.Name = "GpuMemoryLatencyDeviceFlowLayoutPanel";
-            this.GpuMemoryLatencyDeviceFlowLayoutPanel.Size = new System.Drawing.Size(222, 274);
+            this.GpuMemoryLatencyDeviceFlowLayoutPanel.Size = new System.Drawing.Size(220, 274);
             this.GpuMemoryLatencyDeviceFlowLayoutPanel.TabIndex = 0;
             // 
             // GpuMemoryLatencyMemoryPathGroupBox
@@ -739,9 +741,9 @@ namespace MicrobenchmarkGui
             this.GpuMemoryLatencyMemoryPathGroupBox.Controls.Add(this.GpuMemoryLatencyConstantScalarRadioButton);
             this.GpuMemoryLatencyMemoryPathGroupBox.Controls.Add(this.GpuMemoryLatencyVectorRadioButton);
             this.GpuMemoryLatencyMemoryPathGroupBox.Controls.Add(this.GpuMemoryLatencyScalarRadioButton);
-            this.GpuMemoryLatencyMemoryPathGroupBox.Location = new System.Drawing.Point(4, 4);
+            this.GpuMemoryLatencyMemoryPathGroupBox.Location = new System.Drawing.Point(7, 53);
             this.GpuMemoryLatencyMemoryPathGroupBox.Name = "GpuMemoryLatencyMemoryPathGroupBox";
-            this.GpuMemoryLatencyMemoryPathGroupBox.Size = new System.Drawing.Size(235, 138);
+            this.GpuMemoryLatencyMemoryPathGroupBox.Size = new System.Drawing.Size(226, 138);
             this.GpuMemoryLatencyMemoryPathGroupBox.TabIndex = 0;
             this.GpuMemoryLatencyMemoryPathGroupBox.TabStop = false;
             this.GpuMemoryLatencyMemoryPathGroupBox.Text = "Memory Access Method";
@@ -801,6 +803,15 @@ namespace MicrobenchmarkGui
             this.GpuMemoryLatencyScalarRadioButton.TabStop = true;
             this.GpuMemoryLatencyScalarRadioButton.Text = "Global Memory, Scalar";
             this.GpuMemoryLatencyScalarRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // label2
+            // 
+            this.label2.Location = new System.Drawing.Point(4, 4);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(229, 51);
+            this.label2.TabIndex = 2;
+            this.label2.Text = "Tests GPU memory latency using random, dependent array accesses. Will include sig" +
+    "nificant address generation latency.";
             // 
             // MicrobenchmarkForm
             // 
@@ -912,6 +923,7 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.Label CpuMemoryBandwidthLabel;
         private System.Windows.Forms.Label CpuMemoryLatencyLabel;
         private System.Windows.Forms.FlowLayoutPanel GpuMemoryLatencyDeviceFlowLayoutPanel;
+        private System.Windows.Forms.Label label2;
     }
 }
 
