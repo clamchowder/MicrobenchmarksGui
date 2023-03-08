@@ -77,7 +77,7 @@ namespace MicrobenchmarkGui
                     Label platformLabel = new Label();
                     platformLabel.Text = openCLPlatforms[clDevice.PlatformIndex] + ":";
                     platformLabel.Name = $"platform{clDevice.PlatformIndex}Label";
-                    platformLabel.Size = groupBoxRadioButtonSize;
+                    platformLabel.AutoSize = true;
                     if (firstPlatform)
                     {
                         firstPlatform = false;
@@ -93,7 +93,6 @@ namespace MicrobenchmarkGui
                 RadioButton deviceButton = new RadioButton();
                 deviceButton.Text = clDevice.DeviceName;
                 deviceButton.Name = $"platform{clDevice.PlatformIndex}dev{clDevice.DeviceIndex}RadioButton";
-                deviceButton.Size = groupBoxRadioButtonSize;
                 if (firstDevice)
                 {
                     deviceButton.Checked = true;
