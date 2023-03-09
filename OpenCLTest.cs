@@ -24,6 +24,8 @@ namespace MicrobenchmarkGui
         private static List<float> floatTestPoints;
         private static List<float> testResultsList;
 
+        public static uint DefaultGpuPointerChasingStride = 64;
+
         public static uint[] testSizes = { 2, 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 512, 600, 768, 1024, 1536, 2048,
                                3072, 4096, 5120, 6144, 8192, 10240, 12288, 16384, 24567, 32768, 65536, 98304,
                                131072, 262144, 393216, 524288, 1048576 };
@@ -93,6 +95,7 @@ namespace MicrobenchmarkGui
                 RadioButton deviceButton = new RadioButton();
                 deviceButton.Text = clDevice.DeviceName;
                 deviceButton.Name = $"platform{clDevice.PlatformIndex}dev{clDevice.DeviceIndex}RadioButton";
+                deviceButton.AutoSize = true;
                 if (firstDevice)
                 {
                     deviceButton.Checked = true;
@@ -118,6 +121,7 @@ namespace MicrobenchmarkGui
             Chart resultChart,
             Label progressLabel,
             BenchmarkInteropFunctions.CLTestType testMode,
+            uint stride,
             CancellationToken runCancel)
         {
             // figure out which device is checked
@@ -130,6 +134,10 @@ namespace MicrobenchmarkGui
                     platformIndex = clDevice.PlatformIndex;
                     deviceIndex = clDevice.DeviceIndex;
                     testLabel = clDevice.DeviceName + ", " + testMode.ToString();
+                    if (stride != DefaultGpuPointerChasingStride)
+                    {
+                        testLabel += $", {stride}B Stride";
+                    }
                 }
             }
 
@@ -217,19 +225,25 @@ namespace MicrobenchmarkGui
                 floatTestPoints = new List<float>();
                 resultListView.Invoke(setListViewColsDelegate, new object[] { cols });
 
-                uint validTestSizeCount;
-                for (validTestSizeCount = 0; validTestSizeCount < testSizes.Length; validTestSizeCount++)
+                BenchmarkInteropFunctions.SetGpuPtrChasingStride(stride);
+
+                List<uint> validTestSizes = new List<uint>();
+                for (uint i = 0; i < testSizes.Length; i++)
                 {
-                    if (testSizes[validTestSizeCount] > maxTestSizeKb) break;
+                    // no point if stride is so large you won't actually bounce around anything
+                    if (testSizes[i] * 1024 < 2 * stride) continue;
+                    if (testSizes[i] > maxTestSizeKb) break;
+                    validTestSizes.Add(testSizes[i]);
                 }
 
-                float[] testResults = new float[validTestSizeCount];
-                formattedResults = new string[validTestSizeCount][];
-                for (uint i = 0; i < validTestSizeCount; i++)
+                uint[] validTestSizeArr = validTestSizes.ToArray();
+                float[] testResults = new float[validTestSizeArr.Length];
+                formattedResults = new string[validTestSizeArr.Length][];
+                for (uint i = 0; i < validTestSizeArr.Length; i++)
                 {
                     testResults[i] = 0;
                     formattedResults[i] = new string[2];
-                    formattedResults[i][0] = string.Format("{0} KB", testSizes[i]);
+                    formattedResults[i][0] = string.Format("{0} KB", validTestSizeArr[i]);
                     formattedResults[i][1] = "Not Run";
                 }
                 resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
@@ -238,14 +252,14 @@ namespace MicrobenchmarkGui
                 bool failed = false;
                 bool first = true;
                 uint baseIterations = 50000;
-                for (uint testIdx = 0; testIdx < validTestSizeCount; testIdx++)
+                for (uint testIdx = 0; testIdx < validTestSizeArr.Length; testIdx++)
                 {
                     if (runCancel.IsCancellationRequested)
                     {
                         break;
                     }
 
-                    uint testSize = testSizes[testIdx];
+                    uint testSize = validTestSizeArr[testIdx];
                     uint currentIterations = baseIterations;
                     float targetTimeMs = 2000, minTimeMs = 1000, lastTimeMs = 1;
                     float result;

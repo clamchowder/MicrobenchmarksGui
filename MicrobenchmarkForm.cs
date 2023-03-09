@@ -99,6 +99,11 @@ namespace MicrobenchmarkGui
             tooltips.SetToolTip(DataAddRadioButton, "Tests bandwidth using a 1:1 read-to-write ratio, by adding a constant to every element of an array. Can show if there's an advantage to mixing reads and writes");
             tooltips.SetToolTip(PrivateRadioButton, "Gives each thread its own data. Shows the sum of private cache capacity");
             tooltips.SetToolTip(SharedRadioButton, "All threads read from one shared array. Shared data is duplicated across private caches, so you won't see the sum of cache capacity");
+
+            tooltips.SetToolTip(AvxRadioButton, "Uses 256-bit accesses with YMM registers");
+            tooltips.SetToolTip(Avx512RadioButton, "Uses 512-bit accesses with ZMM registers");
+            tooltips.SetToolTip(SseRadioButton, "Uses 128-bit accesses with XMM registers");
+            tooltips.SetToolTip(MmxRadioButton, "Uses 64-bit accesess with MM registers");
             #endregion
 
             ThreadCountTrackbar.Maximum = Environment.ProcessorCount;
@@ -107,6 +112,7 @@ namespace MicrobenchmarkGui
             if (BenchmarkInteropFunctions.CheckAvxSupport() != 1)
             {
                 avxSupported = false;
+                tooltips.SetToolTip(AvxRadioButton, "Your CPU does not support AVX");
             }
             else
             {
@@ -116,6 +122,7 @@ namespace MicrobenchmarkGui
             if (BenchmarkInteropFunctions.CheckAvx512Support() != 1)
             {
                 avx512Supported = false;
+                tooltips.SetToolTip(AvxRadioButton, "Your CPU does not support AVX-512");
             }
             else
             {
@@ -376,6 +383,23 @@ namespace MicrobenchmarkGui
             else if (GpuMemoryLatencyConstantScalarRadioButton.Checked) clLatencyTestMode = BenchmarkInteropFunctions.CLTestType.ConstantScalar;
             else if (GpuMemoryLatencyTextureRadioButton.Checked) clLatencyTestMode = BenchmarkInteropFunctions.CLTestType.Texture;
             else if (GpuMemoryLatencyLocalRadioButton.Checked) clLatencyTestMode = BenchmarkInteropFunctions.CLTestType.Local;
+
+            uint gpuPointerChasingStride;
+            if (!uint.TryParse(GpuPointerChasingStrideTextBox.Text, out gpuPointerChasingStride))
+            {
+                gpuPointerChasingStride = OpenCLTest.DefaultGpuPointerChasingStride;
+                GpuPointerChasingStrideLabel.ForeColor = Color.Red;
+            }
+
+            if (gpuPointerChasingStride != OpenCLTest.DefaultGpuPointerChasingStride)
+            {
+                GpuPointerChasingStrideLabel.ForeColor = Color.Blue;
+            }
+            else
+            {
+                GpuPointerChasingStrideLabel.ForeColor = Color.Black;
+            }
+
             testTask = Task.Run(() => OpenCLTest.RunLatencyTest(SetResultListView,
                 SetResultListViewColumns,
                 SetResultChart,
@@ -384,6 +408,7 @@ namespace MicrobenchmarkGui
                 ResultsChart,
                 progressLabel,
                 clLatencyTestMode,
+                gpuPointerChasingStride,
                 runCancel.Token));
             CancelRunButton.Enabled = true;
             Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState));

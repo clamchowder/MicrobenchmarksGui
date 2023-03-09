@@ -86,6 +86,7 @@ namespace MicrobenchmarkGui
             this.MemoryLatencyAsmRadioButton = new System.Windows.Forms.RadioButton();
             this.MemoryLatencyIndexedAddressingRadioButton = new System.Windows.Forms.RadioButton();
             this.GpuMemLatencyTab = new System.Windows.Forms.TabPage();
+            this.label2 = new System.Windows.Forms.Label();
             this.GpuMemoryLatencyDeviceGroupBox = new System.Windows.Forms.GroupBox();
             this.GpuMemoryLatencyDeviceFlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.GpuMemoryLatencyMemoryPathGroupBox = new System.Windows.Forms.GroupBox();
@@ -94,7 +95,9 @@ namespace MicrobenchmarkGui
             this.GpuMemoryLatencyConstantScalarRadioButton = new System.Windows.Forms.RadioButton();
             this.GpuMemoryLatencyVectorRadioButton = new System.Windows.Forms.RadioButton();
             this.GpuMemoryLatencyScalarRadioButton = new System.Windows.Forms.RadioButton();
-            this.label2 = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.GpuPointerChasingStrideLabel = new System.Windows.Forms.Label();
+            this.GpuPointerChasingStrideTextBox = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.ResultsChart)).BeginInit();
             this.ThreadingModeGroupBox.SuspendLayout();
             this.AccessModeGroupBox.SuspendLayout();
@@ -111,6 +114,7 @@ namespace MicrobenchmarkGui
             this.GpuMemLatencyTab.SuspendLayout();
             this.GpuMemoryLatencyDeviceGroupBox.SuspendLayout();
             this.GpuMemoryLatencyMemoryPathGroupBox.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // RunBandwidthTestButton
@@ -587,7 +591,7 @@ namespace MicrobenchmarkGui
             this.TestSelectTabControl.Multiline = true;
             this.TestSelectTabControl.Name = "TestSelectTabControl";
             this.TestSelectTabControl.SelectedIndex = 0;
-            this.TestSelectTabControl.Size = new System.Drawing.Size(269, 592);
+            this.TestSelectTabControl.Size = new System.Drawing.Size(269, 632);
             this.TestSelectTabControl.TabIndex = 30;
             this.TestSelectTabControl.Selected += new System.Windows.Forms.TabControlEventHandler(this.TestSelectTabControl_Selected);
             // 
@@ -707,14 +711,24 @@ namespace MicrobenchmarkGui
             // GpuMemLatencyTab
             // 
             this.GpuMemLatencyTab.BackColor = System.Drawing.SystemColors.Control;
+            this.GpuMemLatencyTab.Controls.Add(this.groupBox1);
             this.GpuMemLatencyTab.Controls.Add(this.label2);
             this.GpuMemLatencyTab.Controls.Add(this.GpuMemoryLatencyDeviceGroupBox);
             this.GpuMemLatencyTab.Controls.Add(this.GpuMemoryLatencyMemoryPathGroupBox);
             this.GpuMemLatencyTab.Location = new System.Drawing.Point(23, 4);
             this.GpuMemLatencyTab.Name = "GpuMemLatencyTab";
-            this.GpuMemLatencyTab.Size = new System.Drawing.Size(242, 584);
+            this.GpuMemLatencyTab.Size = new System.Drawing.Size(242, 624);
             this.GpuMemLatencyTab.TabIndex = 2;
             this.GpuMemLatencyTab.Text = "GPU Memory Latency";
+            // 
+            // label2
+            // 
+            this.label2.Location = new System.Drawing.Point(4, 4);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(229, 51);
+            this.label2.TabIndex = 2;
+            this.label2.Text = "Tests GPU memory latency using random, dependent array accesses. Will include sig" +
+    "nificant address generation latency.";
             // 
             // GpuMemoryLatencyDeviceGroupBox
             // 
@@ -804,14 +818,34 @@ namespace MicrobenchmarkGui
             this.GpuMemoryLatencyScalarRadioButton.Text = "Global Memory, Scalar";
             this.GpuMemoryLatencyScalarRadioButton.UseVisualStyleBackColor = true;
             // 
-            // label2
+            // groupBox1
             // 
-            this.label2.Location = new System.Drawing.Point(4, 4);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(229, 51);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "Tests GPU memory latency using random, dependent array accesses. Will include sig" +
-    "nificant address generation latency.";
+            this.groupBox1.Controls.Add(this.GpuPointerChasingStrideTextBox);
+            this.groupBox1.Controls.Add(this.GpuPointerChasingStrideLabel);
+            this.groupBox1.Location = new System.Drawing.Point(7, 504);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(226, 100);
+            this.groupBox1.TabIndex = 3;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Advanced Options";
+            // 
+            // GpuPointerChasingStrideLabel
+            // 
+            this.GpuPointerChasingStrideLabel.AutoSize = true;
+            this.GpuPointerChasingStrideLabel.Location = new System.Drawing.Point(7, 20);
+            this.GpuPointerChasingStrideLabel.Name = "GpuPointerChasingStrideLabel";
+            this.GpuPointerChasingStrideLabel.Size = new System.Drawing.Size(149, 13);
+            this.GpuPointerChasingStrideLabel.TabIndex = 0;
+            this.GpuPointerChasingStrideLabel.Text = "Pointer Chasing Stride (Bytes):";
+            // 
+            // GpuPointerChasingStrideTextBox
+            // 
+            this.GpuPointerChasingStrideTextBox.Location = new System.Drawing.Point(162, 17);
+            this.GpuPointerChasingStrideTextBox.Name = "GpuPointerChasingStrideTextBox";
+            this.GpuPointerChasingStrideTextBox.Size = new System.Drawing.Size(43, 20);
+            this.GpuPointerChasingStrideTextBox.TabIndex = 1;
+            this.GpuPointerChasingStrideTextBox.Text = "64";
+            this.GpuPointerChasingStrideTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // MicrobenchmarkForm
             // 
@@ -855,6 +889,8 @@ namespace MicrobenchmarkGui
             this.GpuMemoryLatencyDeviceGroupBox.ResumeLayout(false);
             this.GpuMemoryLatencyMemoryPathGroupBox.ResumeLayout(false);
             this.GpuMemoryLatencyMemoryPathGroupBox.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -924,6 +960,9 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.Label CpuMemoryLatencyLabel;
         private System.Windows.Forms.FlowLayoutPanel GpuMemoryLatencyDeviceFlowLayoutPanel;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.TextBox GpuPointerChasingStrideTextBox;
+        private System.Windows.Forms.Label GpuPointerChasingStrideLabel;
     }
 }
 

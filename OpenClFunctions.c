@@ -17,6 +17,8 @@ __declspec(dllexport) int __stdcall DeinitializeLatencyTest();
 __declspec(dllexport) uint64_t __stdcall GetDeviceMaxConstantBufferSize();
 __declspec(dllexport) uint64_t __stdcall GetDeviceMaxBufferSize();
 __declspec(dllexport) uint64_t __stdcall GetDeviceMaxTextureSize();
+__declspec(dllexport) void __stdcall SetGpuPtrChasingStride(uint32_t stride);
+__declspec(dllexport) uint32_t __stdcall GetGpuPtrChasingStride();
 
 // Internal convenience functions
 cl_device_id GetDeviceIdFromIndex(int platformIndex, int deviceIndex);
@@ -27,6 +29,7 @@ cl_context context;
 cl_command_queue command_queue;
 cl_device_id selected_device_id;
 cl_program program;
+uint32_t gpuPtrChasingStride = 64;
 
 /// <summary>
 /// Set opencl context to use for subsequent tests
@@ -44,6 +47,10 @@ int SetOpenCLContext(int platformIndex, int deviceIndex)
 	selected_device_id = deviceId;
 	return ret;
 }
+
+// Allow setting the pointer chasing stride from C#
+void SetGpuPtrChasingStride(uint32_t stride) { gpuPtrChasingStride = stride; } 
+uint32_t GetGpuPtrChasingStride() { return gpuPtrChasingStride; }
 
 /// <summary>
 /// Get number of OpenCL platforms
@@ -230,7 +237,7 @@ float RunCLLatencyTest(uint32_t size_kb, uint32_t iterations, enum CLTestType te
 	uint32_t result;
 	uint32_t* A = (uint32_t*)malloc(sizeof(uint32_t) * list_size);
 	memset(A, 0, sizeof(uint32_t) * list_size);
-	FillPatternArr(A, list_size, 64);
+	FillPatternArr(A, list_size, gpuPtrChasingStride);
 
 	size_t global_item_size = 1, local_item_size = 1;
 	if (testType == GlobalVector)

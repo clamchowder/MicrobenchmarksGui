@@ -77,7 +77,7 @@ namespace MicrobenchmarkGui
         /// <param name="deviceNamePtr">Pointer to block of memory to put the device name into</param>
         /// <param name="maxDeviceNameLen">Max length of device (size of memory block above). Includes terminating null</param>
         /// <returns>0 on success, opencl error code on failure</returns>
-        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern int GetDeviceName(int platformIndex, int deviceIndex, IntPtr deviceNamePtr, int maxDeviceNameLen);
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace MicrobenchmarkGui
         /// <param name="platformNamePtr">Pointer to block of memory to put the name into</param>
         /// <param name="maxPlatformNameLen">Max name length, includes terminating null</param>
         /// <returns>0 on success, error code on fail</returns>
-        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern int GetPlatformName(int platformIndex, IntPtr platformNamePtr, int maxPlatformNameLen);
 
         // keep in sync with the one in OpenCLFunctions.c
@@ -118,5 +118,11 @@ namespace MicrobenchmarkGui
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern ulong GetDeviceMaxTextureSize();
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern void SetGpuPtrChasingStride(uint stride);
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern uint GetGpuPtrChasingStride();
     }
 }
