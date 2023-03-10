@@ -384,11 +384,14 @@ namespace MicrobenchmarkGui
             else if (GpuMemoryLatencyTextureRadioButton.Checked) clLatencyTestMode = BenchmarkInteropFunctions.CLTestType.Texture;
             else if (GpuMemoryLatencyLocalRadioButton.Checked) clLatencyTestMode = BenchmarkInteropFunctions.CLTestType.Local;
 
+            // Handle stride option
             uint gpuPointerChasingStride;
             if (!uint.TryParse(GpuPointerChasingStrideTextBox.Text, out gpuPointerChasingStride))
             {
                 gpuPointerChasingStride = OpenCLTest.DefaultGpuPointerChasingStride;
                 GpuPointerChasingStrideLabel.ForeColor = Color.Red;
+                progressLabel.Text = "Could not parse pointer chasing stride";
+                return;
             }
 
             if (gpuPointerChasingStride != OpenCLTest.DefaultGpuPointerChasingStride)
@@ -400,16 +403,50 @@ namespace MicrobenchmarkGui
                 GpuPointerChasingStrideLabel.ForeColor = Color.Black;
             }
 
-            testTask = Task.Run(() => OpenCLTest.RunLatencyTest(SetResultListView,
-                SetResultListViewColumns,
-                SetResultChart,
-                SetProgressLabel,
-                resultListView,
-                ResultsChart,
-                progressLabel,
-                clLatencyTestMode,
-                gpuPointerChasingStride,
-                runCancel.Token));
+            // Handle TLB option
+            bool testTlb = false;
+            uint gpuEstimatedPageSizeBytes = 0;
+            if (GpuTlbTestCheckbox.Checked)
+            {
+                if (!uint.TryParse(GpuEstimatedPageSizeTextBox.Text, out gpuEstimatedPageSizeBytes))
+                {
+                    GpuEstimatedPageSizeLabel.ForeColor = Color.Red;
+                    progressLabel.Text = "Could not parse estimated page size (must be an integer)";
+                    return;
+                }
+
+                GpuEstimatedPageSizeLabel.ForeColor = Color.Blue;
+                testTlb = true;
+                gpuEstimatedPageSizeBytes *= 1024;
+            }
+
+            if (!testTlb)
+            {
+                testTask = Task.Run(() => OpenCLTest.RunLatencyTest(SetResultListView,
+                    SetResultListViewColumns,
+                    SetResultChart,
+                    SetProgressLabel,
+                    resultListView,
+                    ResultsChart,
+                    progressLabel,
+                    clLatencyTestMode,
+                    gpuPointerChasingStride,
+                    runCancel.Token));
+            }
+            else
+            {
+                testTask = Task.Run(() => OpenCLTest.RunTlbTest(SetResultListView,
+                    SetResultListViewColumns,
+                    SetResultChart,
+                    SetProgressLabel,
+                    resultListView,
+                    ResultsChart,
+                    progressLabel,
+                    clLatencyTestMode,
+                    gpuPointerChasingStride,
+                    gpuEstimatedPageSizeBytes,
+                    runCancel.Token));
+            }
             CancelRunButton.Enabled = true;
             Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState));
         }
@@ -723,6 +760,22 @@ namespace MicrobenchmarkGui
         private void MicrobenchmarkForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             OpCode.Close();
+        }
+
+        private void GpuTlbTestCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (GpuTlbTestCheckbox.Checked)
+            {
+                GpuEstimatedPageSizeKbLabel.Enabled = true;
+                GpuEstimatedPageSizeTextBox.Enabled = true;
+                GpuEstimatedPageSizeLabel.Enabled = true;
+            }
+            else
+            {
+                GpuEstimatedPageSizeKbLabel.Enabled = false;
+                GpuEstimatedPageSizeTextBox.Enabled = false;
+                GpuEstimatedPageSizeLabel.Enabled = false;
+            }
         }
 
         private void TestSelectTabControl_Selected(object sender, TabControlEventArgs e)

@@ -102,7 +102,7 @@ namespace MicrobenchmarkGui
         };
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-        public static extern float RunCLLatencyTest(uint sizeKb, uint iterations, CLTestType testType);
+        public static extern float RunCLLatencyTest(uint sizeKb, uint iterations, CLTestType testType, int tlb);
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern int InitializeLatencyTest(CLTestType testType);
@@ -124,5 +124,11 @@ namespace MicrobenchmarkGui
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern uint GetGpuPtrChasingStride();
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern void SetGpuEstimatedPageSize(uint pageSize);
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern void GetGpuEstimatedPageSize();
     }
 }

@@ -113,6 +113,39 @@ namespace MicrobenchmarkGui
             return $"System has {totalDeviceCount} OpenCL devices across {platformCount} platforms";
         }
 
+        private static OpenCLDevice GetSelectedDevice()
+        {
+            foreach (OpenCLDevice clDevice in openCLDevices)
+            {
+                if (clDevice.DeviceButton != null && clDevice.DeviceButton.Checked)
+                {
+                    return clDevice;
+                }
+            }
+
+            return null;
+        }
+
+        private static ulong GetMaxTestSize(BenchmarkInteropFunctions.CLTestType testMode)
+        {
+            ulong maxTestSizeKb = 0;
+            if (testMode == BenchmarkInteropFunctions.CLTestType.GlobalScalar || testMode == BenchmarkInteropFunctions.CLTestType.GlobalVector)
+            {
+                maxTestSizeKb = BenchmarkInteropFunctions.GetDeviceMaxBufferSize() / 1024;
+            }
+            else if (testMode == BenchmarkInteropFunctions.CLTestType.ConstantScalar)
+            {
+                maxTestSizeKb = BenchmarkInteropFunctions.GetDeviceMaxConstantBufferSize() / 1024;
+            }
+            else if (testMode == BenchmarkInteropFunctions.CLTestType.Texture)
+            {
+                maxTestSizeKb = BenchmarkInteropFunctions.GetDeviceMaxTextureSize() / 1024;
+            }
+
+            return maxTestSizeKb;
+        }
+
+        // Runs generic GPU memory latency test
         public static void RunLatencyTest(MicrobenchmarkForm.SafeSetResultListView setListViewDelegate,
             MicrobenchmarkForm.SafeSetResultListViewColumns setListViewColsDelegate,
             MicrobenchmarkForm.SafeSetResultsChart setChartDelegate,
@@ -121,32 +154,19 @@ namespace MicrobenchmarkGui
             Chart resultChart,
             Label progressLabel,
             BenchmarkInteropFunctions.CLTestType testMode,
-            uint stride,
+            uint strideBytes,
             CancellationToken runCancel)
         {
-            // figure out which device is checked
-            string testLabel = "undef";
-            int platformIndex = -1, deviceIndex = -1;
-            foreach (OpenCLDevice clDevice in openCLDevices)
-            {
-                if (clDevice.DeviceButton != null && clDevice.DeviceButton.Checked)
-                {
-                    platformIndex = clDevice.PlatformIndex;
-                    deviceIndex = clDevice.DeviceIndex;
-                    testLabel = clDevice.DeviceName + ", " + testMode.ToString();
-                    if (stride != DefaultGpuPointerChasingStride)
-                    {
-                        testLabel += $", {stride}B Stride";
-                    }
-                }
-            }
-
-            if (platformIndex == -1 || deviceIndex == -1)
+            OpenCLDevice selectedDevice = GetSelectedDevice();
+            if (selectedDevice == null)
             {
                 progressLabel.Invoke(setLabelDelegate, new object[] { "No OpenCL device selected" });
                 return;
             }
-
+            int platformIndex = selectedDevice.PlatformIndex;
+            int deviceIndex = selectedDevice.DeviceIndex;
+            string testLabel = selectedDevice.DeviceName + ", " + testMode.ToString();
+            if (strideBytes != DefaultGpuPointerChasingStride) testLabel += $", {strideBytes}B Stride";
             int rc = BenchmarkInteropFunctions.SetOpenCLContext(platformIndex, deviceIndex);
             if (rc < 0)
             {
@@ -164,21 +184,7 @@ namespace MicrobenchmarkGui
                 return;
             }
 
-            // Determine limits
-            ulong maxTestSizeKb = 0;
-            if (testMode == BenchmarkInteropFunctions.CLTestType.GlobalScalar || testMode == BenchmarkInteropFunctions.CLTestType.GlobalVector)
-            {
-                maxTestSizeKb = BenchmarkInteropFunctions.GetDeviceMaxBufferSize() / 1024;
-            }
-            else if (testMode == BenchmarkInteropFunctions.CLTestType.ConstantScalar)
-            {
-                maxTestSizeKb = BenchmarkInteropFunctions.GetDeviceMaxConstantBufferSize() / 1024;
-            }
-            else if (testMode == BenchmarkInteropFunctions.CLTestType.Texture)
-            {
-                maxTestSizeKb = BenchmarkInteropFunctions.GetDeviceMaxTextureSize() / 1024;
-            }
-
+            ulong maxTestSizeKb = GetMaxTestSize(testMode);
             if (testMode == BenchmarkInteropFunctions.CLTestType.Local)
             {
                 // Set GUI stuff for local latency test
@@ -199,7 +205,7 @@ namespace MicrobenchmarkGui
                 do
                 {
                     progressLabel.Invoke(setLabelDelegate, new object[] { $"Testing local memory latency, {currentIterations / 1000}K iterations" });
-                    result = BenchmarkInteropFunctions.RunCLLatencyTest(localTestSizeKb, currentIterations, testMode);
+                    result = BenchmarkInteropFunctions.RunCLLatencyTest(localTestSizeKb, currentIterations, testMode, 0);
 
                     // scale iterations to reach target time
                     lastTimeMs = (float)(result * currentIterations / 1e6);
@@ -225,13 +231,13 @@ namespace MicrobenchmarkGui
                 floatTestPoints = new List<float>();
                 resultListView.Invoke(setListViewColsDelegate, new object[] { cols });
 
-                BenchmarkInteropFunctions.SetGpuPtrChasingStride(stride);
+                BenchmarkInteropFunctions.SetGpuPtrChasingStride(strideBytes);
 
                 List<uint> validTestSizes = new List<uint>();
                 for (uint i = 0; i < testSizes.Length; i++)
                 {
                     // no point if stride is so large you won't actually bounce around anything
-                    if (testSizes[i] * 1024 < 2 * stride) continue;
+                    if (testSizes[i] * 1024 < 2 * strideBytes) continue;
                     if (testSizes[i] > maxTestSizeKb) break;
                     validTestSizes.Add(testSizes[i]);
                 }
@@ -246,6 +252,7 @@ namespace MicrobenchmarkGui
                     formattedResults[i][0] = string.Format("{0} KB", validTestSizeArr[i]);
                     formattedResults[i][1] = "Not Run";
                 }
+
                 resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
 
                 // Run test
@@ -267,7 +274,7 @@ namespace MicrobenchmarkGui
                     do
                     {
                         progressLabel.Invoke(setLabelDelegate, new object[] { $"Testing {testSize} KB with {(currentIterations / 1000)}K iterations (device limit is {maxTestSizeKb} KB). Last run = {lastTimeMs} ms" });
-                        result = BenchmarkInteropFunctions.RunCLLatencyTest(testSize, currentIterations, testMode);
+                        result = BenchmarkInteropFunctions.RunCLLatencyTest(testSize, currentIterations, testMode, 0);
                         if (result < 0)
                         {
                             progressLabel.Invoke(setLabelDelegate, new object[] { $"Latency test with {testSize} KB failed" });
@@ -278,6 +285,9 @@ namespace MicrobenchmarkGui
                         // scale iterations to reach target time
                         lastTimeMs = (float)(result * currentIterations / 1e6);
                         ulong desiredIterations = TestUtilities.ScaleIterations(currentIterations, targetTimeMs, lastTimeMs);
+
+                        // we don't want to use a 64-bit counter on the GPU, because they might not have a 64-bit scalar path
+                        // and we'll take overhead from add-with-carry operations
                         if (desiredIterations > uint.MaxValue)
                         {
                             currentIterations = uint.MaxValue;
@@ -292,7 +302,7 @@ namespace MicrobenchmarkGui
                     {
                         // run it a few more times because some GPUs take years to clock ramp
                         progressLabel.Invoke(setLabelDelegate, new object[] { $"Making sure GPU is warmed up: {testSize} KB with {(currentIterations / 1000)}K iterations (device limit is {maxTestSizeKb} KB)" });
-                        for (int warmupRun = 0; warmupRun < 3; warmupRun++) result = BenchmarkInteropFunctions.RunCLLatencyTest(testSize, currentIterations, testMode);
+                        for (int warmupRun = 0; warmupRun < 3; warmupRun++) result = BenchmarkInteropFunctions.RunCLLatencyTest(testSize, currentIterations, testMode, 0);
                         first = false;
                     }
 
@@ -317,6 +327,146 @@ namespace MicrobenchmarkGui
                 progressLabel.Invoke(setLabelDelegate, new object[] { $"Run finished" });
                 RunResults.Add(testLabel, currentRunResults);
             }
+
+            rc = BenchmarkInteropFunctions.DeinitializeLatencyTest();
+            if (rc < 0)
+            {
+                progressLabel.Invoke(setLabelDelegate, new object[] { "Could not clean up OpenCL state for selected device" });
+                return;
+            }
+        }
+
+        public static void RunTlbTest(MicrobenchmarkForm.SafeSetResultListView setListViewDelegate,
+            MicrobenchmarkForm.SafeSetResultListViewColumns setListViewColsDelegate,
+            MicrobenchmarkForm.SafeSetResultsChart setChartDelegate,
+            MicrobenchmarkForm.SafeSetProgressLabel setLabelDelegate,
+            ListView resultListView,
+            Chart resultChart,
+            Label progressLabel,
+            BenchmarkInteropFunctions.CLTestType testMode,
+            uint strideBytes,
+            uint pageSizeBytes,
+            CancellationToken runCancel)
+        {
+            if (strideBytes * 2 >= pageSizeBytes)
+            {
+                progressLabel.Invoke(setLabelDelegate, new object[] { "Page size should be larger than stride * 2 " });
+                return;
+            }
+
+            OpenCLDevice selectedDevice = GetSelectedDevice();
+            if (selectedDevice == null)
+            {
+                progressLabel.Invoke(setLabelDelegate, new object[] { "No OpenCL device selected" });
+                return;
+            }
+
+            int rc = BenchmarkInteropFunctions.SetOpenCLContext(selectedDevice.PlatformIndex, selectedDevice.DeviceIndex);
+            if (rc < 0)
+            {
+                progressLabel.Invoke(setLabelDelegate, new object[] { "Could not create OpenCL context and command queue for selected device" });
+                return;
+            }
+
+            ExtractResourceFile("latencykernel.cl");
+            rc = BenchmarkInteropFunctions.InitializeLatencyTest(testMode);
+            if (rc < 0)
+            {
+                progressLabel.Invoke(setLabelDelegate, new object[] { "Could not build OpenCL kernel for selected device" });
+                return;
+            }
+
+            string testLabel = selectedDevice.DeviceName + " TLB: " + (pageSizeBytes / 1024) + " K pages";
+            List<Tuple<float, float>> currentRunResults = new List<Tuple<float, float>>();
+            testResultsList = new List<float>();
+            floatTestPoints = new List<float>();
+            BenchmarkInteropFunctions.SetGpuPtrChasingStride(strideBytes);
+            BenchmarkInteropFunctions.SetGpuEstimatedPageSize(pageSizeBytes);
+            ulong maxTestSizeKb = GetMaxTestSize(testMode);
+            List<uint> validTestSizes = new List<uint>();
+            for (uint i = 0; i < testSizes.Length; i++)
+            {
+                // no point if stride is so large you won't actually bounce around anything
+                if (testSizes[i] * 1024 < 2 * pageSizeBytes) continue;
+                if (testSizes[i] > maxTestSizeKb) break;
+                validTestSizes.Add(testSizes[i]);
+            }
+
+            uint[] validTestSizesArr = validTestSizes.ToArray();
+            float[] testResults = new float[validTestSizesArr.Length];
+            formattedResults = new string[validTestSizesArr.Length][];
+            for (uint i = 0; i < validTestSizesArr.Length; i++)
+            {
+                testResults[i] = 0;
+                formattedResults[i] = new string[2];
+                formattedResults[i][0] = string.Format("{0} KB, {1} Pages", validTestSizesArr[i], validTestSizesArr[i] * 1024 / pageSizeBytes);
+                formattedResults[i][1] = "Not Run";
+            }
+
+            resultListView.Invoke(setListViewColsDelegate, new object[] { cols });
+            resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
+
+            for (uint testIdx = 0; testIdx < validTestSizesArr.Length; testIdx++)
+            {
+                if (runCancel.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                uint testSize = validTestSizesArr[testIdx];
+                uint currentIterations = 50000;
+                float targetTimeMs = 2000, minTimeMs = 1000, lastTimeMs = 1;
+                float result;
+                bool failed = false;
+
+                do
+                {
+                    progressLabel.Invoke(setLabelDelegate, new object[] { $"Testing {testSize} KB with {(currentIterations / 1000)}K iterations (device limit is {maxTestSizeKb} KB). Last run = {lastTimeMs} ms" });
+                    result = BenchmarkInteropFunctions.RunCLLatencyTest(testSize, currentIterations, testMode, 1);
+                    if (result < 0)
+                    {
+                        progressLabel.Invoke(setLabelDelegate, new object[] { $"Latency test with {testSize} KB failed" });
+                        failed = true;
+                        break;
+                    }
+
+                    // scale iterations to reach target time
+                    lastTimeMs = (float)(result * currentIterations / 1e6);
+                    ulong desiredIterations = TestUtilities.ScaleIterations(currentIterations, targetTimeMs, lastTimeMs);
+
+                    // we don't want to use a 64-bit counter on the GPU, because they might not have a 64-bit scalar path
+                    // and we'll take overhead from add-with-carry operations
+                    if (desiredIterations > uint.MaxValue)
+                    {
+                        currentIterations = uint.MaxValue;
+                    }
+                    else
+                    {
+                        currentIterations = (uint)desiredIterations;
+                    }
+                } while (lastTimeMs < minTimeMs);
+
+                if (failed)
+                {
+                    formattedResults[testIdx][1] = string.Format("{0:F2} ns", "(Fail)");
+                    break;
+                }
+
+                // update saved run results
+                currentRunResults.Add(new Tuple<float, float>(testSize, result));
+
+                // update results table
+                formattedResults[testIdx][1] = string.Format("{0:F2} ns", result);
+                resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
+
+                // update chart
+                floatTestPoints.Add(testSize);
+                testResultsList.Add(result);
+                resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray(), MicrobenchmarkForm.ResultChartType.GpuMemoryLatency });
+            }
+
+            progressLabel.Invoke(setLabelDelegate, new object[] { $"Run finished" });
+            RunResults.Add(testLabel, currentRunResults);
 
             rc = BenchmarkInteropFunctions.DeinitializeLatencyTest();
             if (rc < 0)

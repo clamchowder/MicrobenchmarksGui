@@ -75,6 +75,38 @@ void FillPatternArr(uint32_t* pattern_arr, uint32_t list_size, uint32_t byte_inc
     }
 }
 
+uint32_t GetTlbShiftedOffset(uint32_t index, uint32_t cacheline_size, uint32_t page_size)
+{
+    uint32_t page_increment = page_size / sizeof(uint32_t);
+    uint32_t cacheline_increment = cacheline_size / sizeof(uint32_t);
+    uint32_t byte_offset = (index * cacheline_increment) & (page_increment - 1);
+    return index * page_increment + byte_offset;
+}
+
+/// <summary>
+/// Fills pattern array with page_size as the pointer chasing stride, but 
+/// 
+/// </summary>
+/// <param name="pattern_arr"></param>
+/// <param name="list_size"></param>
+/// <param name="cacheline_size"></param>
+/// <param name="page_size"></param>
+void FillTlbTestPatternArr(uint32_t* pattern_arr, uint32_t list_size, uint32_t cacheline_size, uint32_t page_size) {
+    // fill a temporary array with the element count
+    uint32_t element_count = list_size * sizeof(uint32_t) / page_size;
+    uint32_t* temp_arr = (uint32_t*)malloc(sizeof(uint32_t) * element_count);
+    uint32_t page_increment = page_size / sizeof(uint32_t);
+    FillPatternArr(temp_arr, element_count, sizeof(uint32_t));
+    memset(pattern_arr, INT_MAX, list_size * sizeof(uint32_t));
+    for (uint32_t i = 0; i < element_count; i++)
+    {
+        uint32_t dst_index = GetTlbShiftedOffset(i, cacheline_size, page_size);
+        uint32_t dst_value = GetTlbShiftedOffset(temp_arr[i], cacheline_size, page_size);
+        pattern_arr[dst_index] = dst_value;
+    }
+    free(temp_arr);
+}
+
 /// <summary>
 /// Fills pattern array with 64-bit integers
 /// </summary>

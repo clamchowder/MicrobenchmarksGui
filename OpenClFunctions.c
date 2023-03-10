@@ -11,7 +11,7 @@ __declspec(dllexport) int __stdcall GetPlatformCount();
 __declspec(dllexport) int __stdcall GetDeviceCount(int platformIndex);
 __declspec(dllexport) int __stdcall GetDeviceName(int platformIndex, int deviceIndex, char* deviceNamePtr, int maxDeviceNameLen);
 __declspec(dllexport) int __stdcall GetPlatformName(int platformIndex, char* platformNamePtr, int maxPlatformNameLen);
-__declspec(dllexport) float __stdcall RunCLLatencyTest(uint32_t size_kb, uint32_t iterations, enum CLTestType testType);
+__declspec(dllexport) float __stdcall RunCLLatencyTest(uint32_t size_kb, uint32_t iterations, enum CLTestType testType, int tlb);
 __declspec(dllexport) int __stdcall InitializeLatencyTest(enum CLTestType testType);
 __declspec(dllexport) int __stdcall DeinitializeLatencyTest();
 __declspec(dllexport) uint64_t __stdcall GetDeviceMaxConstantBufferSize();
@@ -19,6 +19,8 @@ __declspec(dllexport) uint64_t __stdcall GetDeviceMaxBufferSize();
 __declspec(dllexport) uint64_t __stdcall GetDeviceMaxTextureSize();
 __declspec(dllexport) void __stdcall SetGpuPtrChasingStride(uint32_t stride);
 __declspec(dllexport) uint32_t __stdcall GetGpuPtrChasingStride();
+__declspec(dllexport) void __stdcall SetGpuEstimatedPageSize(uint32_t pageSize);
+__declspec(dllexport) uint32_t __stdcall GetGpuEstimatedPageSize();
 
 // Internal convenience functions
 cl_device_id GetDeviceIdFromIndex(int platformIndex, int deviceIndex);
@@ -30,6 +32,7 @@ cl_command_queue command_queue;
 cl_device_id selected_device_id;
 cl_program program;
 uint32_t gpuPtrChasingStride = 64;
+uint32_t gpuEstimatedPageSize = 4096;
 
 /// <summary>
 /// Set opencl context to use for subsequent tests
@@ -51,6 +54,8 @@ int SetOpenCLContext(int platformIndex, int deviceIndex)
 // Allow setting the pointer chasing stride from C#
 void SetGpuPtrChasingStride(uint32_t stride) { gpuPtrChasingStride = stride; } 
 uint32_t GetGpuPtrChasingStride() { return gpuPtrChasingStride; }
+void SetGpuEstimatedPageSize(uint32_t pageSize) { gpuEstimatedPageSize = pageSize; }
+uint32_t GetGpuEstimatedPageSize() { return gpuEstimatedPageSize; }
 
 /// <summary>
 /// Get number of OpenCL platforms
@@ -227,8 +232,9 @@ int DeinitializeLatencyTest()
 /// </summary>
 /// <param name="size_kb">test size, kb</param>
 /// <param name="iterations">iteration count</param>
+/// <param name="tlb">If true, run TLB test. Does not calculate difference</param.
 /// <returns>latency in ns, negative value on error</returns>
-float RunCLLatencyTest(uint32_t size_kb, uint32_t iterations, enum CLTestType testType)
+float RunCLLatencyTest(uint32_t size_kb, uint32_t iterations, enum CLTestType testType, int tlb)
 {
 	cl_mem a_mem_obj = NULL, result_obj = NULL, tex_obj = NULL;
 	struct timeb start, end;
@@ -237,7 +243,9 @@ float RunCLLatencyTest(uint32_t size_kb, uint32_t iterations, enum CLTestType te
 	uint32_t result;
 	uint32_t* A = (uint32_t*)malloc(sizeof(uint32_t) * list_size);
 	memset(A, 0, sizeof(uint32_t) * list_size);
-	FillPatternArr(A, list_size, gpuPtrChasingStride);
+
+	if (tlb) FillTlbTestPatternArr(A, list_size, gpuPtrChasingStride, gpuEstimatedPageSize);
+	else FillPatternArr(A, list_size, gpuPtrChasingStride);
 
 	size_t global_item_size = 1, local_item_size = 1;
 	if (testType == GlobalVector)

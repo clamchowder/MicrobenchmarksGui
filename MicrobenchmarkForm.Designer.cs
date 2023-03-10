@@ -86,6 +86,14 @@ namespace MicrobenchmarkGui
             this.MemoryLatencyAsmRadioButton = new System.Windows.Forms.RadioButton();
             this.MemoryLatencyIndexedAddressingRadioButton = new System.Windows.Forms.RadioButton();
             this.GpuMemLatencyTab = new System.Windows.Forms.TabPage();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.GpuEstimatedPageSizeKbLabel = new System.Windows.Forms.Label();
+            this.GpuEstimatedPageSizeTextBox = new System.Windows.Forms.TextBox();
+            this.GpuEstimatedPageSizeLabel = new System.Windows.Forms.Label();
+            this.GpuTlbTestCheckbox = new System.Windows.Forms.CheckBox();
+            this.GpuStrideBytesLabel = new System.Windows.Forms.Label();
+            this.GpuPointerChasingStrideTextBox = new System.Windows.Forms.TextBox();
+            this.GpuPointerChasingStrideLabel = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.GpuMemoryLatencyDeviceGroupBox = new System.Windows.Forms.GroupBox();
             this.GpuMemoryLatencyDeviceFlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
@@ -95,9 +103,6 @@ namespace MicrobenchmarkGui
             this.GpuMemoryLatencyConstantScalarRadioButton = new System.Windows.Forms.RadioButton();
             this.GpuMemoryLatencyVectorRadioButton = new System.Windows.Forms.RadioButton();
             this.GpuMemoryLatencyScalarRadioButton = new System.Windows.Forms.RadioButton();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.GpuPointerChasingStrideLabel = new System.Windows.Forms.Label();
-            this.GpuPointerChasingStrideTextBox = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.ResultsChart)).BeginInit();
             this.ThreadingModeGroupBox.SuspendLayout();
             this.AccessModeGroupBox.SuspendLayout();
@@ -112,9 +117,9 @@ namespace MicrobenchmarkGui
             this.MemoryLatencyPagingModeGroupBox.SuspendLayout();
             this.MemoryLatencyAddressingModeGroupBox.SuspendLayout();
             this.GpuMemLatencyTab.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.GpuMemoryLatencyDeviceGroupBox.SuspendLayout();
             this.GpuMemoryLatencyMemoryPathGroupBox.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // RunBandwidthTestButton
@@ -591,7 +596,7 @@ namespace MicrobenchmarkGui
             this.TestSelectTabControl.Multiline = true;
             this.TestSelectTabControl.Name = "TestSelectTabControl";
             this.TestSelectTabControl.SelectedIndex = 0;
-            this.TestSelectTabControl.Size = new System.Drawing.Size(269, 632);
+            this.TestSelectTabControl.Size = new System.Drawing.Size(269, 657);
             this.TestSelectTabControl.TabIndex = 30;
             this.TestSelectTabControl.Selected += new System.Windows.Forms.TabControlEventHandler(this.TestSelectTabControl_Selected);
             // 
@@ -607,7 +612,7 @@ namespace MicrobenchmarkGui
             this.MemoryBandwidthTab.Location = new System.Drawing.Point(23, 4);
             this.MemoryBandwidthTab.Name = "MemoryBandwidthTab";
             this.MemoryBandwidthTab.Padding = new System.Windows.Forms.Padding(3);
-            this.MemoryBandwidthTab.Size = new System.Drawing.Size(242, 584);
+            this.MemoryBandwidthTab.Size = new System.Drawing.Size(242, 649);
             this.MemoryBandwidthTab.TabIndex = 0;
             this.MemoryBandwidthTab.Text = "CPU Memory Bandwidth";
             // 
@@ -628,7 +633,7 @@ namespace MicrobenchmarkGui
             this.MemoryLatencyTab.Location = new System.Drawing.Point(23, 4);
             this.MemoryLatencyTab.Name = "MemoryLatencyTab";
             this.MemoryLatencyTab.Padding = new System.Windows.Forms.Padding(3);
-            this.MemoryLatencyTab.Size = new System.Drawing.Size(242, 584);
+            this.MemoryLatencyTab.Size = new System.Drawing.Size(242, 649);
             this.MemoryLatencyTab.TabIndex = 1;
             this.MemoryLatencyTab.Text = "CPU Memory Latency";
             // 
@@ -717,9 +722,91 @@ namespace MicrobenchmarkGui
             this.GpuMemLatencyTab.Controls.Add(this.GpuMemoryLatencyMemoryPathGroupBox);
             this.GpuMemLatencyTab.Location = new System.Drawing.Point(23, 4);
             this.GpuMemLatencyTab.Name = "GpuMemLatencyTab";
-            this.GpuMemLatencyTab.Size = new System.Drawing.Size(242, 624);
+            this.GpuMemLatencyTab.Size = new System.Drawing.Size(242, 649);
             this.GpuMemLatencyTab.TabIndex = 2;
             this.GpuMemLatencyTab.Text = "GPU Memory Latency";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.GpuEstimatedPageSizeKbLabel);
+            this.groupBox1.Controls.Add(this.GpuEstimatedPageSizeTextBox);
+            this.groupBox1.Controls.Add(this.GpuEstimatedPageSizeLabel);
+            this.groupBox1.Controls.Add(this.GpuTlbTestCheckbox);
+            this.groupBox1.Controls.Add(this.GpuStrideBytesLabel);
+            this.groupBox1.Controls.Add(this.GpuPointerChasingStrideTextBox);
+            this.groupBox1.Controls.Add(this.GpuPointerChasingStrideLabel);
+            this.groupBox1.Location = new System.Drawing.Point(7, 504);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(226, 142);
+            this.groupBox1.TabIndex = 3;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Advanced Options";
+            // 
+            // GpuEstimatedPageSizeKbLabel
+            // 
+            this.GpuEstimatedPageSizeKbLabel.AutoSize = true;
+            this.GpuEstimatedPageSizeKbLabel.Enabled = false;
+            this.GpuEstimatedPageSizeKbLabel.Location = new System.Drawing.Point(100, 105);
+            this.GpuEstimatedPageSizeKbLabel.Name = "GpuEstimatedPageSizeKbLabel";
+            this.GpuEstimatedPageSizeKbLabel.Size = new System.Drawing.Size(21, 13);
+            this.GpuEstimatedPageSizeKbLabel.TabIndex = 6;
+            this.GpuEstimatedPageSizeKbLabel.Text = "KB";
+            // 
+            // GpuEstimatedPageSizeTextBox
+            // 
+            this.GpuEstimatedPageSizeTextBox.Enabled = false;
+            this.GpuEstimatedPageSizeTextBox.Location = new System.Drawing.Point(10, 102);
+            this.GpuEstimatedPageSizeTextBox.Name = "GpuEstimatedPageSizeTextBox";
+            this.GpuEstimatedPageSizeTextBox.Size = new System.Drawing.Size(84, 20);
+            this.GpuEstimatedPageSizeTextBox.TabIndex = 5;
+            this.GpuEstimatedPageSizeTextBox.Text = "4";
+            // 
+            // GpuEstimatedPageSizeLabel
+            // 
+            this.GpuEstimatedPageSizeLabel.AutoSize = true;
+            this.GpuEstimatedPageSizeLabel.Enabled = false;
+            this.GpuEstimatedPageSizeLabel.Location = new System.Drawing.Point(7, 86);
+            this.GpuEstimatedPageSizeLabel.Name = "GpuEstimatedPageSizeLabel";
+            this.GpuEstimatedPageSizeLabel.Size = new System.Drawing.Size(107, 13);
+            this.GpuEstimatedPageSizeLabel.TabIndex = 4;
+            this.GpuEstimatedPageSizeLabel.Text = "Estimated Page Size:";
+            // 
+            // GpuTlbTestCheckbox
+            // 
+            this.GpuTlbTestCheckbox.AutoSize = true;
+            this.GpuTlbTestCheckbox.Location = new System.Drawing.Point(10, 62);
+            this.GpuTlbTestCheckbox.Name = "GpuTlbTestCheckbox";
+            this.GpuTlbTestCheckbox.Size = new System.Drawing.Size(189, 17);
+            this.GpuTlbTestCheckbox.TabIndex = 3;
+            this.GpuTlbTestCheckbox.Text = "Test Address Translation Penalties";
+            this.GpuTlbTestCheckbox.UseVisualStyleBackColor = true;
+            this.GpuTlbTestCheckbox.CheckedChanged += new System.EventHandler(this.GpuTlbTestCheckbox_CheckedChanged);
+            // 
+            // GpuStrideBytesLabel
+            // 
+            this.GpuStrideBytesLabel.AutoSize = true;
+            this.GpuStrideBytesLabel.Location = new System.Drawing.Point(100, 39);
+            this.GpuStrideBytesLabel.Name = "GpuStrideBytesLabel";
+            this.GpuStrideBytesLabel.Size = new System.Drawing.Size(33, 13);
+            this.GpuStrideBytesLabel.TabIndex = 2;
+            this.GpuStrideBytesLabel.Text = "Bytes";
+            // 
+            // GpuPointerChasingStrideTextBox
+            // 
+            this.GpuPointerChasingStrideTextBox.Location = new System.Drawing.Point(10, 36);
+            this.GpuPointerChasingStrideTextBox.Name = "GpuPointerChasingStrideTextBox";
+            this.GpuPointerChasingStrideTextBox.Size = new System.Drawing.Size(84, 20);
+            this.GpuPointerChasingStrideTextBox.TabIndex = 1;
+            this.GpuPointerChasingStrideTextBox.Text = "64";
+            // 
+            // GpuPointerChasingStrideLabel
+            // 
+            this.GpuPointerChasingStrideLabel.AutoSize = true;
+            this.GpuPointerChasingStrideLabel.Location = new System.Drawing.Point(7, 20);
+            this.GpuPointerChasingStrideLabel.Name = "GpuPointerChasingStrideLabel";
+            this.GpuPointerChasingStrideLabel.Size = new System.Drawing.Size(129, 13);
+            this.GpuPointerChasingStrideLabel.TabIndex = 0;
+            this.GpuPointerChasingStrideLabel.Text = "Estimated Cacheline Size:";
             // 
             // label2
             // 
@@ -818,35 +905,6 @@ namespace MicrobenchmarkGui
             this.GpuMemoryLatencyScalarRadioButton.Text = "Global Memory, Scalar";
             this.GpuMemoryLatencyScalarRadioButton.UseVisualStyleBackColor = true;
             // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.GpuPointerChasingStrideTextBox);
-            this.groupBox1.Controls.Add(this.GpuPointerChasingStrideLabel);
-            this.groupBox1.Location = new System.Drawing.Point(7, 504);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(226, 100);
-            this.groupBox1.TabIndex = 3;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Advanced Options";
-            // 
-            // GpuPointerChasingStrideLabel
-            // 
-            this.GpuPointerChasingStrideLabel.AutoSize = true;
-            this.GpuPointerChasingStrideLabel.Location = new System.Drawing.Point(7, 20);
-            this.GpuPointerChasingStrideLabel.Name = "GpuPointerChasingStrideLabel";
-            this.GpuPointerChasingStrideLabel.Size = new System.Drawing.Size(149, 13);
-            this.GpuPointerChasingStrideLabel.TabIndex = 0;
-            this.GpuPointerChasingStrideLabel.Text = "Pointer Chasing Stride (Bytes):";
-            // 
-            // GpuPointerChasingStrideTextBox
-            // 
-            this.GpuPointerChasingStrideTextBox.Location = new System.Drawing.Point(162, 17);
-            this.GpuPointerChasingStrideTextBox.Name = "GpuPointerChasingStrideTextBox";
-            this.GpuPointerChasingStrideTextBox.Size = new System.Drawing.Size(43, 20);
-            this.GpuPointerChasingStrideTextBox.TabIndex = 1;
-            this.GpuPointerChasingStrideTextBox.Text = "64";
-            this.GpuPointerChasingStrideTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
             // MicrobenchmarkForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -886,11 +944,11 @@ namespace MicrobenchmarkGui
             this.MemoryLatencyAddressingModeGroupBox.ResumeLayout(false);
             this.MemoryLatencyAddressingModeGroupBox.PerformLayout();
             this.GpuMemLatencyTab.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.GpuMemoryLatencyDeviceGroupBox.ResumeLayout(false);
             this.GpuMemoryLatencyMemoryPathGroupBox.ResumeLayout(false);
             this.GpuMemoryLatencyMemoryPathGroupBox.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -963,6 +1021,11 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TextBox GpuPointerChasingStrideTextBox;
         private System.Windows.Forms.Label GpuPointerChasingStrideLabel;
+        private System.Windows.Forms.Label GpuEstimatedPageSizeKbLabel;
+        private System.Windows.Forms.TextBox GpuEstimatedPageSizeTextBox;
+        private System.Windows.Forms.Label GpuEstimatedPageSizeLabel;
+        private System.Windows.Forms.CheckBox GpuTlbTestCheckbox;
+        private System.Windows.Forms.Label GpuStrideBytesLabel;
     }
 }
 
