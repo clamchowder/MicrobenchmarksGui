@@ -948,9 +948,10 @@ namespace MicrobenchmarkGui
             // 
             // GpuLinkBandwidthDeviceFlowLayoutPanel
             // 
+            this.GpuLinkBandwidthDeviceFlowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.GpuLinkBandwidthDeviceFlowLayoutPanel.Location = new System.Drawing.Point(7, 20);
             this.GpuLinkBandwidthDeviceFlowLayoutPanel.Name = "GpuLinkBandwidthDeviceFlowLayoutPanel";
-            this.GpuLinkBandwidthDeviceFlowLayoutPanel.Size = new System.Drawing.Size(215, 234);
+            this.GpuLinkBandwidthDeviceFlowLayoutPanel.Size = new System.Drawing.Size(219, 234);
             this.GpuLinkBandwidthDeviceFlowLayoutPanel.TabIndex = 0;
             // 
             // GpuLinkBandwidthMethodGroupBox
