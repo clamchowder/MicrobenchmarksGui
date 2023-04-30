@@ -157,7 +157,7 @@ namespace MicrobenchmarkGui
             this.resultListView.HideSelection = false;
             this.resultListView.Location = new System.Drawing.Point(298, 30);
             this.resultListView.Name = "resultListView";
-            this.resultListView.Size = new System.Drawing.Size(195, 509);
+            this.resultListView.Size = new System.Drawing.Size(195, 603);
             this.resultListView.TabIndex = 4;
             this.resultListView.UseCompatibleStateImageBehavior = false;
             this.resultListView.View = System.Windows.Forms.View.Details;
@@ -998,8 +998,9 @@ namespace MicrobenchmarkGui
             // 
             // RemoveTestSizeButton
             // 
+            this.RemoveTestSizeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.RemoveTestSizeButton.Enabled = false;
-            this.RemoveTestSizeButton.Location = new System.Drawing.Point(403, 571);
+            this.RemoveTestSizeButton.Location = new System.Drawing.Point(403, 665);
             this.RemoveTestSizeButton.Name = "RemoveTestSizeButton";
             this.RemoveTestSizeButton.Size = new System.Drawing.Size(87, 23);
             this.RemoveTestSizeButton.TabIndex = 31;
@@ -1009,15 +1010,17 @@ namespace MicrobenchmarkGui
             // 
             // MinTestSizeTextBox
             // 
-            this.MinTestSizeTextBox.Location = new System.Drawing.Point(342, 545);
+            this.MinTestSizeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.MinTestSizeTextBox.Location = new System.Drawing.Point(342, 639);
             this.MinTestSizeTextBox.Name = "MinTestSizeTextBox";
             this.MinTestSizeTextBox.Size = new System.Drawing.Size(121, 20);
             this.MinTestSizeTextBox.TabIndex = 32;
             // 
             // StartSizeLabel
             // 
+            this.StartSizeLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.StartSizeLabel.AutoSize = true;
-            this.StartSizeLabel.Location = new System.Drawing.Point(295, 548);
+            this.StartSizeLabel.Location = new System.Drawing.Point(295, 642);
             this.StartSizeLabel.Name = "StartSizeLabel";
             this.StartSizeLabel.Size = new System.Drawing.Size(41, 13);
             this.StartSizeLabel.TabIndex = 33;
@@ -1025,8 +1028,9 @@ namespace MicrobenchmarkGui
             // 
             // StartKbLabel
             // 
+            this.StartKbLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.StartKbLabel.AutoSize = true;
-            this.StartKbLabel.Location = new System.Drawing.Point(469, 548);
+            this.StartKbLabel.Location = new System.Drawing.Point(469, 642);
             this.StartKbLabel.Name = "StartKbLabel";
             this.StartKbLabel.Size = new System.Drawing.Size(21, 13);
             this.StartKbLabel.TabIndex = 34;
@@ -1034,8 +1038,9 @@ namespace MicrobenchmarkGui
             // 
             // AddTestSizeButton
             // 
+            this.AddTestSizeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.AddTestSizeButton.Enabled = false;
-            this.AddTestSizeButton.Location = new System.Drawing.Point(403, 601);
+            this.AddTestSizeButton.Location = new System.Drawing.Point(403, 695);
             this.AddTestSizeButton.Name = "AddTestSizeButton";
             this.AddTestSizeButton.Size = new System.Drawing.Size(87, 23);
             this.AddTestSizeButton.TabIndex = 35;
@@ -1045,8 +1050,9 @@ namespace MicrobenchmarkGui
             // 
             // AddSizeKbLabel
             // 
+            this.AddSizeKbLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.AddSizeKbLabel.AutoSize = true;
-            this.AddSizeKbLabel.Location = new System.Drawing.Point(376, 606);
+            this.AddSizeKbLabel.Location = new System.Drawing.Point(376, 700);
             this.AddSizeKbLabel.Name = "AddSizeKbLabel";
             this.AddSizeKbLabel.Size = new System.Drawing.Size(21, 13);
             this.AddSizeKbLabel.TabIndex = 36;
@@ -1054,14 +1060,16 @@ namespace MicrobenchmarkGui
             // 
             // AddSizeTextBox
             // 
-            this.AddSizeTextBox.Location = new System.Drawing.Point(298, 603);
+            this.AddSizeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.AddSizeTextBox.Location = new System.Drawing.Point(298, 697);
             this.AddSizeTextBox.Name = "AddSizeTextBox";
             this.AddSizeTextBox.Size = new System.Drawing.Size(72, 20);
             this.AddSizeTextBox.TabIndex = 37;
             // 
             // EditTestSizeButton
             // 
-            this.EditTestSizeButton.Location = new System.Drawing.Point(298, 571);
+            this.EditTestSizeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.EditTestSizeButton.Location = new System.Drawing.Point(298, 665);
             this.EditTestSizeButton.Name = "EditTestSizeButton";
             this.EditTestSizeButton.Size = new System.Drawing.Size(99, 23);
             this.EditTestSizeButton.TabIndex = 38;

@@ -577,7 +577,7 @@ namespace MicrobenchmarkGui
                 // update chart
                 floatTestPoints.Add(testSize);
                 testResultsList.Add(result);
-                resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray(), MicrobenchmarkForm.ResultChartType.GpuMemoryLatency });
+                resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray(), MicrobenchmarkForm.ResultChartType.GpuLinkBandwidth });
             } // end of test size loop
 
             progressLabel.Invoke(setLabelDelegate, new object[] { $"Run finished" });

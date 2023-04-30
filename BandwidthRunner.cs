@@ -118,7 +118,7 @@ namespace MicrobenchmarkGui
                 Stopwatch debugStopwatch = new Stopwatch();
 
                 do {
-                    float dataTransferredGb = (float)((currentIterations * testSize * 1024.0 * threads) / 1e9);
+                    float dataTransferredGb = (float)((currentIterations * testSize * 1024.0 * (shared ? threads : 1)) / 1e9);
                     string progressMessage = string.Format("Testing bandwidth over {0} KB, {1}K iterations = {2:F2} GB, last run = {3:F2} ms", testSize, currentIterations / 1000, dataTransferredGb, lastTimeMs);
                     progressLabel.Invoke(setProgressLabelDelegate, new object[] { progressMessage });
 

@@ -176,11 +176,13 @@ namespace MicrobenchmarkGui
         public delegate void SafeSetResultListView(string[][] items);
         public delegate void SafeSetResultsChart(string seriesNames, float[] testPoints, float[] testResults, ResultChartType chartType);
         public delegate void SafeSetCancelButtonState(bool enabled);
+        public delegate void SafeSetRunButtonState(bool enabled);
         public delegate void SafeSetProgressLabel(string message);
 
         public void SetProgressLabel(string message) { progressLabel.Text = message; }
 
         public void SetCancelButtonState(bool enabled) { CancelRunButton.Enabled = enabled; }
+        private void SetRunButtonState(bool enabled) { RunBandwidthTestButton.Enabled = enabled; }
 
         /// <summary>
         /// Sets result list view items
@@ -415,6 +417,8 @@ namespace MicrobenchmarkGui
             {
                 RunCLLinkTest();
             }
+
+            RunBandwidthTestButton.Enabled = false;
         }
 
         private void RunCLLinkTest()
@@ -433,7 +437,7 @@ namespace MicrobenchmarkGui
                     runCancel.Token));
 
             CancelRunButton.Enabled = true;
-            Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState));
+            Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState, SetRunButtonState));
         }
 
         private void RunClLatencyTest()
@@ -511,7 +515,7 @@ namespace MicrobenchmarkGui
                     runCancel.Token));
             }
             CancelRunButton.Enabled = true;
-            Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState));
+            Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState, SetRunButtonState));
         }
 
         private void RunLatencyTest()
@@ -523,7 +527,7 @@ namespace MicrobenchmarkGui
             runCancel = new CancellationTokenSource();
             testTask = Task.Run(() => latencyRunner.StartFullTest(asm, largePages, runCancel.Token));
             CancelRunButton.Enabled = true;
-            Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState));
+            Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState, SetRunButtonState));
         }
 
         private void RunBandwidthTest()
@@ -590,7 +594,7 @@ namespace MicrobenchmarkGui
             runCancel = new CancellationTokenSource();
             testTask = Task.Run(() => bwRunner.StartFullTest(threadCount, sharedMode, testType, runCancel.Token));
             CancelRunButton.Enabled = true;
-            Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState));
+            Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState, SetRunButtonState));
         }
 
         private void CancelRunningTest(bool wait)
@@ -635,10 +639,11 @@ namespace MicrobenchmarkGui
             }
         }
 
-        private async Task HandleTestRunCompletion(Task task, SafeSetCancelButtonState setCancelButtonDelegate)
+        private async Task HandleTestRunCompletion(Task task, SafeSetCancelButtonState setCancelButtonDelegate, SafeSetRunButtonState setRunButtonDelegate)
         {
             await task;
             CancelRunButton.Invoke(setCancelButtonDelegate, new object[] { false });
+            RunBandwidthTestButton.Invoke(setRunButtonDelegate, new object[] { true });
             SafeSetExportListBox safeSetExportListBox = SetExportListBox;
             ExportListBox.Invoke(safeSetExportListBox, new object[] { });
         }

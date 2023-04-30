@@ -273,7 +273,6 @@ float __stdcall MeasureBw(uint32_t sizeKb, uint64_t iterations, uint32_t threads
     int64_t time_diff_ms = 1000 * (end.time - start.time) + (end.millitm - start.millitm);
     double gbTransferred = (uint64_t)iterations * sizeof(float) * elements * threads / (double)1e9;
     bw = (float)(1000 * gbTransferred / (double)time_diff_ms);
-    if (!shared) bw = bw * threads;
 
     free(testThreads);
     if (shared) VirtualFree(testArr, elements * sizeof(float), MEM_RELEASE);
