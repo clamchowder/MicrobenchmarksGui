@@ -12,6 +12,7 @@ __declspec(dllexport) int __stdcall GetDeviceCount(int platformIndex);
 __declspec(dllexport) int __stdcall GetDeviceName(int platformIndex, int deviceIndex, char* deviceNamePtr, int maxDeviceNameLen);
 __declspec(dllexport) int __stdcall GetPlatformName(int platformIndex, char* platformNamePtr, int maxPlatformNameLen);
 __declspec(dllexport) float __stdcall RunCLLatencyTest(uint32_t size_kb, uint32_t iterations, enum CLTestType testType, int tlb);
+__declspec(dllexport) float __stdcall RunCLLinkBwTest(uint32_t size_kb, uint32_t iterations, int cpuToGpu);
 __declspec(dllexport) int __stdcall InitializeLatencyTest(enum CLTestType testType);
 __declspec(dllexport) int __stdcall DeinitializeLatencyTest();
 __declspec(dllexport) uint64_t __stdcall GetDeviceMaxConstantBufferSize();
@@ -78,7 +79,7 @@ int32_t GetDeviceCount(int platformIndex)
 {
 	cl_uint deviceCount;
 	cl_platform_id platformId = GetPlatformIdFromIndex(platformIndex);
-	cl_uint ret = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_ALL, 0, NULL, &deviceCount);
+	cl_uint ret = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_GPU, 0, NULL, &deviceCount);
 	if (ret == CL_SUCCESS) return (int32_t)deviceCount;
 	else return ret;
 }
@@ -159,7 +160,8 @@ enum CLTestType
 	GlobalVector = 2,
 	ConstantScalar = 3,
 	Texture = 4,
-	Local = 5
+	Local = 5,
+	LinkBw = 6
 };
 
 #define MAX_SOURCE_SIZE (0x100000)
@@ -299,6 +301,48 @@ RunCLLatencyTestEnd:
 }
 
 /// <summary>
+/// Test link bandwidth
+/// </summary>
+/// <param name="size_kb">test size</param>
+/// <param name="iterations">iterations</param>
+/// <param name="cpuToGpu">if 1, test copying to GPU. if 0, test copying from GPU</param>
+/// <returns>bandwidth in GB/s</returns>
+float RunCLLinkBwTest(uint32_t size_kb, uint32_t iterations, int cpuToGpu)
+{
+	cl_int ret = 0;
+	size_t global_item_size = 0;
+	uint64_t testSizeBytes = size_kb * 1024;
+	uint32_t *A = (uint32_t*)malloc(testSizeBytes);
+	memset(A, 0, testSizeBytes);
+
+	cl_mem a_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY, testSizeBytes, NULL, &ret);
+	ret = clEnqueueWriteBuffer(command_queue, a_mem_obj, CL_TRUE, 0, testSizeBytes, A, 0, NULL, NULL);
+
+	struct timeb start, end;
+	ftime(&start);
+	for (int iter_idx = 0; iter_idx < iterations; iter_idx++)
+	{
+		if (cpuToGpu) 
+		{
+			ret = clEnqueueWriteBuffer(command_queue, a_mem_obj, CL_TRUE, 0, testSizeBytes, A, 0, NULL, NULL);
+		}
+		else
+		{
+			ret = clEnqueueReadBuffer(command_queue, a_mem_obj, CL_TRUE, 0, testSizeBytes, A, 0, NULL, NULL);
+		}
+		clFinish(command_queue);
+	}
+	ftime(&end);
+	int64_t time_diff_ms = 1000 * (end.time - start.time) + (end.millitm - start.millitm);
+	float total_data_gb = ((float)iterations * testSizeBytes) / 1e9;
+	float bw = 1000 * (float)total_data_gb / (float)time_diff_ms;
+
+	clReleaseMemObject(a_mem_obj);
+	free(A);
+	return bw;
+}
+
+/// <summary>
 /// Gets OpenCL platform id given a platform index.
 /// </summary>
 /// <param name="platformIndex">Platform index. Must be less than number of platforms</param>
@@ -324,7 +368,7 @@ cl_device_id GetDeviceIdFromIndex(int platformIndex, int deviceIndex)
 	cl_platform_id platformId = GetPlatformIdFromIndex(platformIndex);
 	cl_uint deviceCount = GetDeviceCount(platformIndex);
 	cl_device_id *devices = (cl_device_id*)malloc(deviceCount * sizeof(cl_device_id));
-	cl_int ret = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_ALL, deviceCount, devices, NULL);
+	cl_int ret = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_GPU, deviceCount, devices, NULL);
 	cl_device_id deviceId = devices[deviceIndex];
 	free(devices);
 	return deviceId;

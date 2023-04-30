@@ -104,6 +104,14 @@ namespace MicrobenchmarkGui
             tooltips.SetToolTip(Avx512RadioButton, "Uses 512-bit accesses with ZMM registers");
             tooltips.SetToolTip(SseRadioButton, "Uses 128-bit accesses with XMM registers");
             tooltips.SetToolTip(MmxRadioButton, "Uses 64-bit accesess with MM registers");
+
+            string gpuPtrStrideTooltip = "Sets the pointer chasing stride. If matched to cacheline size, this could produce cleaner results. If set higher than cacheline cacheline size, the test will overestimate cache capacity";
+            tooltips.SetToolTip(GpuPointerChasingStrideLabel, gpuPtrStrideTooltip);
+            tooltips.SetToolTip(GpuPointerChasingStrideTextBox, gpuPtrStrideTooltip);
+
+            string gpuPageSizeEstimateTooltip = "Sets the pointer chasing stride for TLB measurements.";
+            tooltips.SetToolTip(GpuEstimatedPageSizeLabel, gpuPageSizeEstimateTooltip);
+            tooltips.SetToolTip(GpuEstimatedPageSizeTextBox, gpuPageSizeEstimateTooltip);
             #endregion
 
             ThreadCountTrackbar.Maximum = Environment.ProcessorCount;
@@ -134,6 +142,11 @@ namespace MicrobenchmarkGui
 
             OpCode.Open();
             this.Text = "Clam Cache/Mem Benchmark: " + OpCode.GetProcessorName();
+
+            bwRunner = new BandwidthRunner(SetResultListView,
+                SetResultListViewColumns, SetResultChart, SetProgressLabel, resultListView, ResultsChart, progressLabel);
+            latencyRunner = new LatencyRunner(SetResultListView,
+                SetResultListViewColumns, SetResultChart, SetProgressLabel, resultListView, ResultsChart, progressLabel);
         }
 
         public void SetDefaultMethodState()
@@ -217,7 +230,8 @@ namespace MicrobenchmarkGui
         {
             CpuMemoryBandwidth,
             CpuMemoryLatency,
-            GpuMemoryLatency
+            GpuMemoryLatency,
+            GpuLinkBandwidth
         }
 
         public void SetResultChart(string seriesName, float[] testPoints, float[] testResults, ResultChartType chartType)
@@ -345,6 +359,11 @@ namespace MicrobenchmarkGui
                 ResultsChart.ChartAreas[0].AxisY.IsLogarithmic = false;
                 ResultsChart.ChartAreas[0].AxisY.Title = "Latency (ns)";
             }
+            else if (chartType == ResultChartType.GpuLinkBandwidth)
+            {
+                ResultsChart.ChartAreas[0].AxisY.IsLogarithmic = false;
+                ResultsChart.ChartAreas[0].AxisY.Title = "Bandwidth (GB/s)";
+            }
         }
 
         private BandwidthRunner bwRunner;
@@ -359,6 +378,27 @@ namespace MicrobenchmarkGui
         /// <param name="e"></param>
         private void RunBandwidthTestButton_Click(object sender, EventArgs e)
         {
+            // Set common settings
+            GlobalTestSettings.MinTestSizeKb = 0;
+            if (!string.IsNullOrEmpty(MinTestSizeTextBox.Text))
+            {
+                uint minTestSizeKb;
+                if (uint.TryParse(MinTestSizeTextBox.Text, out minTestSizeKb))
+                {
+                    StartSizeLabel.ForeColor = Color.Blue;
+                    GlobalTestSettings.MinTestSizeKb = minTestSizeKb;
+                } 
+                else
+                {
+                    StartSizeLabel.ForeColor = Color.Red;
+                }
+            }
+            else
+            {
+                StartSizeLabel.ForeColor = Color.Black;
+            }
+
+            // Launch selected test
             if (TestSelectTabControl.SelectedTab == MemoryBandwidthTab)
             {
                 RunBandwidthTest();
@@ -371,6 +411,29 @@ namespace MicrobenchmarkGui
             {
                 RunClLatencyTest();
             }
+            else if (TestSelectTabControl.SelectedTab == GpuLinkBandwidthTab)
+            {
+                RunCLLinkTest();
+            }
+        }
+
+        private void RunCLLinkTest()
+        {
+            CancelRunningTest(true);
+            runCancel = new CancellationTokenSource();
+            bool cpuToGpu = GpuLinkCpuToGpuRadioButton.Checked;
+            testTask = Task.Run(() => OpenCLTest.RunLinkBandwidthTest(SetResultListView,
+                    SetResultListViewColumns,
+                    SetResultChart,
+                    SetProgressLabel,
+                    resultListView,
+                    ResultsChart,
+                    progressLabel,
+                    cpuToGpu,
+                    runCancel.Token));
+
+            CancelRunButton.Enabled = true;
+            Task.Run(() => HandleTestRunCompletion(testTask, SetCancelButtonState));
         }
 
         private void RunClLatencyTest()
@@ -453,9 +516,6 @@ namespace MicrobenchmarkGui
 
         private void RunLatencyTest()
         {
-            if (latencyRunner == null) latencyRunner = new LatencyRunner(SetResultListView,
-                SetResultListViewColumns, SetResultChart, SetProgressLabel, resultListView, ResultsChart, progressLabel);
-
             bool largePages = MemoryLatencyLargePagesRadioButton.Checked;
             bool asm = MemoryLatencyAsmRadioButton.Checked;
 
@@ -468,9 +528,6 @@ namespace MicrobenchmarkGui
 
         private void RunBandwidthTest()
         {
-            if (bwRunner == null) bwRunner = new BandwidthRunner(SetResultListView,
-                SetResultListViewColumns, SetResultChart, SetProgressLabel, resultListView, ResultsChart, progressLabel);
-
             // Read test parameters from interface
             uint threadCount = (uint)ThreadCountTrackbar.Value;
             bool sharedMode = SharedRadioButton.Checked;
@@ -778,12 +835,134 @@ namespace MicrobenchmarkGui
             }
         }
 
+        private string[][] convertUintToStringArr(uint[] arr)
+        {
+            string[][] dest = new string[arr.Length][]; 
+            for (int i = 0; i < arr.Length; i++)
+            {
+                dest[i] = new string[] { arr[i].ToString() };
+            }
+            return dest;
+        }
+
+        private uint[] removeIndicesFromArr(ListView.SelectedIndexCollection indices, uint[] arr)
+        {
+            uint[] retval = new uint[arr.Length - indices.Count];
+            for (int i = 0, t = 0; t < retval.Length; i++, t++)
+            {
+                if (indices.Contains(i)) i++;
+                retval[t] = arr[i];
+            }
+
+            return retval;
+        }
+
+        private uint[] addSizeToArr(uint[] arr, uint size)
+        {
+            if (arr.Contains(size)) return arr;
+            List<uint> tmpList = new List<uint>(arr);
+            tmpList.Add(size);
+            tmpList.Sort();
+            return tmpList.ToArray();
+        }
+
+        private void EditTestSizeButton_Click(object sender, EventArgs e)
+        {
+            SetResultListViewColumns(new string[] { "Test Size (KB)" });
+            if (TestSelectTabControl.SelectedTab == GpuMemLatencyTab)
+            {
+                SetResultListView(convertUintToStringArr(OpenCLTest.latencyTestSizes));
+            }
+            else if (TestSelectTabControl.SelectedTab == MemoryLatencyTab)
+            {
+                SetResultListView(convertUintToStringArr(latencyRunner.testSizes));
+            }
+            else if (TestSelectTabControl.SelectedTab == MemoryBandwidthTab)
+            {
+                SetResultListView(convertUintToStringArr(bwRunner.testSizes));
+            }
+            else if (TestSelectTabControl.SelectedTab == GpuLinkBandwidthTab)
+            {
+                SetResultListView(convertUintToStringArr(OpenCLTest.linkTestSizes));
+            }
+
+            RemoveTestSizeButton.Enabled = true;
+            AddTestSizeButton.Enabled = true;
+        }
+
+        private void RemoveTestSizeButton_Click(object sender, EventArgs e)
+        {
+            if (resultListView.SelectedIndices.Count != 1)
+            {
+                progressLabel.Text = "Select a test size to remove";
+                return;
+            }
+
+            if (TestSelectTabControl.SelectedTab == GpuMemLatencyTab)
+            {
+                OpenCLTest.latencyTestSizes = removeIndicesFromArr(resultListView.SelectedIndices, OpenCLTest.latencyTestSizes);
+                SetResultListView(convertUintToStringArr(OpenCLTest.latencyTestSizes));
+            }
+            else if (TestSelectTabControl.SelectedTab == MemoryLatencyTab)
+            {
+                latencyRunner.testSizes = removeIndicesFromArr(resultListView.SelectedIndices, latencyRunner.testSizes);
+                SetResultListView(convertUintToStringArr(latencyRunner.testSizes));
+            }
+            else if (TestSelectTabControl.SelectedTab == MemoryBandwidthTab)
+            {
+                bwRunner.testSizes = removeIndicesFromArr(resultListView.SelectedIndices, bwRunner.testSizes);
+                SetResultListView(convertUintToStringArr(bwRunner.testSizes));
+            }
+            else if (TestSelectTabControl.SelectedTab == GpuLinkBandwidthTab)
+            {
+                OpenCLTest.linkTestSizes = removeIndicesFromArr(resultListView.SelectedIndices, OpenCLTest.linkTestSizes);
+                SetResultListView(convertUintToStringArr(OpenCLTest.linkTestSizes));
+            }
+
+            progressLabel.Text = "Removed size";
+        }
+
+        private void AddTestSizeButton_Click(object sender, EventArgs e)
+        {
+            string inputText = AddSizeTextBox.Text;
+            if (!uint.TryParse(inputText, out uint sizeToAdd))
+            {
+                progressLabel.Text = "Size has to be a positive integer";
+            }
+
+            if (TestSelectTabControl.SelectedTab == GpuMemLatencyTab)
+            {
+                OpenCLTest.latencyTestSizes = addSizeToArr(OpenCLTest.latencyTestSizes, sizeToAdd);
+                SetResultListView(convertUintToStringArr(OpenCLTest.latencyTestSizes));
+            }
+            else if (TestSelectTabControl.SelectedTab == MemoryLatencyTab)
+            {
+                latencyRunner.testSizes = addSizeToArr(latencyRunner.testSizes, sizeToAdd);
+                SetResultListView(convertUintToStringArr(latencyRunner.testSizes));
+            }
+            else if (TestSelectTabControl.SelectedTab == MemoryBandwidthTab)
+            {
+                bwRunner.testSizes = addSizeToArr(bwRunner.testSizes, sizeToAdd);
+                SetResultListView(convertUintToStringArr(bwRunner.testSizes));
+            }
+            else if (TestSelectTabControl.SelectedTab == GpuLinkBandwidthTab)
+            {
+                OpenCLTest.linkTestSizes = addSizeToArr(OpenCLTest.linkTestSizes, sizeToAdd);
+                SetResultListView(convertUintToStringArr(OpenCLTest.linkTestSizes));
+            }
+        }
+
         private void TestSelectTabControl_Selected(object sender, TabControlEventArgs e)
         {
             if (TestSelectTabControl.SelectedTab == GpuMemLatencyTab)
             {
                 progressLabel.Text = OpenCLTest.InitializeDeviceControls(GpuMemoryLatencyDeviceFlowLayoutPanel);
                 SetChartType(ResultChartType.GpuMemoryLatency);
+            }
+            else if (TestSelectTabControl.SelectedTab == GpuLinkBandwidthTab)
+            {
+                progressLabel.Text = OpenCLTest.InitializeDeviceControls(GpuLinkBandwidthDeviceFlowLayoutPanel);
+                SetChartType(ResultChartType.GpuLinkBandwidth);
             }
             else if (TestSelectTabControl.SelectedTab == MemoryLatencyTab)
             {
@@ -793,6 +972,11 @@ namespace MicrobenchmarkGui
             {
                 SetChartType(ResultChartType.CpuMemoryBandwidth);
             }
+
+            resultListView.Items.Clear();
+            resultListView.Columns.Clear();
+            RemoveTestSizeButton.Enabled = false;
+            AddTestSizeButton.Enabled = false;
         }
     }
 }

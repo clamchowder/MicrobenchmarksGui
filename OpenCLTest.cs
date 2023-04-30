@@ -19,6 +19,7 @@ namespace MicrobenchmarkGui
         private static string[][] formattedResults;
         private static string[] cols = { "Test Size", "Latency" };
         private static string[] localCols = { "Item", "Latency" };
+        private static string[] linkCols = { "Test Size", "Bandwidth" };
 
         // for graph
         private static List<float> floatTestPoints;
@@ -26,9 +27,11 @@ namespace MicrobenchmarkGui
 
         public static uint DefaultGpuPointerChasingStride = 64;
 
-        public static uint[] testSizes = { 2, 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 512, 600, 768, 1024, 1536, 2048,
+        public static uint[] latencyTestSizes = { 2, 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 512, 600, 768, 1024, 1536, 2048,
                                3072, 4096, 5120, 6144, 8192, 10240, 12288, 16384, 24567, 32768, 65536, 98304,
                                131072, 262144, 393216, 524288, 1048576 };
+
+        public static uint[] linkTestSizes = { 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288 };
 
         public static Dictionary<string, List<Tuple<float, float>>> RunResults;
 
@@ -234,12 +237,15 @@ namespace MicrobenchmarkGui
                 BenchmarkInteropFunctions.SetGpuPtrChasingStride(strideBytes);
 
                 List<uint> validTestSizes = new List<uint>();
-                for (uint i = 0; i < testSizes.Length; i++)
+                for (uint i = 0; i < latencyTestSizes.Length; i++)
                 {
                     // no point if stride is so large you won't actually bounce around anything
-                    if (testSizes[i] * 1024 < 2 * strideBytes) continue;
-                    if (testSizes[i] > maxTestSizeKb) break;
-                    validTestSizes.Add(testSizes[i]);
+                    if (latencyTestSizes[i] * 1024 < 2 * strideBytes) continue;
+
+                    // respect min test size, if any
+                    if (GlobalTestSettings.MinTestSizeKb != 0 && GlobalTestSettings.MinTestSizeKb > latencyTestSizes[i]) continue;
+                    if (latencyTestSizes[i] > maxTestSizeKb) break;
+                    validTestSizes.Add(latencyTestSizes[i]);
                 }
 
                 uint[] validTestSizeArr = validTestSizes.ToArray();
@@ -384,12 +390,12 @@ namespace MicrobenchmarkGui
             BenchmarkInteropFunctions.SetGpuEstimatedPageSize(pageSizeBytes);
             ulong maxTestSizeKb = GetMaxTestSize(testMode);
             List<uint> validTestSizes = new List<uint>();
-            for (uint i = 0; i < testSizes.Length; i++)
+            for (uint i = 0; i < latencyTestSizes.Length; i++)
             {
                 // no point if stride is so large you won't actually bounce around anything
-                if (testSizes[i] * 1024 < 2 * pageSizeBytes) continue;
-                if (testSizes[i] > maxTestSizeKb) break;
-                validTestSizes.Add(testSizes[i]);
+                if (latencyTestSizes[i] * 1024 < 2 * pageSizeBytes) continue;
+                if (latencyTestSizes[i] > maxTestSizeKb) break;
+                validTestSizes.Add(latencyTestSizes[i]);
             }
 
             uint[] validTestSizesArr = validTestSizes.ToArray();
@@ -474,6 +480,127 @@ namespace MicrobenchmarkGui
                 progressLabel.Invoke(setLabelDelegate, new object[] { "Could not clean up OpenCL state for selected device" });
                 return;
             }
+        }
+
+        public static void RunLinkBandwidthTest(MicrobenchmarkForm.SafeSetResultListView setListViewDelegate,
+            MicrobenchmarkForm.SafeSetResultListViewColumns setListViewColsDelegate,
+            MicrobenchmarkForm.SafeSetResultsChart setChartDelegate,
+            MicrobenchmarkForm.SafeSetProgressLabel setLabelDelegate,
+            ListView resultListView,
+            Chart resultChart,
+            Label progressLabel,
+            bool cpuToGpu,
+            CancellationToken runCancel)
+        {
+            string deviceName = InitializeContext(setLabelDelegate, progressLabel);
+            if (deviceName == null) return;
+            string testLabel = (cpuToGpu ? "Copy to " : "Copy from ") + deviceName;
+
+            ulong maxTestSizeKb = GetMaxTestSize(BenchmarkInteropFunctions.CLTestType.GlobalScalar);
+            List<uint> validTestSizeList = new List<uint>();
+            foreach (uint testSize in linkTestSizes)
+            {
+                if (testSize < GlobalTestSettings.MinTestSizeKb) continue;
+                if (testSize <= maxTestSizeKb) validTestSizeList.Add(testSize);
+            }
+
+            uint[] validTestSizesArr = validTestSizeList.ToArray();
+            float[] testResults = new float[validTestSizesArr.Length];
+            formattedResults = new string[validTestSizesArr.Length][];
+            for (uint i = 0; i < validTestSizesArr.Length; i++)
+            {
+                testResults[i] = 0;
+                formattedResults[i] = new string[2];
+                formattedResults[i][0] = string.Format("{0} KB", validTestSizesArr[i]);
+                formattedResults[i][1] = "Not Run";
+            }
+
+            List<Tuple<float, float>> currentRunResults = new List<Tuple<float, float>>();
+            testResultsList = new List<float>();
+            floatTestPoints = new List<float>();
+            resultListView.Invoke(setListViewColsDelegate, new object[] { linkCols });
+            resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
+
+            for (uint testIdx = 0; testIdx < validTestSizesArr.Length; testIdx++)
+            {
+                if (runCancel.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                uint testSize = validTestSizesArr[testIdx];
+                uint currentIterations = (uint)(1000000000 / (testSize * 1024));
+                float targetTimeMs = 2000, minTimeMs = 1000, lastTimeMs = 1;
+                float result;
+                bool failed = false;
+
+                do
+                {
+                    progressLabel.Invoke(setLabelDelegate, new object[] { $"Testing {testSize} KB with {(currentIterations / 1000)}K iterations (device limit is {maxTestSizeKb} KB). Last run = {lastTimeMs} ms" });
+                    result = BenchmarkInteropFunctions.RunCLLinkBwTest(testSize, currentIterations, cpuToGpu ? 1 : 0);
+                    if (result < 0)
+                    {
+                        progressLabel.Invoke(setLabelDelegate, new object[] { $"Link BW test with {testSize} KB failed" });
+                        failed = true;
+                        break;
+                    }
+
+                    // scale iterations to reach target time
+                    lastTimeMs = (float)currentIterations * testSize / (result * 1000);
+                    ulong desiredIterations = TestUtilities.ScaleIterations(currentIterations, targetTimeMs, lastTimeMs);
+
+                    // we don't want to use a 64-bit counter on the GPU, because they might not have a 64-bit scalar path
+                    // and we'll take overhead from add-with-carry operations
+                    if (desiredIterations > uint.MaxValue)
+                    {
+                        currentIterations = uint.MaxValue;
+                    }
+                    else
+                    {
+                        currentIterations = (uint)desiredIterations;
+                    }
+                } while (lastTimeMs < minTimeMs);
+
+                if (failed)
+                {
+                    formattedResults[testIdx][1] = string.Format("{0:F2} GB/s", "(Fail)");
+                    break;
+                }
+
+                // update saved run results
+                currentRunResults.Add(new Tuple<float, float>(testSize, result));
+
+                // update results table
+                formattedResults[testIdx][1] = string.Format("{0:F2} GB/s", result);
+                resultListView.Invoke(setListViewDelegate, new object[] { formattedResults });
+
+                // update chart
+                floatTestPoints.Add(testSize);
+                testResultsList.Add(result);
+                resultChart.Invoke(setChartDelegate, new object[] { testLabel, floatTestPoints.ToArray(), testResultsList.ToArray(), MicrobenchmarkForm.ResultChartType.GpuMemoryLatency });
+            } // end of test size loop
+
+            progressLabel.Invoke(setLabelDelegate, new object[] { $"Run finished" });
+            RunResults.Add(testLabel, currentRunResults);
+        }
+
+        private static string InitializeContext(MicrobenchmarkForm.SafeSetProgressLabel setLabelDelegate, Label progressLabel)
+        {
+            OpenCLDevice selectedDevice = GetSelectedDevice();
+            if (selectedDevice == null)
+            {
+                progressLabel.Invoke(setLabelDelegate, new object[] { "No OpenCL device selected" });
+                return null;
+            }
+
+            int rc = BenchmarkInteropFunctions.SetOpenCLContext(selectedDevice.PlatformIndex, selectedDevice.DeviceIndex);
+            if (rc < 0)
+            {
+                progressLabel.Invoke(setLabelDelegate, new object[] { "Could not create OpenCL context and command queue for selected device" });
+                return null;
+            }
+
+            return selectedDevice.DeviceName;
         }
 
         private static void ExtractResourceFile(string filename)

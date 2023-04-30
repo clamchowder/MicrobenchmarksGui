@@ -112,6 +112,9 @@ namespace MicrobenchmarkGui
                 uint testSize = testSizes[testIdx];
                 ulong currentIterations = GetIterationCount(testSize, 32);
                 float targetTimeMs = 3000, minTimeMs = 1000, result;
+
+                if (GlobalTestSettings.MinTestSizeKb != 0 && GlobalTestSettings.MinTestSizeKb > testSize) continue;
+
                 Stopwatch debugStopwatch = new Stopwatch();
 
                 do {

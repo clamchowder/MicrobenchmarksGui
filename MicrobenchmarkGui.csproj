@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalTestSettings.cs" />
     <Compile Include="LatencyRunner.cs" />
     <Compile Include="BandwidthRunner.cs" />
     <Compile Include="BenchmarkInteropFunctions.cs" />

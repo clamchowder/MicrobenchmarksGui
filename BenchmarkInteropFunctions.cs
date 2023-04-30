@@ -98,11 +98,15 @@ namespace MicrobenchmarkGui
             GlobalVector = 2,
             ConstantScalar = 3,
             Texture = 4,
-            Local = 5
+            Local = 5,
+            LinkBw = 6
         };
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern float RunCLLatencyTest(uint sizeKb, uint iterations, CLTestType testType, int tlb);
+
+        [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern float RunCLLinkBwTest(uint sizeKb, uint iterations, int cpuToGpu);
 
         [DllImport(@"BenchmarkDll.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern int InitializeLatencyTest(CLTestType testType);

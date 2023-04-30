@@ -129,3 +129,7 @@ __kernel void local_unrolled_latency_test(__global const int* A, int count, __gl
         ret[0] = result;
     }
 }
+
+__kernel void dummy_add(__global int* A) {
+    A[get_global_id(0)]++;
+}

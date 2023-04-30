@@ -115,6 +115,8 @@ namespace MicrobenchmarkGui
                 float result;
                 ulong currentIterations = 2500000;
 
+                if (GlobalTestSettings.MinTestSizeKb != 0 && GlobalTestSettings.MinTestSizeKb > testSize) continue;
+
                 do
                 {
                     progressLabel.Invoke(setProgressLabelDelegate, new object[] { $"Testing {testSize} KB with {currentIterations / 1000}K iterations. Last run = {lastTimeMs} ms" });

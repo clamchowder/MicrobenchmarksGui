@@ -103,6 +103,21 @@ namespace MicrobenchmarkGui
             this.GpuMemoryLatencyConstantScalarRadioButton = new System.Windows.Forms.RadioButton();
             this.GpuMemoryLatencyVectorRadioButton = new System.Windows.Forms.RadioButton();
             this.GpuMemoryLatencyScalarRadioButton = new System.Windows.Forms.RadioButton();
+            this.GpuLinkBandwidthTab = new System.Windows.Forms.TabPage();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.GpuLinkBandwidthDeviceFlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.GpuLinkBandwidthMethodGroupBox = new System.Windows.Forms.GroupBox();
+            this.GpuLinkGpuToCpuRadioButton = new System.Windows.Forms.RadioButton();
+            this.GpuLinkCpuToGpuRadioButton = new System.Windows.Forms.RadioButton();
+            this.label4 = new System.Windows.Forms.Label();
+            this.RemoveTestSizeButton = new System.Windows.Forms.Button();
+            this.MinTestSizeTextBox = new System.Windows.Forms.TextBox();
+            this.StartSizeLabel = new System.Windows.Forms.Label();
+            this.StartKbLabel = new System.Windows.Forms.Label();
+            this.AddTestSizeButton = new System.Windows.Forms.Button();
+            this.AddSizeKbLabel = new System.Windows.Forms.Label();
+            this.AddSizeTextBox = new System.Windows.Forms.TextBox();
+            this.EditTestSizeButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.ResultsChart)).BeginInit();
             this.ThreadingModeGroupBox.SuspendLayout();
             this.AccessModeGroupBox.SuspendLayout();
@@ -120,6 +135,9 @@ namespace MicrobenchmarkGui
             this.groupBox1.SuspendLayout();
             this.GpuMemoryLatencyDeviceGroupBox.SuspendLayout();
             this.GpuMemoryLatencyMemoryPathGroupBox.SuspendLayout();
+            this.GpuLinkBandwidthTab.SuspendLayout();
+            this.groupBox3.SuspendLayout();
+            this.GpuLinkBandwidthMethodGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // RunBandwidthTestButton
@@ -139,7 +157,7 @@ namespace MicrobenchmarkGui
             this.resultListView.HideSelection = false;
             this.resultListView.Location = new System.Drawing.Point(298, 30);
             this.resultListView.Name = "resultListView";
-            this.resultListView.Size = new System.Drawing.Size(195, 688);
+            this.resultListView.Size = new System.Drawing.Size(195, 509);
             this.resultListView.TabIndex = 4;
             this.resultListView.UseCompatibleStateImageBehavior = false;
             this.resultListView.View = System.Windows.Forms.View.Details;
@@ -592,6 +610,7 @@ namespace MicrobenchmarkGui
             this.TestSelectTabControl.Controls.Add(this.MemoryBandwidthTab);
             this.TestSelectTabControl.Controls.Add(this.MemoryLatencyTab);
             this.TestSelectTabControl.Controls.Add(this.GpuMemLatencyTab);
+            this.TestSelectTabControl.Controls.Add(this.GpuLinkBandwidthTab);
             this.TestSelectTabControl.Location = new System.Drawing.Point(10, 12);
             this.TestSelectTabControl.Multiline = true;
             this.TestSelectTabControl.Name = "TestSelectTabControl";
@@ -905,11 +924,163 @@ namespace MicrobenchmarkGui
             this.GpuMemoryLatencyScalarRadioButton.Text = "Global Memory, Scalar";
             this.GpuMemoryLatencyScalarRadioButton.UseVisualStyleBackColor = true;
             // 
+            // GpuLinkBandwidthTab
+            // 
+            this.GpuLinkBandwidthTab.BackColor = System.Drawing.SystemColors.Control;
+            this.GpuLinkBandwidthTab.Controls.Add(this.groupBox3);
+            this.GpuLinkBandwidthTab.Controls.Add(this.GpuLinkBandwidthMethodGroupBox);
+            this.GpuLinkBandwidthTab.Controls.Add(this.label4);
+            this.GpuLinkBandwidthTab.Location = new System.Drawing.Point(23, 4);
+            this.GpuLinkBandwidthTab.Name = "GpuLinkBandwidthTab";
+            this.GpuLinkBandwidthTab.Size = new System.Drawing.Size(242, 649);
+            this.GpuLinkBandwidthTab.TabIndex = 3;
+            this.GpuLinkBandwidthTab.Text = "GPU Link Bandwidth";
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.GpuLinkBandwidthDeviceFlowLayoutPanel);
+            this.groupBox3.Location = new System.Drawing.Point(6, 143);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(228, 260);
+            this.groupBox3.TabIndex = 5;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "OpenCL Device";
+            // 
+            // GpuLinkBandwidthDeviceFlowLayoutPanel
+            // 
+            this.GpuLinkBandwidthDeviceFlowLayoutPanel.Location = new System.Drawing.Point(7, 20);
+            this.GpuLinkBandwidthDeviceFlowLayoutPanel.Name = "GpuLinkBandwidthDeviceFlowLayoutPanel";
+            this.GpuLinkBandwidthDeviceFlowLayoutPanel.Size = new System.Drawing.Size(215, 234);
+            this.GpuLinkBandwidthDeviceFlowLayoutPanel.TabIndex = 0;
+            // 
+            // GpuLinkBandwidthMethodGroupBox
+            // 
+            this.GpuLinkBandwidthMethodGroupBox.Controls.Add(this.GpuLinkGpuToCpuRadioButton);
+            this.GpuLinkBandwidthMethodGroupBox.Controls.Add(this.GpuLinkCpuToGpuRadioButton);
+            this.GpuLinkBandwidthMethodGroupBox.Location = new System.Drawing.Point(6, 62);
+            this.GpuLinkBandwidthMethodGroupBox.Name = "GpuLinkBandwidthMethodGroupBox";
+            this.GpuLinkBandwidthMethodGroupBox.Size = new System.Drawing.Size(226, 69);
+            this.GpuLinkBandwidthMethodGroupBox.TabIndex = 4;
+            this.GpuLinkBandwidthMethodGroupBox.TabStop = false;
+            this.GpuLinkBandwidthMethodGroupBox.Text = "Copy Method";
+            // 
+            // GpuLinkGpuToCpuRadioButton
+            // 
+            this.GpuLinkGpuToCpuRadioButton.AutoSize = true;
+            this.GpuLinkGpuToCpuRadioButton.Location = new System.Drawing.Point(7, 40);
+            this.GpuLinkGpuToCpuRadioButton.Name = "GpuLinkGpuToCpuRadioButton";
+            this.GpuLinkGpuToCpuRadioButton.Size = new System.Drawing.Size(111, 17);
+            this.GpuLinkGpuToCpuRadioButton.TabIndex = 1;
+            this.GpuLinkGpuToCpuRadioButton.Text = "From GPU to CPU";
+            this.GpuLinkGpuToCpuRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // GpuLinkCpuToGpuRadioButton
+            // 
+            this.GpuLinkCpuToGpuRadioButton.AutoSize = true;
+            this.GpuLinkCpuToGpuRadioButton.Checked = true;
+            this.GpuLinkCpuToGpuRadioButton.Location = new System.Drawing.Point(7, 16);
+            this.GpuLinkCpuToGpuRadioButton.Name = "GpuLinkCpuToGpuRadioButton";
+            this.GpuLinkCpuToGpuRadioButton.Size = new System.Drawing.Size(111, 17);
+            this.GpuLinkCpuToGpuRadioButton.TabIndex = 0;
+            this.GpuLinkCpuToGpuRadioButton.TabStop = true;
+            this.GpuLinkCpuToGpuRadioButton.Text = "From CPU to GPU";
+            this.GpuLinkCpuToGpuRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // label4
+            // 
+            this.label4.Location = new System.Drawing.Point(3, 1);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(229, 68);
+            this.label4.TabIndex = 3;
+            this.label4.Text = "Tests copy bandwidth between CPU and GPU memory. Copy could take place over a PCI" +
+    "e link for discrete GPUs, or through an internal cache for some iGPUs";
+            // 
+            // RemoveTestSizeButton
+            // 
+            this.RemoveTestSizeButton.Enabled = false;
+            this.RemoveTestSizeButton.Location = new System.Drawing.Point(403, 571);
+            this.RemoveTestSizeButton.Name = "RemoveTestSizeButton";
+            this.RemoveTestSizeButton.Size = new System.Drawing.Size(87, 23);
+            this.RemoveTestSizeButton.TabIndex = 31;
+            this.RemoveTestSizeButton.Text = "Remove Size";
+            this.RemoveTestSizeButton.UseVisualStyleBackColor = true;
+            this.RemoveTestSizeButton.Click += new System.EventHandler(this.RemoveTestSizeButton_Click);
+            // 
+            // MinTestSizeTextBox
+            // 
+            this.MinTestSizeTextBox.Location = new System.Drawing.Point(342, 545);
+            this.MinTestSizeTextBox.Name = "MinTestSizeTextBox";
+            this.MinTestSizeTextBox.Size = new System.Drawing.Size(121, 20);
+            this.MinTestSizeTextBox.TabIndex = 32;
+            // 
+            // StartSizeLabel
+            // 
+            this.StartSizeLabel.AutoSize = true;
+            this.StartSizeLabel.Location = new System.Drawing.Point(295, 548);
+            this.StartSizeLabel.Name = "StartSizeLabel";
+            this.StartSizeLabel.Size = new System.Drawing.Size(41, 13);
+            this.StartSizeLabel.TabIndex = 33;
+            this.StartSizeLabel.Text = "Start at";
+            // 
+            // StartKbLabel
+            // 
+            this.StartKbLabel.AutoSize = true;
+            this.StartKbLabel.Location = new System.Drawing.Point(469, 548);
+            this.StartKbLabel.Name = "StartKbLabel";
+            this.StartKbLabel.Size = new System.Drawing.Size(21, 13);
+            this.StartKbLabel.TabIndex = 34;
+            this.StartKbLabel.Text = "KB";
+            // 
+            // AddTestSizeButton
+            // 
+            this.AddTestSizeButton.Enabled = false;
+            this.AddTestSizeButton.Location = new System.Drawing.Point(403, 601);
+            this.AddTestSizeButton.Name = "AddTestSizeButton";
+            this.AddTestSizeButton.Size = new System.Drawing.Size(87, 23);
+            this.AddTestSizeButton.TabIndex = 35;
+            this.AddTestSizeButton.Text = "Add Size";
+            this.AddTestSizeButton.UseVisualStyleBackColor = true;
+            this.AddTestSizeButton.Click += new System.EventHandler(this.AddTestSizeButton_Click);
+            // 
+            // AddSizeKbLabel
+            // 
+            this.AddSizeKbLabel.AutoSize = true;
+            this.AddSizeKbLabel.Location = new System.Drawing.Point(376, 606);
+            this.AddSizeKbLabel.Name = "AddSizeKbLabel";
+            this.AddSizeKbLabel.Size = new System.Drawing.Size(21, 13);
+            this.AddSizeKbLabel.TabIndex = 36;
+            this.AddSizeKbLabel.Text = "KB";
+            // 
+            // AddSizeTextBox
+            // 
+            this.AddSizeTextBox.Location = new System.Drawing.Point(298, 603);
+            this.AddSizeTextBox.Name = "AddSizeTextBox";
+            this.AddSizeTextBox.Size = new System.Drawing.Size(72, 20);
+            this.AddSizeTextBox.TabIndex = 37;
+            // 
+            // EditTestSizeButton
+            // 
+            this.EditTestSizeButton.Location = new System.Drawing.Point(298, 571);
+            this.EditTestSizeButton.Name = "EditTestSizeButton";
+            this.EditTestSizeButton.Size = new System.Drawing.Size(99, 23);
+            this.EditTestSizeButton.TabIndex = 38;
+            this.EditTestSizeButton.Text = "Edit Test Sizes";
+            this.EditTestSizeButton.UseVisualStyleBackColor = true;
+            this.EditTestSizeButton.Click += new System.EventHandler(this.EditTestSizeButton_Click);
+            // 
             // MicrobenchmarkForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1275, 730);
+            this.Controls.Add(this.EditTestSizeButton);
+            this.Controls.Add(this.AddSizeTextBox);
+            this.Controls.Add(this.AddSizeKbLabel);
+            this.Controls.Add(this.AddTestSizeButton);
+            this.Controls.Add(this.StartKbLabel);
+            this.Controls.Add(this.StartSizeLabel);
+            this.Controls.Add(this.MinTestSizeTextBox);
+            this.Controls.Add(this.RemoveTestSizeButton);
             this.Controls.Add(this.TestSelectTabControl);
             this.Controls.Add(this.ChartControlsGroupBox);
             this.Controls.Add(this.groupBox2);
@@ -949,6 +1120,10 @@ namespace MicrobenchmarkGui
             this.GpuMemoryLatencyDeviceGroupBox.ResumeLayout(false);
             this.GpuMemoryLatencyMemoryPathGroupBox.ResumeLayout(false);
             this.GpuMemoryLatencyMemoryPathGroupBox.PerformLayout();
+            this.GpuLinkBandwidthTab.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
+            this.GpuLinkBandwidthMethodGroupBox.ResumeLayout(false);
+            this.GpuLinkBandwidthMethodGroupBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1026,6 +1201,21 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.Label GpuEstimatedPageSizeLabel;
         private System.Windows.Forms.CheckBox GpuTlbTestCheckbox;
         private System.Windows.Forms.Label GpuStrideBytesLabel;
+        private System.Windows.Forms.Button RemoveTestSizeButton;
+        private System.Windows.Forms.TextBox MinTestSizeTextBox;
+        private System.Windows.Forms.Label StartSizeLabel;
+        private System.Windows.Forms.Label StartKbLabel;
+        private System.Windows.Forms.Button AddTestSizeButton;
+        private System.Windows.Forms.Label AddSizeKbLabel;
+        private System.Windows.Forms.TextBox AddSizeTextBox;
+        private System.Windows.Forms.Button EditTestSizeButton;
+        private System.Windows.Forms.TabPage GpuLinkBandwidthTab;
+        private System.Windows.Forms.GroupBox GpuLinkBandwidthMethodGroupBox;
+        private System.Windows.Forms.RadioButton GpuLinkGpuToCpuRadioButton;
+        private System.Windows.Forms.RadioButton GpuLinkCpuToGpuRadioButton;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.FlowLayoutPanel GpuLinkBandwidthDeviceFlowLayoutPanel;
     }
 }
 
