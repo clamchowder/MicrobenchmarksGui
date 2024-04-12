@@ -142,6 +142,7 @@ namespace MicrobenchmarkGui
             // 
             // RunBandwidthTestButton
             // 
+            this.RunBandwidthTestButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.RunBandwidthTestButton.Location = new System.Drawing.Point(7, 695);
             this.RunBandwidthTestButton.Name = "RunBandwidthTestButton";
             this.RunBandwidthTestButton.Size = new System.Drawing.Size(75, 23);
@@ -234,6 +235,7 @@ namespace MicrobenchmarkGui
             // 
             // CancelRunButton
             // 
+            this.CancelRunButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.CancelRunButton.Enabled = false;
             this.CancelRunButton.Location = new System.Drawing.Point(88, 695);
             this.CancelRunButton.Name = "CancelRunButton";
@@ -435,6 +437,8 @@ namespace MicrobenchmarkGui
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.TestRunLabel);
             this.groupBox2.Controls.Add(this.ExportListBox);
             this.groupBox2.Controls.Add(this.JsFormatRadioButton);
@@ -607,6 +611,8 @@ namespace MicrobenchmarkGui
             // TestSelectTabControl
             // 
             this.TestSelectTabControl.Alignment = System.Windows.Forms.TabAlignment.Left;
+            this.TestSelectTabControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.TestSelectTabControl.Controls.Add(this.MemoryBandwidthTab);
             this.TestSelectTabControl.Controls.Add(this.MemoryLatencyTab);
             this.TestSelectTabControl.Controls.Add(this.GpuMemLatencyTab);
