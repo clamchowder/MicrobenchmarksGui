@@ -184,8 +184,10 @@ float RunLatencyTest(uint32_t size_kb, uint64_t iterations) {
     ftime(&end);
     int64_t time_diff_ms = 1000 * (end.time - start.time) + (end.millitm - start.millitm);
     float latency = 1e6 * (float)time_diff_ms / (float)iterations;
+
+    int tmp = A[current];
     if (mem == NULL) free(A);
-    if (current == A[current]) return 0;
+    if (current == tmp) return 0;
     return latency;
 }
 
