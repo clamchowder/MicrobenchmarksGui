@@ -49,6 +49,7 @@ jobs:
         Copy-Item "x64\Release\MicrobenchmarkGui.exe.config" tmp/
         Copy-Item "x64\Release\MicrobenchmarkGui.exe" tmp/
         Copy-Item "x64\Release\BenchmarkDll.dll" tmp/
+        Copy-Item "x64\Release\Newtonsoft.Json.dll" tmp/
         
         # Create release name with short commit hash
         $commitHash = $env:GITHUB_SHA.Substring(0, 7)

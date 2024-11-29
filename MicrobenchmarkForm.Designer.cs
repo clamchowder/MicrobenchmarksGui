@@ -1,5 +1,4 @@
-﻿
-namespace MicrobenchmarkGui
+﻿namespace MicrobenchmarkGui
 {
     partial class MicrobenchmarkForm
     {
@@ -118,6 +117,7 @@ namespace MicrobenchmarkGui
             this.AddSizeKbLabel = new System.Windows.Forms.Label();
             this.AddSizeTextBox = new System.Windows.Forms.TextBox();
             this.EditTestSizeButton = new System.Windows.Forms.Button();
+            this.SubmitResultsButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.ResultsChart)).BeginInit();
             this.ThreadingModeGroupBox.SuspendLayout();
             this.AccessModeGroupBox.SuspendLayout();
@@ -242,6 +242,17 @@ namespace MicrobenchmarkGui
             this.CancelRunButton.Text = "Cancel Run";
             this.CancelRunButton.UseVisualStyleBackColor = true;
             this.CancelRunButton.Click += new System.EventHandler(this.CancelButton_Click);
+            // 
+            // SubmitResultsButton
+            // 
+            this.SubmitResultsButton.Location = new System.Drawing.Point(169, 695);
+            this.SubmitResultsButton.Name = "SubmitResultsButton";
+            this.SubmitResultsButton.Size = new System.Drawing.Size(100, 23);
+            this.SubmitResultsButton.TabIndex = 8;
+            this.SubmitResultsButton.Text = "Submit Results";
+            this.SubmitResultsButton.UseVisualStyleBackColor = true;
+            this.SubmitResultsButton.Enabled = false;
+            this.SubmitResultsButton.Click += new System.EventHandler(this.submitResultsButton_Click);
             // 
             // AccessModeGroupBox
             // 
@@ -1099,6 +1110,7 @@ namespace MicrobenchmarkGui
             this.Controls.Add(this.ResultLabel);
             this.Controls.Add(this.resultListView);
             this.Controls.Add(this.RunBandwidthTestButton);
+            this.Controls.Add(this.SubmitResultsButton);
             this.Name = "MicrobenchmarkForm";
             this.Text = "Clam Cache and Mem Benchmark";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MicrobenchmarkForm_FormClosed);
@@ -1225,6 +1237,7 @@ namespace MicrobenchmarkGui
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.FlowLayoutPanel GpuLinkBandwidthDeviceFlowLayoutPanel;
+        private System.Windows.Forms.Button SubmitResultsButton;
     }
 }
 

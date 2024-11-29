@@ -646,6 +646,7 @@ namespace MicrobenchmarkGui
             RunBandwidthTestButton.Invoke(setRunButtonDelegate, new object[] { true });
             SafeSetExportListBox safeSetExportListBox = SetExportListBox;
             ExportListBox.Invoke(safeSetExportListBox, new object[] { });
+            SubmitResultsButton.Enabled = true;
         }
 
         private void CancelButton_Click(object sender, EventArgs e)
@@ -982,6 +983,46 @@ namespace MicrobenchmarkGui
             resultListView.Columns.Clear();
             RemoveTestSizeButton.Enabled = false;
             AddTestSizeButton.Enabled = false;
+        }
+
+        private async void submitResultsButton_Click(object sender, EventArgs e)
+        {
+            string testName = ExportListBox.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(testName)) return;
+
+            List<(float size, float result)> results;
+            if (TestSelectTabControl.SelectedTab == MemoryBandwidthTab)
+            {
+                results = bwRunner.RunResults[testName]
+                    .Select(t => (size: t.Item1, result: t.Item2))
+                    .ToList();
+            }
+            else if (TestSelectTabControl.SelectedTab == MemoryLatencyTab)
+            {
+                results = latencyRunner.RunResults[testName]
+                    .Select(t => (size: t.Item1, result: t.Item2))
+                    .ToList();
+            }
+            else if (TestSelectTabControl.SelectedTab == GpuMemLatencyTab || 
+                     TestSelectTabControl.SelectedTab == GpuLinkBandwidthTab)
+            {
+                results = OpenCLTest.RunResults[testName]
+                    .Select(t => (size: t.Item1, result: t.Item2))
+                    .ToList();
+            }
+            else
+            {
+                return;
+            }
+
+            using (var dialog = new BenchmarkSubmissionDialog(testName, results))
+            {
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    MessageBox.Show("Results submitted successfully!", "Success", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
         }
     }
 }
