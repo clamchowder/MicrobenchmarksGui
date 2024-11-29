@@ -644,8 +644,17 @@ namespace MicrobenchmarkGui
             await task;
             CancelRunButton.Invoke(setCancelButtonDelegate, new object[] { false });
             RunBandwidthTestButton.Invoke(setRunButtonDelegate, new object[] { true });
+            
+            // Update the export list box and select the newest item
             SafeSetExportListBox safeSetExportListBox = SetExportListBox;
             ExportListBox.Invoke(safeSetExportListBox, new object[] { });
+            
+            // Select the last added item
+            if (ExportListBox.Items.Count > 0)
+            {
+                ExportListBox.SelectedIndex = ExportListBox.Items.Count - 1;
+            }
+            
             SubmitResultsButton.Enabled = true;
         }
 

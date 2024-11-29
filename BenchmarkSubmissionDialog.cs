@@ -41,69 +41,95 @@ namespace MicrobenchmarkGui
             try
             {
                 // Get CPU info
-                cpuNameTextBox.Text = OpCode.GetProcessorName();
+                cpuNameTextBox.Text = OpCode.GetProcessorName() ?? "Unknown CPU";
                 
                 // Get motherboard info using WMI
-                using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_BaseBoard"))
-                {
-                    foreach (ManagementObject board in searcher.Get())
-                    {
-                        string manufacturer = board["Manufacturer"]?.ToString() ?? "";
-                        string product = board["Product"]?.ToString() ?? "";
-                        motherboardTextBox.Text = $"{manufacturer} {product}".Trim();
-                        break;
-                    }
-                }
-
-                // Get memory configuration using WMI
-                // First try to get actual running speed from BIOS
-                int currentSpeed = 0;
+                string motherboardInfo = "Unknown Motherboard";
                 try 
                 {
-                    using (var searcher = new ManagementObjectSearcher(@"root\WMI", "SELECT * FROM MSMemory_Performance"))
+                    using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_BaseBoard"))
                     {
-                        foreach (ManagementObject obj in searcher.Get())
+                        foreach (ManagementObject board in searcher.Get())
                         {
-                            if (obj["ConfiguredMemoryClockSpeed"] != null)
+                            string manufacturer = board["Manufacturer"]?.ToString() ?? "";
+                            string product = board["Product"]?.ToString() ?? "";
+                            motherboardInfo = $"{manufacturer} {product}".Trim();
+                            if (string.IsNullOrWhiteSpace(motherboardInfo))
                             {
-                                currentSpeed = Convert.ToInt32(obj["ConfiguredMemoryClockSpeed"]);
-                                break;
+                                motherboardInfo = "Unknown Motherboard";
+                            }
+                            break;
+                        }
+                    }
+                }
+                catch 
+                {
+                    // Keep default "Unknown Motherboard" value
+                }
+                motherboardTextBox.Text = motherboardInfo;
+
+                // Get memory configuration using WMI
+                string memoryConfig = "Unknown Memory Configuration";
+                try 
+                {
+                    // First try to get actual running speed from BIOS
+                    int currentSpeed = 0;
+                    try 
+                    {
+                        using (var searcher = new ManagementObjectSearcher(@"root\WMI", "SELECT * FROM MSMemory_Performance"))
+                        {
+                            foreach (ManagementObject obj in searcher.Get())
+                            {
+                                if (obj["ConfiguredMemoryClockSpeed"] != null)
+                                {
+                                    currentSpeed = Convert.ToInt32(obj["ConfiguredMemoryClockSpeed"]);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    catch 
+                    {
+                        // If we can't get the actual speed, we'll fall back to rated speed
+                    }
+
+                    using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory"))
+                    {
+                        var memoryModules = new List<string>();
+                        ulong totalCapacity = 0;
+                        int moduleCount = 0;
+
+                        foreach (ManagementObject memory in searcher.Get())
+                        {
+                            moduleCount++;
+                            ulong capacity = Convert.ToUInt64(memory["Capacity"]);
+                            totalCapacity += capacity;
+                            
+                            // Use actual speed if we got it, otherwise fall back to rated speed
+                            int speed = currentSpeed > 0 ? currentSpeed : 
+                                Convert.ToInt32(memory["ConfiguredClockSpeed"] ?? memory["Speed"] ?? 0);
+                            
+                            string memoryType = GetMemoryType(memory);
+                            
+                            memoryModules.Add($"{capacity / (1024 * 1024 * 1024)}GB {memoryType}" + 
+                                (speed > 0 ? $" @ {speed}MHz" : ""));
+                        }
+
+                        if (totalCapacity > 0)
+                        {
+                            memoryConfig = $"{totalCapacity / (1024 * 1024 * 1024)}GB Total ({moduleCount} modules)";
+                            if (memoryModules.Count > 0)
+                            {
+                                memoryConfig += $" - {string.Join(", ", memoryModules)}";
                             }
                         }
                     }
                 }
                 catch 
                 {
-                    // If we can't get the actual speed, we'll fall back to rated speed
+                    // Keep default "Unknown Memory Configuration" value
                 }
-
-                using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory"))
-                {
-                    var memoryModules = new List<string>();
-                    ulong totalCapacity = 0;
-                    int moduleCount = 0;
-
-                    foreach (ManagementObject memory in searcher.Get())
-                    {
-                        moduleCount++;
-                        ulong capacity = Convert.ToUInt64(memory["Capacity"]);
-                        totalCapacity += capacity;
-                        
-                        // Use actual speed if we got it, otherwise fall back to rated speed
-                        int speed = currentSpeed > 0 ? currentSpeed : 
-                            Convert.ToInt32(memory["ConfiguredClockSpeed"] ?? memory["Speed"] ?? 0);
-                        
-                        string memoryType = GetMemoryType(memory);
-                        
-                        memoryModules.Add($"{capacity / (1024 * 1024 * 1024)}GB {memoryType} @ {speed}MHz");
-                    }
-
-                    memoryConfigTextBox.Text = $"{totalCapacity / (1024 * 1024 * 1024)}GB Total ({moduleCount} modules)";
-                    if (memoryModules.Count > 0)
-                    {
-                        memoryConfigTextBox.Text += $" - {string.Join(", ", memoryModules)}";
-                    }
-                }
+                memoryConfigTextBox.Text = memoryConfig;
 
                 // Make the fields read-only without edit option
                 cpuNameTextBox.ReadOnly = true;
@@ -112,7 +138,12 @@ namespace MicrobenchmarkGui
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error retrieving system information: {ex.Message}\nYou can enter the information manually.", 
+                // Set default values if overall detection fails
+                cpuNameTextBox.Text = "Unknown CPU";
+                motherboardTextBox.Text = "Unknown Motherboard";
+                memoryConfigTextBox.Text = "Unknown Memory Configuration";
+                
+                MessageBox.Show($"Error retrieving system information: {ex.Message}\nDefault values have been set.", 
                     "System Info Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
