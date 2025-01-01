@@ -1,0 +1,78 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+      
+    - name: Get Latest NASM Version
+      id: nasm-version
+      run: |
+        $nasmPage = Invoke-WebRequest -Uri "https://www.nasm.us"
+        if ($nasmPage.Content -match 'releasebuilds/(\d+\.\d+\.\d+)/') {
+            $version = $matches[1]
+            echo "NASM_VERSION=$version" >> $env:GITHUB_ENV
+            Write-Host "Latest NASM version: $version"
+        } else {
+            Write-Error "Could not determine latest NASM version"
+            exit 1
+        }
+      
+    - name: Setup NASM
+      run: |
+        $version = $env:NASM_VERSION
+        $url = "https://www.nasm.us/pub/nasm/releasebuilds/$version/win64/nasm-$version-win64.zip"
+        Write-Host "Downloading NASM from: $url"
+        Invoke-WebRequest -Uri $url -OutFile nasm.zip
+        Expand-Archive nasm.zip -DestinationPath .
+        echo "$pwd\nasm-$version" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      
+    - name: Build Solution
+      run: |
+        msbuild /p:Configuration=Release /p:Platform=x64 MicrobenchmarkGui.sln
+        
+    - name: Create Release ZIP
+      run: |
+        # Create temporary directory for ZIP contents
+        New-Item -ItemType Directory -Path tmp
+        
+        # Copy only the required files (flat structure)
+        Copy-Item "x64\Release\MicrobenchmarkGui.exe.config" tmp/
+        Copy-Item "x64\Release\MicrobenchmarkGui.exe" tmp/
+        Copy-Item "x64\Release\BenchmarkDll.dll" tmp/
+        Copy-Item "x64\Release\Newtonsoft.Json.dll" tmp/
+        
+        # Create release name with short commit hash
+        $commitHash = $env:GITHUB_SHA.Substring(0, 7)
+        $releaseName = "MicrobenchmarkGui-$commitHash"
+        
+        # Create ZIP file
+        Compress-Archive -Path "tmp\*" -DestinationPath "$releaseName.zip"
+        
+        # Store names for next step
+        echo "RELEASE_NAME=$releaseName" >> $env:GITHUB_ENV
+        echo "COMMIT_HASH=$commitHash" >> $env:GITHUB_ENV
+      
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.COMMIT_HASH }}
+        name: ${{ env.RELEASE_NAME }}
+        body: |
+          - ${{ env.COMMIT_HASH }} ${{ github.event.head_commit.message }}
+          - Built with NASM ${{ env.NASM_VERSION }}
+        draft: false
+        prerelease: false
+        files: ${{ env.RELEASE_NAME }}.zip
